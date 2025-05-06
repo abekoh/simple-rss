@@ -1,0 +1,13 @@
+type Mutation {
+  createFeed(input: CreateFeedInput!): CreateFeedPayload!
+}
+
+input CreateFeedInput {
+  url: String!
+  title: String!
+  description: String
+}
+
+type CreateFeedPayload {
+  feedId: UUID!
+}

@@ -32,17 +32,3 @@ type Post {
   summaryOriginal: String
   postedAt: Time!
 }
-
-type Query {
-  feeds: [Feed!]!
-}
-
-input NewFeed {
-  url: String!
-  title: String!
-  description: String
-}
-
-type Mutation {
-  createFeed(input: NewFeed!): Feed!
-}

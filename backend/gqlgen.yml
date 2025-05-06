@@ -1,16 +1,16 @@
 schema:
-  - graph/*.graphqls
+  - gql/*.graphqls
 exec:
-  package: graph
-  layout: single-file # Only other option is "follow-schema," ie multi-file.
-  filename: graph/generated.go
+  package: gql
+  layout: single-file
+  filename: gql/generated.go
 model:
-  filename: graph/gqlmodel/models_gen.go
-  package: gqlmodel
+  filename: gql/models_gen.go
+  package: gql
 resolver:
-  package: graph
-  layout: follow-schema # Only other option is "single-file."
-  dir: graph
+  package: gql
+  layout: follow-schema
+  dir: gql
   filename_template: "{name}.resolvers.go"
 call_argument_directives_with_null: true
 models:
