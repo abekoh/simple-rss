@@ -59,7 +59,7 @@ func (c FeedFetcher) Loop(ctx context.Context) {
 	}
 }
 
-func (c FeedFetcher) SendRequest(req Request) (*Result, error) {
+func (c FeedFetcher) SendRequestSync(req Request) (*Result, error) {
 	resCh := make(chan *Result)
 	c.requestCh <- &requestWithResultCh{
 		Request:  req,
@@ -73,5 +73,5 @@ var (
 )
 
 func SendRequest(req Request) (*Result, error) {
-	return DefaultFeedFetcher.SendRequest(req)
+	return DefaultFeedFetcher.SendRequestSync(req)
 }
