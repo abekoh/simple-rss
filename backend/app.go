@@ -25,7 +25,7 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Post("/query", initializeGQLServer(ctx).ServeHTTP)
+	r.Post("/query", initializeGQLServer().ServeHTTP)
 	r.Get("/query", playground.Handler("GraphQL playground", "/query"))
 
 	slog.Info("listening on port", "port", cnf.Port)
@@ -35,7 +35,7 @@ func main() {
 	}
 }
 
-func initializeGQLServer(ctx context.Context) *handler.Server {
+func initializeGQLServer() *handler.Server {
 	srv := handler.New(gql.NewExecutableSchema(gql.Config{Resolvers: &resolver.Resolver{}}))
 
 	srv.AddTransport(transport.Options{})
