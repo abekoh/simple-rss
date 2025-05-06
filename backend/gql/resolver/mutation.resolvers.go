@@ -9,20 +9,28 @@ import (
 
 	"github.com/abekoh/simple-rss/backend/domain/service"
 	"github.com/abekoh/simple-rss/backend/gql"
+	"github.com/abekoh/simple-rss/backend/lib/database"
 )
 
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
-	createRes, err := service.RegisterFeed(ctx, service.RegisterFeedInput{
-		URL:         input.URL,
-		Title:       input.Title,
-		Description: input.Description,
-	})
-	if err != nil {
+	var newFeedID string
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		createRes, err := service.RegisterFeed(ctx, service.RegisterFeedInput{
+			URL:         input.URL,
+			Title:       input.Title,
+			Description: input.Description,
+		})
+		if err != nil {
+			return err
+		}
+		newFeedID = createRes.NewFeed.FeedID
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 	return &gql.RegisterFeedPayload{
-		FeedID: createRes.NewFeed.FeedID,
+		FeedID: newFeedID,
 	}, nil
 }
 
