@@ -68,9 +68,7 @@ func (c FeedFetcher) SendRequestSync(req Request) (*Result, error) {
 	return <-resCh, nil
 }
 
-var (
-	DefaultFeedFetcher = NewFeedFetcher(context.Background())
-)
+var DefaultFeedFetcher *FeedFetcher
 
 func SendRequest(req Request) (*Result, error) {
 	return DefaultFeedFetcher.SendRequestSync(req)

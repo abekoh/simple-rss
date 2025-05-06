@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
+	"github.com/abekoh/simple-rss/backend/batch/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/domain/model/feed"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/database"
-	"github.com/abekoh/simple-rss/backend/lib/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
 )

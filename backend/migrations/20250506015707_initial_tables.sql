@@ -14,7 +14,7 @@ CREATE TABLE crawls (
     crawl_id uuid primary key,
     feed_id uuid not null references feeds(feed_id),
     status crawl_status not null,
-    meessage text,
+    message text,
     crawled_at timestamp with time zone not null,
     created_at timestamp with time zone not null default now()
 );
@@ -40,5 +40,7 @@ CREATE INDEX posts_crawl_id_idx ON posts(crawl_id);
 DROP TABLE posts;
 
 DROP TABLE crawls;
+
+DROP TYPE crawl_status;
 
 DROP TABLE feeds;

@@ -11,6 +11,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/abekoh/simple-rss/backend/batch/feedfetcher"
+	"github.com/abekoh/simple-rss/backend/batch/pagecrawler"
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/gql/resolver"
 	"github.com/abekoh/simple-rss/backend/lib/config"
@@ -23,6 +25,10 @@ func main() {
 	routerCtx := context.Background()
 	cnf := config.Load()
 	r := chi.NewRouter()
+
+	// batch
+	feedfetcher.DefaultFeedFetcher = feedfetcher.NewFeedFetcher(routerCtx)
+	pagecrawler.DefaultPageCrawler = pagecrawler.NewPageCrawler(routerCtx)
 
 	// config
 	r.Use(func(next http.Handler) http.Handler {

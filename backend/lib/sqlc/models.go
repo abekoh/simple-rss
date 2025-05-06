@@ -56,7 +56,7 @@ type Crawl struct {
 	CrawlID   string
 	FeedID    string
 	Status    CrawlStatus
-	Meessage  *string
+	Message   *string
 	CrawledAt time.Time
 	CreatedAt time.Time
 }
