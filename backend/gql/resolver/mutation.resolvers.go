@@ -6,14 +6,24 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/abekoh/simple-rss/backend/domain/service"
 	"github.com/abekoh/simple-rss/backend/gql"
 )
 
 // CreateFeed is the resolver for the createFeed field.
 func (r *mutationResolver) CreateFeed(ctx context.Context, input gql.CreateFeedInput) (*gql.CreateFeedPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateFeed - createFeed"))
+	createRes, err := service.CreateFeed(ctx, service.CreateFeedInput{
+		URL:         input.URL,
+		Title:       input.Title,
+		Description: input.Description,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &gql.CreateFeedPayload{
+		FeedID: createRes.NewFeed.FeedID,
+	}, nil
 }
 
 // Mutation returns gql.MutationResolver implementation.

@@ -9,5 +9,5 @@ input CreateFeedInput {
 }
 
 type CreateFeedPayload {
-  feedId: UUID!
+  feedId: ID!
 }

@@ -8,13 +8,11 @@ import (
 	"io"
 	"strconv"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Crawl struct {
-	CrawlID   uuid.UUID   `json:"crawlId"`
-	FeedID    uuid.UUID   `json:"feedId"`
+	CrawlID   string      `json:"crawlId"`
+	FeedID    string      `json:"feedId"`
 	Status    CrawlStatus `json:"status"`
 	Message   *string     `json:"message,omitempty"`
 	CrawledAt time.Time   `json:"crawledAt"`
@@ -27,11 +25,11 @@ type CreateFeedInput struct {
 }
 
 type CreateFeedPayload struct {
-	FeedID uuid.UUID `json:"feedId"`
+	FeedID string `json:"feedId"`
 }
 
 type Feed struct {
-	FeedID       uuid.UUID `json:"feedId"`
+	FeedID       string    `json:"feedId"`
 	URL          string    `json:"url"`
 	Title        string    `json:"title"`
 	Description  *string   `json:"description,omitempty"`
@@ -42,9 +40,9 @@ type Mutation struct {
 }
 
 type Post struct {
-	PostID          uuid.UUID `json:"postId"`
-	FeedID          uuid.UUID `json:"feedId"`
-	CrawlID         uuid.UUID `json:"crawlId"`
+	PostID          string    `json:"postId"`
+	FeedID          string    `json:"feedId"`
+	CrawlID         string    `json:"crawlId"`
 	Title           string    `json:"title"`
 	Author          *string   `json:"author,omitempty"`
 	URL             string    `json:"url"`

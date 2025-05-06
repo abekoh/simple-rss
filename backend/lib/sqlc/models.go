@@ -7,8 +7,7 @@ package sqlc
 import (
 	"database/sql/driver"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type CrawlStatus string
@@ -54,31 +53,31 @@ func (ns NullCrawlStatus) Value() (driver.Value, error) {
 }
 
 type Crawl struct {
-	CrawlID   pgtype.UUID
-	FeedID    pgtype.UUID
+	CrawlID   string
+	FeedID    string
 	Status    CrawlStatus
-	Meessage  pgtype.Text
-	CrawledAt pgtype.Timestamptz
-	CreatedAt pgtype.Timestamptz
+	Meessage  *string
+	CrawledAt time.Time
+	CreatedAt time.Time
 }
 
 type Feed struct {
-	FeedID       pgtype.UUID
+	FeedID       string
 	Url          string
 	Title        string
-	Description  pgtype.Text
-	RegisteredAt pgtype.Timestamptz
-	CreatedAt    pgtype.Timestamptz
+	Description  *string
+	RegisteredAt time.Time
+	CreatedAt    time.Time
 }
 
 type Post struct {
-	PostID          pgtype.UUID
-	FeedID          pgtype.UUID
-	CrawlID         pgtype.UUID
+	PostID          string
+	FeedID          string
+	CrawlID         string
 	Title           string
-	Author          pgtype.Text
+	Author          *string
 	Url             string
-	SummaryOriginal pgtype.Text
-	PostedAt        pgtype.Timestamptz
-	CreatedAt       pgtype.Timestamptz
+	SummaryOriginal *string
+	PostedAt        time.Time
+	CreatedAt       time.Time
 }

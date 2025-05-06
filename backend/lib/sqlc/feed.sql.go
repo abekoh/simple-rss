@@ -7,8 +7,7 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const insertFeed = `-- name: InsertFeed :exec
@@ -17,11 +16,11 @@ values ($1, $2, $3, $4, $5)
 `
 
 type InsertFeedParams struct {
-	FeedID       pgtype.UUID
+	FeedID       string
 	Url          string
 	Title        string
-	Description  pgtype.Text
-	RegisteredAt pgtype.Timestamptz
+	Description  *string
+	RegisteredAt time.Time
 }
 
 func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
@@ -39,7 +38,7 @@ const selectFeed = `-- name: SelectFeed :one
 select feed_id, url, title, description, registered_at, created_at from feeds where feed_id = $1
 `
 
-func (q *Queries) SelectFeed(ctx context.Context, feedID pgtype.UUID) (Feed, error) {
+func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
 	row := q.db.QueryRow(ctx, selectFeed, feedID)
 	var i Feed
 	err := row.Scan(

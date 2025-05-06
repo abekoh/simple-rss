@@ -8,3 +8,27 @@ sql:
         package: sqlc
         out: lib/sqlc
         sql_package: pgx/v5
+        overrides:
+          - db_type: text
+            nullable: true
+            go_type:
+              type: string
+              pointer: true
+          - db_type: uuid
+            go_type:
+              type: string
+          - db_type: uuid
+            nullable: true
+            go_type:
+              type: string
+              pointer: true
+          - db_type: pg_catalog.timestamptz
+            go_type:
+              import: time
+              type: Time
+          - db_type: pg_catalog.timestamptz
+            nullable: true
+            go_type:
+              import: time
+              type: Time
+              pointer: true
