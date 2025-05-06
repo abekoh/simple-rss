@@ -1,4 +1,5 @@
 scalar Time
+scalar UUID
 
 enum CrawlStatus {
   SUCCESS
@@ -6,7 +7,7 @@ enum CrawlStatus {
 }
 
 type Feed {
-  feedId: ID!
+  feedId: UUID!
   url: String!
   title: String!
   description: String
@@ -14,17 +15,17 @@ type Feed {
 }
 
 type Crawl {
-  crawlId: ID!
-  feedId: ID!
+  crawlId: UUID!
+  feedId: UUID!
   status: CrawlStatus!
   message: String
   crawledAt: Time!
 }
 
 type Post {
-  postId: ID!
-  feedId: ID!
-  crawlId: ID!
+  postId: UUID!
+  feedId: UUID!
+  crawlId: UUID!
   title: String!
   author: String
   url: String!

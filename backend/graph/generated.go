@@ -15,7 +15,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/abekoh/simple-rss/backend/graph/model"
+	"github.com/abekoh/simple-rss/backend/graph/gqlmodel"
+	"github.com/google/uuid"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -65,7 +66,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateFeed func(childComplexity int, input model.NewFeed) int
+		CreateFeed func(childComplexity int, input gqlmodel.NewFeed) int
 	}
 
 	Post struct {
@@ -85,10 +86,10 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateFeed(ctx context.Context, input model.NewFeed) (*model.Feed, error)
+	CreateFeed(ctx context.Context, input gqlmodel.NewFeed) (*gqlmodel.Feed, error)
 }
 type QueryResolver interface {
-	Feeds(ctx context.Context) ([]*model.Feed, error)
+	Feeds(ctx context.Context) ([]*gqlmodel.Feed, error)
 }
 
 type executableSchema struct {
@@ -190,7 +191,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateFeed(childComplexity, args["input"].(model.NewFeed)), true
+		return e.complexity.Mutation.CreateFeed(childComplexity, args["input"].(gqlmodel.NewFeed)), true
 
 	case "Post.author":
 		if e.complexity.Post.Author == nil {
@@ -393,13 +394,13 @@ func (ec *executionContext) field_Mutation_createFeed_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createFeed_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.NewFeed, error) {
+) (gqlmodel.NewFeed, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNNewFeed2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐNewFeed(ctx, tmp)
+		return ec.unmarshalNNewFeed2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐNewFeed(ctx, tmp)
 	}
 
-	var zeroVal model.NewFeed
+	var zeroVal gqlmodel.NewFeed
 	return zeroVal, nil
 }
 
@@ -526,7 +527,7 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Crawl_crawlId(ctx context.Context, field graphql.CollectedField, obj *model.Crawl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Crawl_crawlId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Crawl) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Crawl_crawlId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -552,9 +553,9 @@ func (ec *executionContext) _Crawl_crawlId(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Crawl_crawlId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -564,13 +565,13 @@ func (ec *executionContext) fieldContext_Crawl_crawlId(_ context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Crawl_feedId(ctx context.Context, field graphql.CollectedField, obj *model.Crawl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Crawl_feedId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Crawl) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Crawl_feedId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -596,9 +597,9 @@ func (ec *executionContext) _Crawl_feedId(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Crawl_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -608,13 +609,13 @@ func (ec *executionContext) fieldContext_Crawl_feedId(_ context.Context, field g
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Crawl_status(ctx context.Context, field graphql.CollectedField, obj *model.Crawl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Crawl_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Crawl) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Crawl_status(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -640,9 +641,9 @@ func (ec *executionContext) _Crawl_status(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.CrawlStatus)
+	res := resTmp.(gqlmodel.CrawlStatus)
 	fc.Result = res
-	return ec.marshalNCrawlStatus2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐCrawlStatus(ctx, field.Selections, res)
+	return ec.marshalNCrawlStatus2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐCrawlStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Crawl_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -658,7 +659,7 @@ func (ec *executionContext) fieldContext_Crawl_status(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Crawl_message(ctx context.Context, field graphql.CollectedField, obj *model.Crawl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Crawl_message(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Crawl) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Crawl_message(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -699,7 +700,7 @@ func (ec *executionContext) fieldContext_Crawl_message(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Crawl_crawledAt(ctx context.Context, field graphql.CollectedField, obj *model.Crawl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Crawl_crawledAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Crawl) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Crawl_crawledAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -743,7 +744,7 @@ func (ec *executionContext) fieldContext_Crawl_crawledAt(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Feed_feedId(ctx context.Context, field graphql.CollectedField, obj *model.Feed) (ret graphql.Marshaler) {
+func (ec *executionContext) _Feed_feedId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Feed) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Feed_feedId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -769,9 +770,9 @@ func (ec *executionContext) _Feed_feedId(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Feed_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -781,13 +782,13 @@ func (ec *executionContext) fieldContext_Feed_feedId(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Feed_url(ctx context.Context, field graphql.CollectedField, obj *model.Feed) (ret graphql.Marshaler) {
+func (ec *executionContext) _Feed_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Feed) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Feed_url(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -831,7 +832,7 @@ func (ec *executionContext) fieldContext_Feed_url(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Feed_title(ctx context.Context, field graphql.CollectedField, obj *model.Feed) (ret graphql.Marshaler) {
+func (ec *executionContext) _Feed_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Feed) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Feed_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -875,7 +876,7 @@ func (ec *executionContext) fieldContext_Feed_title(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Feed_description(ctx context.Context, field graphql.CollectedField, obj *model.Feed) (ret graphql.Marshaler) {
+func (ec *executionContext) _Feed_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Feed) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Feed_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -916,7 +917,7 @@ func (ec *executionContext) fieldContext_Feed_description(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Feed_registeredAt(ctx context.Context, field graphql.CollectedField, obj *model.Feed) (ret graphql.Marshaler) {
+func (ec *executionContext) _Feed_registeredAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Feed) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Feed_registeredAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -974,7 +975,7 @@ func (ec *executionContext) _Mutation_createFeed(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateFeed(rctx, fc.Args["input"].(model.NewFeed))
+		return ec.resolvers.Mutation().CreateFeed(rctx, fc.Args["input"].(gqlmodel.NewFeed))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -986,9 +987,9 @@ func (ec *executionContext) _Mutation_createFeed(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Feed)
+	res := resTmp.(*gqlmodel.Feed)
 	fc.Result = res
-	return ec.marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐFeed(ctx, field.Selections, res)
+	return ec.marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐFeed(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createFeed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1027,7 +1028,7 @@ func (ec *executionContext) fieldContext_Mutation_createFeed(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_postId(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_postId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_postId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1053,9 +1054,9 @@ func (ec *executionContext) _Post_postId(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Post_postId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1065,13 +1066,13 @@ func (ec *executionContext) fieldContext_Post_postId(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_feedId(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_feedId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_feedId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1097,9 +1098,9 @@ func (ec *executionContext) _Post_feedId(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Post_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1109,13 +1110,13 @@ func (ec *executionContext) fieldContext_Post_feedId(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_crawlId(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_crawlId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_crawlId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1141,9 +1142,9 @@ func (ec *executionContext) _Post_crawlId(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Post_crawlId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1153,13 +1154,13 @@ func (ec *executionContext) fieldContext_Post_crawlId(_ context.Context, field g
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1203,7 +1204,7 @@ func (ec *executionContext) fieldContext_Post_title(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_author(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_author(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_author(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1244,7 +1245,7 @@ func (ec *executionContext) fieldContext_Post_author(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_url(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_url(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1288,7 +1289,7 @@ func (ec *executionContext) fieldContext_Post_url(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_summaryOriginal(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_summaryOriginal(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_summaryOriginal(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1329,7 +1330,7 @@ func (ec *executionContext) fieldContext_Post_summaryOriginal(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_postedAt(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_postedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_postedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1399,9 +1400,9 @@ func (ec *executionContext) _Query_feeds(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Feed)
+	res := resTmp.([]*gqlmodel.Feed)
 	fc.Result = res
-	return ec.marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐFeedᚄ(ctx, field.Selections, res)
+	return ec.marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐFeedᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_feeds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3511,8 +3512,8 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputNewFeed(ctx context.Context, obj any) (model.NewFeed, error) {
-	var it model.NewFeed
+func (ec *executionContext) unmarshalInputNewFeed(ctx context.Context, obj any) (gqlmodel.NewFeed, error) {
+	var it gqlmodel.NewFeed
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -3562,7 +3563,7 @@ func (ec *executionContext) unmarshalInputNewFeed(ctx context.Context, obj any) 
 
 var crawlImplementors = []string{"Crawl"}
 
-func (ec *executionContext) _Crawl(ctx context.Context, sel ast.SelectionSet, obj *model.Crawl) graphql.Marshaler {
+func (ec *executionContext) _Crawl(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Crawl) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, crawlImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3618,7 +3619,7 @@ func (ec *executionContext) _Crawl(ctx context.Context, sel ast.SelectionSet, ob
 
 var feedImplementors = []string{"Feed"}
 
-func (ec *executionContext) _Feed(ctx context.Context, sel ast.SelectionSet, obj *model.Feed) graphql.Marshaler {
+func (ec *executionContext) _Feed(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Feed) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, feedImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3723,7 +3724,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 var postImplementors = []string{"Post"}
 
-func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *model.Post) graphql.Marshaler {
+func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Post) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4212,21 +4213,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCrawlStatus2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐCrawlStatus(ctx context.Context, v any) (model.CrawlStatus, error) {
-	var res model.CrawlStatus
+func (ec *executionContext) unmarshalNCrawlStatus2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐCrawlStatus(ctx context.Context, v any) (gqlmodel.CrawlStatus, error) {
+	var res gqlmodel.CrawlStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCrawlStatus2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐCrawlStatus(ctx context.Context, sel ast.SelectionSet, v model.CrawlStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNCrawlStatus2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐCrawlStatus(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CrawlStatus) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNFeed2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v model.Feed) graphql.Marshaler {
+func (ec *executionContext) marshalNFeed2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Feed) graphql.Marshaler {
 	return ec._Feed(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐFeedᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Feed) graphql.Marshaler {
+func (ec *executionContext) marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐFeedᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Feed) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4250,7 +4251,7 @@ func (ec *executionContext) marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐFeed(ctx, sel, v[i])
+			ret[i] = ec.marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐFeed(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4270,7 +4271,7 @@ func (ec *executionContext) marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v *model.Feed) graphql.Marshaler {
+func (ec *executionContext) marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Feed) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4280,23 +4281,7 @@ func (ec *executionContext) marshalNFeed2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrss
 	return ec._Feed(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	_ = sel
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNNewFeed2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋmodelᚐNewFeed(ctx context.Context, v any) (model.NewFeed, error) {
+func (ec *executionContext) unmarshalNNewFeed2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgraphᚋgqlmodelᚐNewFeed(ctx context.Context, v any) (gqlmodel.NewFeed, error) {
 	res, err := ec.unmarshalInputNewFeed(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -4325,6 +4310,22 @@ func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v an
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v any) (uuid.UUID, error) {
+	res, err := graphql.UnmarshalUUID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

@@ -5,8 +5,8 @@ exec:
   layout: single-file # Only other option is "follow-schema," ie multi-file.
   filename: graph/generated.go
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: graph/gqlmodel/models_gen.go
+  package: gqlmodel
 resolver:
   package: graph
   layout: follow-schema # Only other option is "single-file."
