@@ -1,4 +1,4 @@
-package crawler
+package feedfetcher
 
 import (
 	"context"
@@ -23,13 +23,13 @@ type (
 	}
 )
 
-type Crawler struct {
+type FeedFetcher struct {
 	feedParser *gofeed.Parser
 	requestCh  chan *requestWithResultCh
 }
 
-func NewCrawler(ctx context.Context) *Crawler {
-	c := &Crawler{
+func NewFeedFetcher(ctx context.Context) *FeedFetcher {
+	c := &FeedFetcher{
 		feedParser: gofeed.NewParser(),
 		requestCh:  make(chan *requestWithResultCh, 10),
 	}
@@ -37,7 +37,7 @@ func NewCrawler(ctx context.Context) *Crawler {
 	return c
 }
 
-func (c Crawler) Loop(ctx context.Context) {
+func (c FeedFetcher) Loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -59,7 +59,7 @@ func (c Crawler) Loop(ctx context.Context) {
 	}
 }
 
-func (c Crawler) SendRequest(req Request) (*Result, error) {
+func (c FeedFetcher) SendRequest(req Request) (*Result, error) {
 	resCh := make(chan *Result)
 	c.requestCh <- &requestWithResultCh{
 		Request:  req,
@@ -69,9 +69,9 @@ func (c Crawler) SendRequest(req Request) (*Result, error) {
 }
 
 var (
-	DefaultCrawler = NewCrawler(context.Background())
+	DefaultFeedFetcher = NewFeedFetcher(context.Background())
 )
 
 func SendRequest(req Request) (*Result, error) {
-	return DefaultCrawler.SendRequest(req)
+	return DefaultFeedFetcher.SendRequest(req)
 }

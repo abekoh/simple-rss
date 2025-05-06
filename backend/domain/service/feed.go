@@ -5,8 +5,8 @@ import (
 
 	"github.com/abekoh/simple-rss/backend/domain/model/feed"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
-	"github.com/abekoh/simple-rss/backend/lib/crawler"
 	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/lib/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
 )
@@ -21,7 +21,7 @@ type (
 )
 
 func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOutput, error) {
-	crawlRes, err := crawler.SendRequest(crawler.Request{
+	res, err := feedfetcher.SendRequest(feedfetcher.Request{
 		URL: input.URL,
 	})
 	if err != nil {
@@ -31,12 +31,12 @@ func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOu
 	newFeed := &feed.Feed{
 		FeedID: uid.NewUUID(ctx),
 		URL:    input.URL,
-		Title:  crawlRes.Content.Title,
+		Title:  res.Content.Title,
 		Description: func() *string {
-			if crawlRes.Content.Description == "" {
+			if res.Content.Description == "" {
 				return nil
 			}
-			return &crawlRes.Content.Description
+			return &res.Content.Description
 		}(),
 		RegisteredAt: clock.Now(ctx),
 	}
