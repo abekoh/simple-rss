@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -13,14 +14,17 @@ import (
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/gql/resolver"
 	"github.com/abekoh/simple-rss/backend/lib/config"
+	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 func main() {
+	routerCtx := context.Background()
 	cnf := config.Load()
 	r := chi.NewRouter()
 
+	// config
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := config.WithConfig(r.Context(), cnf)
@@ -28,6 +32,21 @@ func main() {
 		})
 	})
 
+	// database
+	db, err := database.New(routerCtx, cnf)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+	defer db.Close()
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := database.WithDB(r.Context(), db)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
+
+	// graphql
 	r.Post("/query", initializeGQLServer().ServeHTTP)
 	r.Get("/query", playground.Handler("GraphQL playground", "/query"))
 
