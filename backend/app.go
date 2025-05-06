@@ -39,6 +39,10 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+	if err := db.Ping(routerCtx); err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := database.WithDB(r.Context(), db)

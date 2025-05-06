@@ -6,14 +6,19 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/gql"
+	"github.com/abekoh/simple-rss/backend/lib/database"
 )
 
 // Feeds is the resolver for the feeds field.
 func (r *queryResolver) Feeds(ctx context.Context) ([]*gql.Feed, error) {
-	panic(fmt.Errorf("not implemented: Feeds - feeds"))
+	queries := database.FromContext(ctx).Queries()
+	feeds, err := queries.SelectFeedsOrderByRegisteredAtAsc(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mapSlice(feeds, mapFeed), nil
 }
 
 // Query returns gql.QueryResolver implementation.
