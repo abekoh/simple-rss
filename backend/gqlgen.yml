@@ -8,9 +8,9 @@ model:
   filename: gql/models_gen.go
   package: gql
 resolver:
-  package: gql
+  package: resolver
   layout: follow-schema
-  dir: gql
+  dir: gql/resolver
   filename_template: "{name}.resolvers.go"
 call_argument_directives_with_null: true
 models:

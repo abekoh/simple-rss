@@ -1,4 +1,4 @@
-package gql
+package resolver
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,14 +7,16 @@ package gql
 import (
 	"context"
 	"fmt"
+
+	"github.com/abekoh/simple-rss/backend/gql"
 )
 
 // CreateFeed is the resolver for the createFeed field.
-func (r *mutationResolver) CreateFeed(ctx context.Context, input CreateFeedInput) (*CreateFeedPayload, error) {
+func (r *mutationResolver) CreateFeed(ctx context.Context, input gql.CreateFeedInput) (*gql.CreateFeedPayload, error) {
 	panic(fmt.Errorf("not implemented: CreateFeed - createFeed"))
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Mutation returns gql.MutationResolver implementation.
+func (r *Resolver) Mutation() gql.MutationResolver { return &mutationResolver{r} }
 
 type mutationResolver struct{ *Resolver }
