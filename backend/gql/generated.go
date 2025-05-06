@@ -3566,7 +3566,7 @@ func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"url", "title", "description"}
+	fieldsInOrder := [...]string{"url"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3580,20 +3580,6 @@ func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context,
 				return it, err
 			}
 			it.URL = data
-		case "title":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Title = data
-		case "description":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Description = data
 		}
 	}
 

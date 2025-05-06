@@ -4,8 +4,6 @@ type Mutation {
 
 input RegisterFeedInput {
   url: String!
-  title: String!
-  description: String
 }
 
 type RegisterFeedPayload {

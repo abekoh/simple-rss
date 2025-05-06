@@ -13,9 +13,7 @@ import (
 
 type (
 	RegisterFeedInput struct {
-		URL         string
-		Title       string
-		Description *string
+		URL string
 	}
 	RegisterFeedOutput struct {
 		NewFeed *feed.Feed
@@ -38,7 +36,7 @@ func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOu
 			if crawlRes.Content.Description == "" {
 				return nil
 			}
-			return input.Description
+			return &crawlRes.Content.Description
 		}(),
 		RegisteredAt: clock.Now(ctx),
 	}

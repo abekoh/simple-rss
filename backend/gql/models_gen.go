@@ -44,9 +44,7 @@ type Query struct {
 }
 
 type RegisterFeedInput struct {
-	URL         string  `json:"url"`
-	Title       string  `json:"title"`
-	Description *string `json:"description,omitempty"`
+	URL string `json:"url"`
 }
 
 type RegisterFeedPayload struct {

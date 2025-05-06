@@ -17,9 +17,7 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 	var newFeedID string
 	if err := database.Transaction(ctx, func(c context.Context) error {
 		createRes, err := service.RegisterFeed(ctx, service.RegisterFeedInput{
-			URL:         input.URL,
-			Title:       input.Title,
-			Description: input.Description,
+			URL: input.URL,
 		})
 		if err != nil {
 			return err
