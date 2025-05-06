@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -20,10 +19,14 @@ import (
 
 func main() {
 	cnf := config.Load()
-	ctx := context.Background()
-	ctx = config.WithConfig(ctx, cnf)
-
 	r := chi.NewRouter()
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := config.WithConfig(r.Context(), cnf)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
 
 	r.Post("/query", initializeGQLServer().ServeHTTP)
 	r.Get("/query", playground.Handler("GraphQL playground", "/query"))
