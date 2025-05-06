@@ -1,0 +1,47 @@
+scalar Time
+
+enum CrawlStatus {
+  SUCCESS
+  FAILURE
+}
+
+type Feed {
+  feedId: ID!
+  url: String!
+  title: String!
+  description: String
+  registeredAt: Time!
+}
+
+type Crawl {
+  crawlId: ID!
+  feedId: ID!
+  status: CrawlStatus!
+  message: String
+  crawledAt: Time!
+}
+
+type Post {
+  postId: ID!
+  feedId: ID!
+  crawlId: ID!
+  title: String!
+  author: String
+  url: String!
+  summaryOriginal: String
+  postedAt: Time!
+}
+
+type Query {
+  feeds: [Feed!]!
+}
+
+input NewFeed {
+  url: String!
+  title: String!
+  description: String
+}
+
+type Mutation {
+  createFeed(input: NewFeed!): Feed!
+}

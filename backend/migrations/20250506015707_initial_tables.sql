@@ -8,12 +8,12 @@ CREATE TABLE feeds (
     created_at timestamp with time zone not null default now()
 );
 
-CREATE TYPE feed_status AS ENUM ('Success', 'Failure');
+CREATE TYPE crawl_status AS ENUM ('Success', 'Failure');
 
 CREATE TABLE crawls (
     crawl_id uuid primary key,
     feed_id uuid not null references feeds(feed_id),
-    status feed_status not null,
+    status crawl_status not null,
     meessage text,
     crawled_at timestamp with time zone not null,
     created_at timestamp with time zone not null default now()
