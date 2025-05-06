@@ -1,13 +1,13 @@
 type Mutation {
-  createFeed(input: CreateFeedInput!): CreateFeedPayload!
+  registerFeed(input: RegisterFeedInput!): RegisterFeedPayload!
 }
 
-input CreateFeedInput {
+input RegisterFeedInput {
   url: String!
   title: String!
   description: String
 }
 
-type CreateFeedPayload {
+type RegisterFeedPayload {
   feedId: ID!
 }

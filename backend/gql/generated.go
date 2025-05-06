@@ -55,10 +55,6 @@ type ComplexityRoot struct {
 		Status    func(childComplexity int) int
 	}
 
-	CreateFeedPayload struct {
-		FeedID func(childComplexity int) int
-	}
-
 	Feed struct {
 		Description  func(childComplexity int) int
 		FeedID       func(childComplexity int) int
@@ -68,7 +64,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateFeed func(childComplexity int, input CreateFeedInput) int
+		RegisterFeed func(childComplexity int, input RegisterFeedInput) int
 	}
 
 	Post struct {
@@ -85,10 +81,14 @@ type ComplexityRoot struct {
 	Query struct {
 		Feeds func(childComplexity int) int
 	}
+
+	RegisterFeedPayload struct {
+		FeedID func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
-	CreateFeed(ctx context.Context, input CreateFeedInput) (*CreateFeedPayload, error)
+	RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedPayload, error)
 }
 type QueryResolver interface {
 	Feeds(ctx context.Context) ([]*Feed, error)
@@ -148,13 +148,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Crawl.Status(childComplexity), true
 
-	case "CreateFeedPayload.feedId":
-		if e.complexity.CreateFeedPayload.FeedID == nil {
-			break
-		}
-
-		return e.complexity.CreateFeedPayload.FeedID(childComplexity), true
-
 	case "Feed.description":
 		if e.complexity.Feed.Description == nil {
 			break
@@ -190,17 +183,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Feed.URL(childComplexity), true
 
-	case "Mutation.createFeed":
-		if e.complexity.Mutation.CreateFeed == nil {
+	case "Mutation.registerFeed":
+		if e.complexity.Mutation.RegisterFeed == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createFeed_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_registerFeed_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateFeed(childComplexity, args["input"].(CreateFeedInput)), true
+		return e.complexity.Mutation.RegisterFeed(childComplexity, args["input"].(RegisterFeedInput)), true
 
 	case "Post.author":
 		if e.complexity.Post.Author == nil {
@@ -265,6 +258,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Feeds(childComplexity), true
 
+	case "RegisterFeedPayload.feedId":
+		if e.complexity.RegisterFeedPayload.FeedID == nil {
+			break
+		}
+
+		return e.complexity.RegisterFeedPayload.FeedID(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -273,7 +273,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputCreateFeedInput,
+		ec.unmarshalInputRegisterFeedInput,
 	)
 	first := true
 
@@ -392,26 +392,26 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createFeed_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_registerFeed_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_createFeed_argsInput(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_registerFeed_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_createFeed_argsInput(
+func (ec *executionContext) field_Mutation_registerFeed_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (CreateFeedInput, error) {
+) (RegisterFeedInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐCreateFeedInput(ctx, tmp)
+		return ec.unmarshalNRegisterFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRegisterFeedInput(ctx, tmp)
 	}
 
-	var zeroVal CreateFeedInput
+	var zeroVal RegisterFeedInput
 	return zeroVal, nil
 }
 
@@ -755,50 +755,6 @@ func (ec *executionContext) fieldContext_Crawl_crawledAt(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateFeedPayload_feedId(ctx context.Context, field graphql.CollectedField, obj *CreateFeedPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateFeedPayload_feedId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FeedID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CreateFeedPayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CreateFeedPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Feed_feedId(ctx context.Context, field graphql.CollectedField, obj *Feed) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Feed_feedId(ctx, field)
 	if err != nil {
@@ -1016,8 +972,8 @@ func (ec *executionContext) fieldContext_Feed_registeredAt(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createFeed(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createFeed(ctx, field)
+func (ec *executionContext) _Mutation_registerFeed(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_registerFeed(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1030,7 +986,7 @@ func (ec *executionContext) _Mutation_createFeed(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateFeed(rctx, fc.Args["input"].(CreateFeedInput))
+		return ec.resolvers.Mutation().RegisterFeed(rctx, fc.Args["input"].(RegisterFeedInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1042,12 +998,12 @@ func (ec *executionContext) _Mutation_createFeed(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*CreateFeedPayload)
+	res := resTmp.(*RegisterFeedPayload)
 	fc.Result = res
-	return ec.marshalNCreateFeedPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐCreateFeedPayload(ctx, field.Selections, res)
+	return ec.marshalNRegisterFeedPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRegisterFeedPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createFeed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_registerFeed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1056,9 +1012,9 @@ func (ec *executionContext) fieldContext_Mutation_createFeed(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "feedId":
-				return ec.fieldContext_CreateFeedPayload_feedId(ctx, field)
+				return ec.fieldContext_RegisterFeedPayload_feedId(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CreateFeedPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type RegisterFeedPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -1068,7 +1024,7 @@ func (ec *executionContext) fieldContext_Mutation_createFeed(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createFeed_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_registerFeed_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1603,6 +1559,50 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RegisterFeedPayload_feedId(ctx context.Context, field graphql.CollectedField, obj *RegisterFeedPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RegisterFeedPayload_feedId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FeedID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RegisterFeedPayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RegisterFeedPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3559,8 +3559,8 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateFeedInput(ctx context.Context, obj any) (CreateFeedInput, error) {
-	var it CreateFeedInput
+func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context, obj any) (RegisterFeedInput, error) {
+	var it RegisterFeedInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -3664,45 +3664,6 @@ func (ec *executionContext) _Crawl(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
-var createFeedPayloadImplementors = []string{"CreateFeedPayload"}
-
-func (ec *executionContext) _CreateFeedPayload(ctx context.Context, sel ast.SelectionSet, obj *CreateFeedPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, createFeedPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CreateFeedPayload")
-		case "feedId":
-			out.Values[i] = ec._CreateFeedPayload_feedId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var feedImplementors = []string{"Feed"}
 
 func (ec *executionContext) _Feed(ctx context.Context, sel ast.SelectionSet, obj *Feed) graphql.Marshaler {
@@ -3778,9 +3739,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createFeed":
+		case "registerFeed":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createFeed(ctx, field)
+				return ec._Mutation_registerFeed(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3925,6 +3886,45 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var registerFeedPayloadImplementors = []string{"RegisterFeedPayload"}
+
+func (ec *executionContext) _RegisterFeedPayload(ctx context.Context, sel ast.SelectionSet, obj *RegisterFeedPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, registerFeedPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RegisterFeedPayload")
+		case "feedId":
+			out.Values[i] = ec._RegisterFeedPayload_feedId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4309,25 +4309,6 @@ func (ec *executionContext) marshalNCrawlStatus2githubᚗcomᚋabekohᚋsimple�
 	return v
 }
 
-func (ec *executionContext) unmarshalNCreateFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐCreateFeedInput(ctx context.Context, v any) (CreateFeedInput, error) {
-	res, err := ec.unmarshalInputCreateFeedInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNCreateFeedPayload2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐCreateFeedPayload(ctx context.Context, sel ast.SelectionSet, v CreateFeedPayload) graphql.Marshaler {
-	return ec._CreateFeedPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCreateFeedPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐCreateFeedPayload(ctx context.Context, sel ast.SelectionSet, v *CreateFeedPayload) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._CreateFeedPayload(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNFeed2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐFeedᚄ(ctx context.Context, sel ast.SelectionSet, v []*Feed) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -4396,6 +4377,25 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNRegisterFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRegisterFeedInput(ctx context.Context, v any) (RegisterFeedInput, error) {
+	res, err := ec.unmarshalInputRegisterFeedInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRegisterFeedPayload2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRegisterFeedPayload(ctx context.Context, sel ast.SelectionSet, v RegisterFeedPayload) graphql.Marshaler {
+	return ec._RegisterFeedPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRegisterFeedPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRegisterFeedPayload(ctx context.Context, sel ast.SelectionSet, v *RegisterFeedPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RegisterFeedPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {

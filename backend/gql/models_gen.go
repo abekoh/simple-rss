@@ -18,16 +18,6 @@ type Crawl struct {
 	CrawledAt time.Time   `json:"crawledAt"`
 }
 
-type CreateFeedInput struct {
-	URL         string  `json:"url"`
-	Title       string  `json:"title"`
-	Description *string `json:"description,omitempty"`
-}
-
-type CreateFeedPayload struct {
-	FeedID string `json:"feedId"`
-}
-
 type Feed struct {
 	FeedID       string    `json:"feedId"`
 	URL          string    `json:"url"`
@@ -51,6 +41,16 @@ type Post struct {
 }
 
 type Query struct {
+}
+
+type RegisterFeedInput struct {
+	URL         string  `json:"url"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+}
+
+type RegisterFeedPayload struct {
+	FeedID string `json:"feedId"`
 }
 
 type CrawlStatus string

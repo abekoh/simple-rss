@@ -11,17 +11,17 @@ import (
 )
 
 type (
-	CreateFeedInput struct {
+	RegisterFeedInput struct {
 		URL         string
 		Title       string
 		Description *string
 	}
-	CreateFeedOutput struct {
+	RegisterFeedOutput struct {
 		NewFeed *feed.Feed
 	}
 )
 
-func CreateFeed(ctx context.Context, input CreateFeedInput) (*CreateFeedOutput, error) {
+func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOutput, error) {
 	newFeed := &feed.Feed{
 		FeedID:       uid.NewUUID(ctx),
 		URL:          input.URL,
@@ -40,7 +40,7 @@ func CreateFeed(ctx context.Context, input CreateFeedInput) (*CreateFeedOutput, 
 	}); err != nil {
 		return nil, err
 	}
-	return &CreateFeedOutput{
+	return &RegisterFeedOutput{
 		NewFeed: newFeed,
 	}, nil
 }

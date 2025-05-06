@@ -11,9 +11,9 @@ import (
 	"github.com/abekoh/simple-rss/backend/gql"
 )
 
-// CreateFeed is the resolver for the createFeed field.
-func (r *mutationResolver) CreateFeed(ctx context.Context, input gql.CreateFeedInput) (*gql.CreateFeedPayload, error) {
-	createRes, err := service.CreateFeed(ctx, service.CreateFeedInput{
+// RegisterFeed is the resolver for the registerFeed field.
+func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
+	createRes, err := service.RegisterFeed(ctx, service.RegisterFeedInput{
 		URL:         input.URL,
 		Title:       input.Title,
 		Description: input.Description,
@@ -21,7 +21,7 @@ func (r *mutationResolver) CreateFeed(ctx context.Context, input gql.CreateFeedI
 	if err != nil {
 		return nil, err
 	}
-	return &gql.CreateFeedPayload{
+	return &gql.RegisterFeedPayload{
 		FeedID: createRes.NewFeed.FeedID,
 	}, nil
 }
