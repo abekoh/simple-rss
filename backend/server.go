@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"context"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -11,18 +12,31 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/abekoh/simple-rss/backend/gql"
+	"github.com/abekoh/simple-rss/backend/gql/resolver"
+	"github.com/abekoh/simple-rss/backend/lib/config"
+	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+	cnf := config.Load()
+	ctx := context.Background()
+	ctx = config.WithConfig(ctx, cnf)
 
-	srv := handler.New(gql.NewExecutableSchema(gql.Config{Resolvers: &gql.Resolver{}}))
+	r := chi.NewRouter()
+
+	r.Post("/query", initializeGQLServer(ctx).ServeHTTP)
+	r.Get("/query", playground.Handler("GraphQL playground", "/query"))
+
+	slog.Info("listening on port", "port", cnf.Port)
+	if err := http.ListenAndServe(":"+cnf.Port, r); err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+}
+
+func initializeGQLServer(ctx context.Context) *handler.Server {
+	srv := handler.New(gql.NewExecutableSchema(gql.Config{Resolvers: &resolver.Resolver{}}))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
@@ -34,10 +48,5 @@ func main() {
 	srv.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
-
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	return srv
 }
