@@ -6,10 +6,11 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/lib/sqlc"
+	"github.com/samber/lo"
 )
 
 // Feeds is the resolver for the feeds field.
@@ -24,7 +25,27 @@ func (r *queryResolver) Feeds(ctx context.Context) ([]*gql.Feed, error) {
 
 // Posts is the resolver for the posts field.
 func (r *queryResolver) Posts(ctx context.Context, input gql.PostsInput) (*gql.PostsPayload, error) {
-	panic(fmt.Errorf("not implemented: Posts - posts"))
+	posts, err := database.FromContext(ctx).Queries().SelectPosts(ctx, sqlc.SelectPostsParams{
+		FeedIds: lo.Map(input.FeedIds, func(x string, _ int) string { return x }),
+		Ord:     string(input.Order),
+		Off:     input.Limit,
+		Lim:     input.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return &gql.PostsPayload{
+			TotalCount: 0,
+			Posts:      []*gql.Post{},
+		}, nil
+	}
+	return &gql.PostsPayload{
+		TotalCount: int32(posts[0].TotalCount),
+		Posts: mapSlice(posts, func(x sqlc.SelectPostsRow) *gql.Post {
+			return mapPost(x.Post)
+		}),
+	}, nil
 }
 
 // Query returns gql.QueryResolver implementation.

@@ -22,3 +22,17 @@ func mapFeed(x sqlc.Feed) *gql.Feed {
 		RegisteredAt: x.RegisteredAt,
 	}
 }
+
+func mapPost(x sqlc.Post) *gql.Post {
+	return &gql.Post{
+		PostID:        x.PostID,
+		FeedID:        x.FeedID,
+		URL:           x.Url,
+		Title:         x.Title,
+		Description:   x.Description,
+		Author:        x.Author,
+		Status:        gql.PostStatus(x.Status),
+		PostedAt:      x.PostedAt,
+		LastFetchedAt: x.LastFetchedAt,
+	}
+}
