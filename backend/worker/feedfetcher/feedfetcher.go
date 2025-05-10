@@ -100,7 +100,11 @@ func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
 		return
 	}
 
-	for _, item := range feedParsed.Items {
+	for i, item := range feedParsed.Items {
+		// 最大10件まで
+		if i >= 10 {
+			break
+		}
 		postID := uid.NewUUID(ctx)
 		if err := database.FromContext(ctx).Queries().InsertPost(ctx, sqlc.InsertPostParams{
 			PostID:      postID,
