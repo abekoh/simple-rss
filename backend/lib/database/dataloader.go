@@ -42,7 +42,7 @@ func (d *DataLoader) PostSummaryByPostID(ctx context.Context, postID string) (sq
 	if d.postSummaryByPostID == nil {
 		d.postSummaryByPostID = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.PostSummary, error) {
-				return FromContext(ctx).Queries().SelectPostSummaries(ctx, ids)
+				return FromContext(ctx).Queries().SelectPostSummariesByPostIDs(ctx, ids)
 			},
 			func(datum *sqlc.PostSummary) string {
 				return datum.PostID

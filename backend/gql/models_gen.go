@@ -54,7 +54,7 @@ type Post struct {
 	Status        PostStatus   `json:"status"`
 	PostedAt      *time.Time   `json:"postedAt,omitempty"`
 	LastFetchedAt *time.Time   `json:"lastFetchedAt,omitempty"`
-	Summary       *PostSummary `json:"summary"`
+	Summary       *PostSummary `json:"summary,omitempty"`
 	Feed          *Feed        `json:"feed"`
 }
 

@@ -139,14 +139,14 @@ func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post,
 	return i, err
 }
 
-const selectPostSummaries = `-- name: SelectPostSummaries :many
+const selectPostSummariesByPostIDs = `-- name: SelectPostSummariesByPostIDs :many
 select post_summary_id, post_id, summarize_method, summary, summarized_at, created_at
 from post_summaries
 where post_id = ANY ($1::uuid[])
 `
 
-func (q *Queries) SelectPostSummaries(ctx context.Context, postIds []string) ([]PostSummary, error) {
-	rows, err := q.db.Query(ctx, selectPostSummaries, postIds)
+func (q *Queries) SelectPostSummariesByPostIDs(ctx context.Context, postIds []string) ([]PostSummary, error) {
+	rows, err := q.db.Query(ctx, selectPostSummariesByPostIDs, postIds)
 	if err != nil {
 		return nil, err
 	}

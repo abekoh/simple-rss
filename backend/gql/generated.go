@@ -1810,14 +1810,11 @@ func (ec *executionContext) _Post_summary(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*PostSummary)
 	fc.Result = res
-	return ec.marshalNPostSummary2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostSummary(ctx, field.Selections, res)
+	return ec.marshalOPostSummary2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostSummary(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Post_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5127,16 +5124,13 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 		case "summary":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Post_summary(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -6085,20 +6079,6 @@ func (ec *executionContext) marshalNPostStatus2githubᚗcomᚋabekohᚋsimpleᚑ
 	return v
 }
 
-func (ec *executionContext) marshalNPostSummary2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostSummary(ctx context.Context, sel ast.SelectionSet, v PostSummary) graphql.Marshaler {
-	return ec._PostSummary(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPostSummary2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostSummary(ctx context.Context, sel ast.SelectionSet, v *PostSummary) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PostSummary(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNPostsInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostsInput(ctx context.Context, v any) (PostsInput, error) {
 	res, err := ec.unmarshalInputPostsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6460,6 +6440,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOPostSummary2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostSummary(ctx context.Context, sel ast.SelectionSet, v *PostSummary) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostSummary(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {

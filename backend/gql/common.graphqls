@@ -61,7 +61,7 @@ type Post {
   status: PostStatus!
   postedAt: Time
   lastFetchedAt: Time
-  summary: PostSummary! @goField(forceResolver: true)
+  summary: PostSummary @goField(forceResolver: true)
   feed: Feed! @goField(forceResolver: true)
 }
 

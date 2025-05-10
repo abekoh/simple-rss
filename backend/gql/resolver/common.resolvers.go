@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/gql"
@@ -16,6 +17,9 @@ import (
 func (r *postResolver) Summary(ctx context.Context, obj *gql.Post) (*gql.PostSummary, error) {
 	summary, err := database.FromContext(ctx).Loader().PostSummaryByPostID(ctx, obj.PostID)
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("failed to get post summary: %w", err)
 	}
 	return mapPostSummary(summary), nil
