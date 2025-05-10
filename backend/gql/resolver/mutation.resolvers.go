@@ -58,6 +58,9 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 // DeleteFeed is the resolver for the deleteFeed field.
 func (r *mutationResolver) DeleteFeed(ctx context.Context, input gql.DeleteFeedInput) (*gql.DeleteFeedPayload, error) {
 	if err := database.Transaction(ctx, func(c context.Context) error {
+		if _, err := database.FromContext(ctx).Queries().SelectFeed(ctx, input.FeedID); err != nil {
+			return fmt.Errorf("failed to select feed: %w", err)
+		}
 		if err := database.FromContext(ctx).Queries().DeleteFeed(ctx, input.FeedID); err != nil {
 			return fmt.Errorf("failed to delete feed: %w", err)
 		}
