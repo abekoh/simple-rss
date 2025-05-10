@@ -91,6 +91,28 @@ func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
 	return i, err
 }
 
+const selectFeedForUpdate = `-- name: SelectFeedForUpdate :one
+select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
+from feeds
+where feed_id = $1 for update
+`
+
+func (q *Queries) SelectFeedForUpdate(ctx context.Context, feedID string) (Feed, error) {
+	row := q.db.QueryRow(ctx, selectFeedForUpdate, feedID)
+	var i Feed
+	err := row.Scan(
+		&i.FeedID,
+		&i.Url,
+		&i.Title,
+		&i.Description,
+		&i.RegisteredAt,
+		&i.LastFetchedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const selectFeeds = `-- name: SelectFeeds :many
 select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
 from feeds

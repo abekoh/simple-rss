@@ -12,6 +12,11 @@ select *
 from feeds
 where feed_id = @feed_id;
 
+-- name: SelectFeedForUpdate :one
+select *
+from feeds
+where feed_id = @feed_id for update;
+
 -- name: SelectFeeds :many
 select *
 from feeds

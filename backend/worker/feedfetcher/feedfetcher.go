@@ -46,32 +46,31 @@ func NewFeedFetcher(
 	return c
 }
 
-func (c FeedFetcher) loop(ctx context.Context) {
+func (ff FeedFetcher) loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case req := <-c.inCh:
-			c.handleRequest(ctx, req)
+		case req := <-ff.inCh:
+			ff.handleRequest(ctx, req)
 		}
 	}
 }
 
-func (c FeedFetcher) handleRequest(ctx context.Context, req Request) {
-	queries := database.FromContext(ctx).Queries()
-	feedRow, err := queries.SelectFeed(ctx, req.FeedID)
+func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
+	feedRow, err := database.FromContext(ctx).Queries().SelectFeedForUpdate(ctx, req.FeedID)
 	if err != nil {
-		c.errCh <- fmt.Errorf("failed to get feed: %w", err)
+		ff.errCh <- fmt.Errorf("failed to get feed: %w", err)
 		return
 	}
-	feedParsed, err := c.feedParser.ParseURL(feedRow.Url)
+	feedParsed, err := ff.feedParser.ParseURL(feedRow.Url)
 	if err != nil {
-		c.errCh <- fmt.Errorf("failed to parse feed: %w", err)
+		ff.errCh <- fmt.Errorf("failed to parse feed: %w", err)
 		return
 	}
 	for _, item := range feedParsed.Items {
 		postID := uid.NewUUID(ctx)
-		if err := queries.InsertPost(ctx, sqlc.InsertPostParams{
+		if err := database.FromContext(ctx).Queries().InsertPost(ctx, sqlc.InsertPostParams{
 			PostID:      postID,
 			FeedID:      req.FeedID,
 			Title:       item.Title,
@@ -91,16 +90,16 @@ func (c FeedFetcher) handleRequest(ctx context.Context, req Request) {
 			if errors.As(err, &pgError) && pgError.Code == "23505" {
 				continue
 			}
-			c.errCh <- fmt.Errorf("failed to insert post: %w", err)
+			ff.errCh <- fmt.Errorf("failed to insert post: %w", err)
 			continue
 		}
-		c.outCh <- Result{
+		ff.outCh <- Result{
 			FeedID: req.FeedID,
 			PostID: postID,
 		}
 	}
 }
 
-func (c FeedFetcher) Request(_ context.Context, req Request) {
-	c.inCh <- req
+func (ff FeedFetcher) Request(_ context.Context, req Request) {
+	ff.inCh <- req
 }
