@@ -1,8 +1,19 @@
 scalar Time
 
-enum CrawlStatus {
-  SUCCESS
-  FAILURE
+enum FeedFetchStatus {
+  Success
+  Failure
+}
+
+enum PostStatus {
+  Registered
+  Fetched
+  Summarized
+}
+
+enum PostFetchStatus {
+  Success
+  Failure
 }
 
 type Feed {
@@ -11,23 +22,41 @@ type Feed {
   title: String!
   description: String
   registeredAt: Time!
+  lastFetchedAt: Time
 }
 
-type Crawl {
-  crawlId: ID!
+type FeedFetch {
+  feedFetchId: ID!
   feedId: ID!
-  status: CrawlStatus!
+  status: FeedFetchStatus!
   message: String
-  crawledAt: Time!
+  fetchedAt: Time!
 }
 
 type Post {
   postId: ID!
   feedId: ID!
-  crawlId: ID!
-  title: String!
-  author: String
   url: String!
-  summaryOriginal: String
-  postedAt: Time!
+  title: String!
+  description: String
+  author: String
+  status: PostStatus!
+  postedAt: Time
+  lastFetchedAt: Time
+}
+
+type PostFetch {
+  postFetchId: ID!
+  postId: ID!
+  status: PostFetchStatus!
+  message: String
+  fetchedAt: Time!
+}
+
+type PostSummary {
+  postSummaryId: ID!
+  postId: ID!
+  summarizeMethod: String!
+  summary: String!
+  summarizedAt: Time!
 }
