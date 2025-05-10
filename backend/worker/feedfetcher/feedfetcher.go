@@ -5,8 +5,11 @@ import (
 	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/lib/sqlc"
+	"github.com/abekoh/simple-rss/backend/lib/uid"
 	"github.com/abekoh/simple-rss/backend/worker/pagefetcher"
 	"github.com/mmcdole/gofeed"
+	"github.com/samber/lo"
 )
 
 type Request struct {
@@ -54,8 +57,24 @@ func (c FeedFetcher) Loop(ctx context.Context) {
 				c.errCh <- fmt.Errorf("failed to parse feed: %w", err)
 				continue
 			}
-			for _, _ = range feedParsed.Items {
-				// TODO
+			for _, item := range feedParsed.Items {
+				if err := queries.InsertPost(ctx, sqlc.InsertPostParams{
+					PostID:      uid.NewUUID(ctx),
+					FeedID:      req.FeedID,
+					Title:       item.Title,
+					Description: lo.ToPtr(item.Description),
+					Author: func() *string {
+						if len(item.Authors) == 0 {
+							return nil
+						}
+						return &item.Authors[0].Name
+					}(),
+					Url:      item.Link,
+					PostedAt: item.PublishedParsed,
+				}); err != nil {
+					c.errCh <- fmt.Errorf("failed to insert post: %w", err)
+					continue
+				}
 			}
 		}
 	}

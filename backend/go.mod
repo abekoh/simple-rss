@@ -59,6 +59,7 @@ require (
 	github.com/riza-io/grpc-go v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/samber/lo v1.50.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
