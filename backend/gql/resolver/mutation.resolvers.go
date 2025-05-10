@@ -25,26 +25,19 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 		return nil, fmt.Errorf("failed to parse url: %w", err)
 	}
 
-	newFeed := &feed.Feed{
-		FeedID: uid.NewUUID(ctx),
-		URL:    input.URL,
-		Title:  feedContent.Title,
-		Description: func() *string {
-			if feedContent.Description == "" {
-				return nil
-			}
-			return &feedContent.Description
-		}(),
-		RegisteredAt: clock.Now(ctx),
-	}
-
+	newFeedID := uid.NewUUID(ctx)
 	if err := database.Transaction(ctx, func(c context.Context) error {
 		if err := database.FromContext(ctx).Queries().InsertFeed(ctx, sqlc.InsertFeedParams{
-			FeedID:       newFeed.FeedID,
-			Url:          newFeed.URL,
-			Title:        newFeed.Title,
-			Description:  newFeed.Description,
-			RegisteredAt: newFeed.RegisteredAt,
+			FeedID: newFeedID,
+			Url:    input.URL,
+			Title:  feedContent.Title,
+			Description: func() *string {
+				if feedContent.Description == "" {
+					return nil
+				}
+				return &feedContent.Description
+			}(),
+			RegisteredAt: clock.Now(ctx),
 		}); err != nil {
 			return fmt.Errorf("failed to insert feed: %w", err)
 		}
@@ -54,7 +47,7 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 	}
 
 	return &gql.RegisterFeedPayload{
-		FeedID: newFeed.FeedID,
+		FeedID: newFeedID,
 	}, nil
 }
 
