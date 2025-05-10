@@ -22,9 +22,23 @@ import (
 )
 
 func main() {
-	routerCtx := context.Background()
 	cnf := config.Load()
-	r := chi.NewRouter()
+	routerCtx := context.Background()
+
+	// database
+	db, err := database.New(routerCtx, cnf)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+	defer db.Close()
+	if err := db.Ping(routerCtx); err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+
+	routerCtx = config.WithConfig(routerCtx, cnf)
+	routerCtx = database.WithDB(routerCtx, db)
 
 	errCh := make(chan error, 10)
 	feedFetcherRequestCh := make(chan feedfetcher.Request, 10)
@@ -71,25 +85,13 @@ func main() {
 		}
 	}()
 
-	// config
+	r := chi.NewRouter()
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := config.WithConfig(r.Context(), cnf)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
-
-	// database
-	db, err := database.New(routerCtx, cnf)
-	if err != nil {
-		slog.Error(err.Error())
-		os.Exit(1)
-	}
-	defer db.Close()
-	if err := db.Ping(routerCtx); err != nil {
-		slog.Error(err.Error())
-		os.Exit(1)
-	}
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := database.WithDB(r.Context(), db)
