@@ -21,7 +21,7 @@ func NewDataLoader() *DataLoader {
 }
 
 func (d *DataLoader) Feed(ctx context.Context, feedID string) (sqlc.Feed, error) {
-	m := d.keyMutex.Get("Feed")
+	d.keyMutex.Lock("Feed")
 	if d.feed == nil {
 		d.feed = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.Feed, error) {
@@ -32,7 +32,7 @@ func (d *DataLoader) Feed(ctx context.Context, feedID string) (sqlc.Feed, error)
 			},
 		)
 	}
-	m.Unlock()
+	d.keyMutex.Unlock("Feed")
 	return d.feed.Load(ctx, feedID)()
 }
 

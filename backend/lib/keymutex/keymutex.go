@@ -11,7 +11,7 @@ func New() *KeyMutex {
 	return &KeyMutex{locks: make(map[string]*sync.Mutex)}
 }
 
-func (l *KeyMutex) Get(key string) *sync.Mutex {
+func (l *KeyMutex) getByKey(key string) *sync.Mutex {
 	l.mapLock.Lock()
 	defer l.mapLock.Unlock()
 
@@ -23,4 +23,12 @@ func (l *KeyMutex) Get(key string) *sync.Mutex {
 	ret = &sync.Mutex{}
 	l.locks[key] = ret
 	return ret
+}
+
+func (l *KeyMutex) Lock(key string) {
+	l.getByKey(key).Lock()
+}
+
+func (l *KeyMutex) Unlock(key string) {
+	l.getByKey(key).Unlock()
 }
