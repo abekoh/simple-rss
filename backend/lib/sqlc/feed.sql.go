@@ -91,6 +91,41 @@ func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
 	return i, err
 }
 
+const selectFeeds = `-- name: SelectFeeds :many
+select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
+from feeds
+where feed_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) SelectFeeds(ctx context.Context, feedIds []string) ([]Feed, error) {
+	rows, err := q.db.Query(ctx, selectFeeds, feedIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Feed
+	for rows.Next() {
+		var i Feed
+		if err := rows.Scan(
+			&i.FeedID,
+			&i.Url,
+			&i.Title,
+			&i.Description,
+			&i.RegisteredAt,
+			&i.LastFetchedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const selectFeedsOrderByRegisteredAtAsc = `-- name: SelectFeedsOrderByRegisteredAtAsc :many
 select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
 from feeds

@@ -12,6 +12,11 @@ select *
 from feeds
 where feed_id = @feed_id;
 
+-- name: SelectFeeds :many
+select *
+from feeds
+where feed_id = ANY (@feed_ids::uuid[]);
+
 -- name: SelectFeedsOrderByRegisteredAtAsc :many
 select *
 from feeds
