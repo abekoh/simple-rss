@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/abekoh/simple-rss/backend/domain/model/feed"
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/database"
