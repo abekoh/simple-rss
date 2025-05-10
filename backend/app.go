@@ -105,12 +105,22 @@ func main() {
 		errCh,
 	)
 
-	// PostFetcher -> nop
+	// PostFetcher -> Summarizer
 	go func() {
 		for {
 			ppResult := <-postFetcherResultCh
 			slog.Info("post fetcher result", "post_id", ppResult.PostID)
-			_ = ppResult
+			summarizerRequestCh <- summarizer.Request{
+				PostID: ppResult.PostID,
+			}
+		}
+	}()
+
+	// Summarizer -> nop
+	go func() {
+		for {
+			sResult := <-summarizerResultCh
+			slog.Info("summarizer result", "post_id", sResult.PostID, "post_summary_id", sResult.PostSummaryID)
 		}
 	}()
 
