@@ -93,7 +93,7 @@ const selectPostForUpdate = `-- name: SelectPostForUpdate :one
 select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
 from posts
 where post_id = $1
-for update
+    for update
 `
 
 func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post, error) {
@@ -115,33 +115,60 @@ func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post,
 	return i, err
 }
 
-const selectPostsOrderByPostedAtAsc = `-- name: SelectPostsOrderByPostedAtAsc :many
-select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
+const selectPosts = `-- name: SelectPosts :many
+select count(*) over () as total_count,
+       posts.post_id, posts.feed_id, posts.url, posts.title, posts.description, posts.author, posts.status, posts.posted_at, posts.last_fetched_at, posts.created_at, posts.updated_at
 from posts
-order by posted_at asc
+where (cardinality($1::uuid[]) = 0 or feed_id = ANY ($1::uuid[]))
+order by case
+             when $2::text = 'PostedAtAsc' then posted_at
+             end asc,
+         case
+             when $2::text = 'PostedAtDesc' then posted_at
+             end desc,
+         posted_at desc
+limit $4 offset $3
 `
 
-func (q *Queries) SelectPostsOrderByPostedAtAsc(ctx context.Context) ([]Post, error) {
-	rows, err := q.db.Query(ctx, selectPostsOrderByPostedAtAsc)
+type SelectPostsParams struct {
+	FeedIds []string
+	Ord     string
+	Off     int32
+	Lim     int32
+}
+
+type SelectPostsRow struct {
+	TotalCount int64
+	Post       Post
+}
+
+func (q *Queries) SelectPosts(ctx context.Context, arg SelectPostsParams) ([]SelectPostsRow, error) {
+	rows, err := q.db.Query(ctx, selectPosts,
+		arg.FeedIds,
+		arg.Ord,
+		arg.Off,
+		arg.Lim,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	var items []SelectPostsRow
 	for rows.Next() {
-		var i Post
+		var i SelectPostsRow
 		if err := rows.Scan(
-			&i.PostID,
-			&i.FeedID,
-			&i.Url,
-			&i.Title,
-			&i.Description,
-			&i.Author,
-			&i.Status,
-			&i.PostedAt,
-			&i.LastFetchedAt,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+			&i.TotalCount,
+			&i.Post.PostID,
+			&i.Post.FeedID,
+			&i.Post.Url,
+			&i.Post.Title,
+			&i.Post.Description,
+			&i.Post.Author,
+			&i.Post.Status,
+			&i.Post.PostedAt,
+			&i.Post.LastFetchedAt,
+			&i.Post.CreatedAt,
+			&i.Post.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

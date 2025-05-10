@@ -23,12 +23,22 @@ where post_id = @post_id;
 select *
 from posts
 where post_id = @post_id
-for update;
+    for update;
 
--- name: SelectPostsOrderByPostedAtAsc :many
-select *
+-- name: SelectPosts :many
+select count(*) over () as total_count,
+       sqlc.embed(posts)
 from posts
-order by posted_at asc;
+where (cardinality(@feed_ids::uuid[]) = 0 or feed_id = ANY (@feed_ids::uuid[]))
+order by case
+             when @ord::text = 'PostedAtAsc' then posted_at
+             end asc,
+         case
+             when @ord::text = 'PostedAtDesc' then posted_at
+             end desc,
+         posted_at desc
+limit @lim offset @off
+;
 
 -- name: InsertPostFetch :exec
 insert into post_fetches (post_fetch_id, post_id, status, message, fetched_at)
