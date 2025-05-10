@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
@@ -58,16 +59,44 @@ func (ff FeedFetcher) loop(ctx context.Context) {
 }
 
 func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
-	feedRow, err := database.FromContext(ctx).Queries().SelectFeedForUpdate(ctx, req.FeedID)
-	if err != nil {
-		ff.errCh <- fmt.Errorf("failed to get feed: %w", err)
+	var (
+		fetchFeedStatus  sqlc.FeedFetchStatus
+		fetchFeedMessage *string
+		feedParsed       *gofeed.Feed
+	)
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		feedRow, err := database.FromContext(ctx).Queries().SelectFeedForUpdate(ctx, req.FeedID)
+		if err != nil {
+			return fmt.Errorf("failed to get feed: %w", err)
+		}
+		fetchedAt := clock.Now(ctx)
+		fp, err := ff.feedParser.ParseURL(feedRow.Url)
+		if err != nil {
+			fetchFeedStatus = sqlc.FeedFetchStatusFailure
+			fetchFeedMessage = lo.ToPtr(err.Error())
+		} else {
+			fetchFeedStatus = sqlc.FeedFetchStatusSuccess
+			feedParsed = fp
+		}
+		if err := database.FromContext(ctx).Queries().InsertFeedFetch(ctx, sqlc.InsertFeedFetchParams{
+			FeedFetchID: uid.NewUUID(ctx),
+			FeedID:      feedRow.FeedID,
+			Status:      fetchFeedStatus,
+			Message:     fetchFeedMessage,
+			FetchedAt:   fetchedAt,
+		}); err != nil {
+			return fmt.Errorf("failed to insert feed fetch: %w", err)
+		}
+		return nil
+	}); err != nil {
+		ff.errCh <- err
 		return
 	}
-	feedParsed, err := ff.feedParser.ParseURL(feedRow.Url)
-	if err != nil {
-		ff.errCh <- fmt.Errorf("failed to parse feed: %w", err)
+
+	if fetchFeedStatus != sqlc.FeedFetchStatusSuccess {
 		return
 	}
+
 	for _, item := range feedParsed.Items {
 		postID := uid.NewUUID(ctx)
 		if err := database.FromContext(ctx).Queries().InsertPost(ctx, sqlc.InsertPostParams{
