@@ -1,3 +1,5 @@
+//go:generate go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate
+//go:generate go tool github.com/99designs/gqlgen
 package main
 
 import (
