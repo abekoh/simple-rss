@@ -24,43 +24,46 @@ type (
 )
 
 type PostFetcher struct {
-	inCh  <-chan Request
-	outCh chan<- Result
-	errCh chan<- error
+	inCh       <-chan Request
+	outCh      chan<- Result
+	errCh      chan<- error
+	httpClient *http.Client
 }
 
 func NewPostFetcher(ctx context.Context,
 	inCh <-chan Request,
 	outCh chan<- Result,
 	errCh chan<- error,
+	httpClient *http.Client,
 ) *PostFetcher {
 	c := &PostFetcher{
-		inCh:  inCh,
-		outCh: outCh,
-		errCh: errCh,
+		inCh:       inCh,
+		outCh:      outCh,
+		errCh:      errCh,
+		httpClient: httpClient,
 	}
 	go c.loop(ctx)
 	return c
 }
 
-func (c PostFetcher) loop(ctx context.Context) {
+func (pf PostFetcher) loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case req := <-c.inCh:
-			res, err := handleRequest(ctx, req)
+		case req := <-pf.inCh:
+			res, err := pf.handleRequest(ctx, req)
 			if err != nil {
-				c.errCh <- err
+				pf.errCh <- err
 			}
-			c.outCh <- *res
+			pf.outCh <- *res
 		}
 	}
 }
 
 var ErrFailedToFetch = fmt.Errorf("failed to fetch")
 
-func handleRequest(ctx context.Context, req Request) (*Result, error) {
+func (pf PostFetcher) handleRequest(ctx context.Context, req Request) (*Result, error) {
 	var (
 		fetched       *http.Response
 		fetchedAt     time.Time
@@ -80,7 +83,7 @@ func handleRequest(ctx context.Context, req Request) (*Result, error) {
 		fetchedStatus = sqlc.PostFetchStatusSuccess
 		var fetchMessage *string
 
-		f, err := http.Get(post.Url)
+		f, err := pf.httpClient.Get(post.Url)
 		if err != nil {
 			fetchedStatus = sqlc.PostFetchStatusFailure
 			fetchMessage = lo.ToPtr(err.Error())
