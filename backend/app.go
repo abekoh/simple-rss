@@ -73,6 +73,7 @@ func main() {
 	go func() {
 		for {
 			ffResult := <-feedFetcherResultCh
+			slog.Info("feed fetcher result", "feed_id", ffResult.FeedID, "post_id", ffResult.PostID)
 			postFetcherRequestCh <- postfetcher.Request{
 				PostID: ffResult.PostID,
 			}
@@ -83,6 +84,7 @@ func main() {
 	go func() {
 		for {
 			ppResult := <-postFetcherResultCh
+			slog.Info("post fetcher result", "post_id", ppResult.PostID)
 			_ = ppResult
 		}
 	}()
