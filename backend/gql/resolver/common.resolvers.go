@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/gql"
+	"github.com/abekoh/simple-rss/backend/lib/database"
 )
 
 // Posts is the resolver for the posts field.
@@ -23,7 +24,11 @@ func (r *postResolver) Summary(ctx context.Context, obj *gql.Post) (*gql.PostSum
 
 // Feed is the resolver for the feed field.
 func (r *postResolver) Feed(ctx context.Context, obj *gql.Post) (*gql.Feed, error) {
-	panic(fmt.Errorf("not implemented: Feed - feed"))
+	feed, err := database.FromContext(ctx).Loader().Feed(ctx, obj.FeedID)
+	if err != nil {
+		return nil, err
+	}
+	return mapFeed(feed), nil
 }
 
 // Feed returns gql.FeedResolver implementation.
