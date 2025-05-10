@@ -10,34 +10,72 @@ import (
 	"time"
 )
 
-type Crawl struct {
-	CrawlID   string      `json:"crawlId"`
-	FeedID    string      `json:"feedId"`
-	Status    CrawlStatus `json:"status"`
-	Message   *string     `json:"message,omitempty"`
-	CrawledAt time.Time   `json:"crawledAt"`
+type DeleteFeedInput struct {
+	FeedID string `json:"feedId"`
+}
+
+type DeleteFeedPayload struct {
+	FeedID string `json:"feedId"`
 }
 
 type Feed struct {
-	FeedID       string    `json:"feedId"`
-	URL          string    `json:"url"`
-	Title        string    `json:"title"`
-	Description  *string   `json:"description,omitempty"`
-	RegisteredAt time.Time `json:"registeredAt"`
+	FeedID        string     `json:"feedId"`
+	URL           string     `json:"url"`
+	Title         string     `json:"title"`
+	Description   *string    `json:"description,omitempty"`
+	RegisteredAt  time.Time  `json:"registeredAt"`
+	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
+}
+
+type FeedFetch struct {
+	FeedFetchID string          `json:"feedFetchId"`
+	FeedID      string          `json:"feedId"`
+	Status      FeedFetchStatus `json:"status"`
+	Message     *string         `json:"message,omitempty"`
+	FetchedAt   time.Time       `json:"fetchedAt"`
 }
 
 type Mutation struct {
 }
 
 type Post struct {
+	PostID        string     `json:"postId"`
+	FeedID        string     `json:"feedId"`
+	URL           string     `json:"url"`
+	Title         string     `json:"title"`
+	Description   *string    `json:"description,omitempty"`
+	Author        *string    `json:"author,omitempty"`
+	Status        PostStatus `json:"status"`
+	PostedAt      *time.Time `json:"postedAt,omitempty"`
+	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
+}
+
+type PostFetch struct {
+	PostFetchID string          `json:"postFetchId"`
+	PostID      string          `json:"postId"`
+	Status      PostFetchStatus `json:"status"`
+	Message     *string         `json:"message,omitempty"`
+	FetchedAt   time.Time       `json:"fetchedAt"`
+}
+
+type PostSummary struct {
+	PostSummaryID   string    `json:"postSummaryId"`
 	PostID          string    `json:"postId"`
-	FeedID          string    `json:"feedId"`
-	CrawlID         string    `json:"crawlId"`
-	Title           string    `json:"title"`
-	Author          *string   `json:"author,omitempty"`
-	URL             string    `json:"url"`
-	SummaryOriginal *string   `json:"summaryOriginal,omitempty"`
-	PostedAt        time.Time `json:"postedAt"`
+	SummarizeMethod string    `json:"summarizeMethod"`
+	Summary         string    `json:"summary"`
+	SummarizedAt    time.Time `json:"summarizedAt"`
+}
+
+type PostsInput struct {
+	FeedIds []string        `json:"feedIds,omitempty"`
+	Limit   int32           `json:"limit"`
+	Offset  int32           `json:"offset"`
+	Order   PostsInputOrder `json:"order"`
+}
+
+type PostsPayload struct {
+	TotalCount int32   `json:"totalCount"`
+	Posts      []*Post `json:"posts"`
 }
 
 type Query struct {
@@ -51,48 +89,48 @@ type RegisterFeedPayload struct {
 	FeedID string `json:"feedId"`
 }
 
-type CrawlStatus string
+type FeedFetchStatus string
 
 const (
-	CrawlStatusSuccess CrawlStatus = "SUCCESS"
-	CrawlStatusFailure CrawlStatus = "FAILURE"
+	FeedFetchStatusSuccess FeedFetchStatus = "Success"
+	FeedFetchStatusFailure FeedFetchStatus = "Failure"
 )
 
-var AllCrawlStatus = []CrawlStatus{
-	CrawlStatusSuccess,
-	CrawlStatusFailure,
+var AllFeedFetchStatus = []FeedFetchStatus{
+	FeedFetchStatusSuccess,
+	FeedFetchStatusFailure,
 }
 
-func (e CrawlStatus) IsValid() bool {
+func (e FeedFetchStatus) IsValid() bool {
 	switch e {
-	case CrawlStatusSuccess, CrawlStatusFailure:
+	case FeedFetchStatusSuccess, FeedFetchStatusFailure:
 		return true
 	}
 	return false
 }
 
-func (e CrawlStatus) String() string {
+func (e FeedFetchStatus) String() string {
 	return string(e)
 }
 
-func (e *CrawlStatus) UnmarshalGQL(v any) error {
+func (e *FeedFetchStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = CrawlStatus(str)
+	*e = FeedFetchStatus(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid CrawlStatus", str)
+		return fmt.Errorf("%s is not a valid FeedFetchStatus", str)
 	}
 	return nil
 }
 
-func (e CrawlStatus) MarshalGQL(w io.Writer) {
+func (e FeedFetchStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func (e *CrawlStatus) UnmarshalJSON(b []byte) error {
+func (e *FeedFetchStatus) UnmarshalJSON(b []byte) error {
 	s, err := strconv.Unquote(string(b))
 	if err != nil {
 		return err
@@ -100,7 +138,174 @@ func (e *CrawlStatus) UnmarshalJSON(b []byte) error {
 	return e.UnmarshalGQL(s)
 }
 
-func (e CrawlStatus) MarshalJSON() ([]byte, error) {
+func (e FeedFetchStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type PostFetchStatus string
+
+const (
+	PostFetchStatusSuccess PostFetchStatus = "Success"
+	PostFetchStatusFailure PostFetchStatus = "Failure"
+)
+
+var AllPostFetchStatus = []PostFetchStatus{
+	PostFetchStatusSuccess,
+	PostFetchStatusFailure,
+}
+
+func (e PostFetchStatus) IsValid() bool {
+	switch e {
+	case PostFetchStatusSuccess, PostFetchStatusFailure:
+		return true
+	}
+	return false
+}
+
+func (e PostFetchStatus) String() string {
+	return string(e)
+}
+
+func (e *PostFetchStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostFetchStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostFetchStatus", str)
+	}
+	return nil
+}
+
+func (e PostFetchStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostFetchStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostFetchStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type PostStatus string
+
+const (
+	PostStatusRegistered PostStatus = "Registered"
+	PostStatusFetched    PostStatus = "Fetched"
+	PostStatusSummarized PostStatus = "Summarized"
+)
+
+var AllPostStatus = []PostStatus{
+	PostStatusRegistered,
+	PostStatusFetched,
+	PostStatusSummarized,
+}
+
+func (e PostStatus) IsValid() bool {
+	switch e {
+	case PostStatusRegistered, PostStatusFetched, PostStatusSummarized:
+		return true
+	}
+	return false
+}
+
+func (e PostStatus) String() string {
+	return string(e)
+}
+
+func (e *PostStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostStatus", str)
+	}
+	return nil
+}
+
+func (e PostStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type PostsInputOrder string
+
+const (
+	PostsInputOrderPostedAtDesc PostsInputOrder = "PostedAtDesc"
+	PostsInputOrderPostedAtAsc  PostsInputOrder = "PostedAtAsc"
+)
+
+var AllPostsInputOrder = []PostsInputOrder{
+	PostsInputOrderPostedAtDesc,
+	PostsInputOrderPostedAtAsc,
+}
+
+func (e PostsInputOrder) IsValid() bool {
+	switch e {
+	case PostsInputOrderPostedAtDesc, PostsInputOrderPostedAtAsc:
+		return true
+	}
+	return false
+}
+
+func (e PostsInputOrder) String() string {
+	return string(e)
+}
+
+func (e *PostsInputOrder) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostsInputOrder(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostsInputOrder", str)
+	}
+	return nil
+}
+
+func (e PostsInputOrder) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostsInputOrder) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostsInputOrder) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

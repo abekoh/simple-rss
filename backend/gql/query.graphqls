@@ -1,3 +1,21 @@
 type Query {
   feeds: [Feed!]!
+  posts(input: PostsInput!): PostsPayload!
+}
+
+enum PostsInputOrder {
+  PostedAtDesc
+  PostedAtAsc
+}
+
+input PostsInput {
+  feedIds: [ID!]
+  limit: Int! = 20
+  offset: Int! = 0
+  order: PostsInputOrder!
+}
+
+type PostsPayload {
+  totalCount: Int!
+  posts: [Post!]!
 }

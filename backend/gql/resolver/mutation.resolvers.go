@@ -55,6 +55,11 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 	}, nil
 }
 
+// DeleteFeed is the resolver for the deleteFeed field.
+func (r *mutationResolver) DeleteFeed(ctx context.Context, input gql.DeleteFeedInput) (*gql.DeleteFeedPayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteFeed - deleteFeed"))
+}
+
 // Mutation returns gql.MutationResolver implementation.
 func (r *Resolver) Mutation() gql.MutationResolver { return &mutationResolver{r} }
 

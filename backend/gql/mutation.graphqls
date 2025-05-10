@@ -1,5 +1,6 @@
 type Mutation {
   registerFeed(input: RegisterFeedInput!): RegisterFeedPayload!
+  deleteFeed(input: DeleteFeedInput!): DeleteFeedPayload!
 }
 
 input RegisterFeedInput {
@@ -7,5 +8,13 @@ input RegisterFeedInput {
 }
 
 type RegisterFeedPayload {
+  feedId: ID!
+}
+
+input DeleteFeedInput {
+  feedId: ID!
+}
+
+type DeleteFeedPayload {
   feedId: ID!
 }
