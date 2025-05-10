@@ -2,32 +2,40 @@ package pagefetcher
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log/slog"
+	"net/http"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
-	"github.com/abekoh/simple-rss/backend/lib/uid"
-	"github.com/jackc/pgconn"
-	"github.com/mmcdole/gofeed"
+	"github.com/samber/lo"
 )
 
 type (
 	Request struct {
-		FeedID   string
-		FeedItem *gofeed.Item
+		PostID string
+	}
+	Result struct {
+		PostID string
 	}
 )
 
 type PageFetcher struct {
-	requestCh chan Request
+	inCh  <-chan Request
+	outCh chan<- Result
+	errCh chan<- error
 }
 
-func NewPageFetcher(ctx context.Context) *PageFetcher {
+func NewPageFetcher(ctx context.Context,
+	inCh <-chan Request,
+	outCh chan<- Result,
+	errCh chan<- error,
+) *PageFetcher {
 	c := &PageFetcher{
-		requestCh: make(chan Request, 10),
+		inCh:  inCh,
+		outCh: outCh,
+		errCh: errCh,
 	}
 	go c.Loop(ctx)
 	return c
@@ -38,77 +46,74 @@ func (c PageFetcher) Loop(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case req := <-c.requestCh:
-			err := c.handleRequest(ctx, req)
+		case req := <-c.inCh:
+			res, err := handleRequest(ctx, req)
 			if err != nil {
-				slog.Error("failed to handle request", slog.Any("request", req))
-			} else {
-				slog.Info("success to handle request", slog.Any("request", req))
+				c.errCh <- err
 			}
+			c.outCh <- *res
 		}
 	}
 }
 
-func (c PageFetcher) handleRequest(ctx context.Context, req Request) error {
-	if req.FeedItem.Link == "" {
-		return fmt.Errorf("failed to get link")
-	}
+func handleRequest(ctx context.Context, req Request) (*Result, error) {
 	if err := database.Transaction(ctx, func(c context.Context) error {
 		queries := database.FromContext(ctx).Queries()
-		found := false
-		_, err := queries.SelectPostByURL(ctx, req.FeedItem.Link)
+		post, err := queries.SelectPost(ctx, req.PostID)
 		if err != nil {
-			var pgErr *pgconn.PgError
-			// TODO not foundの場合はスルー
-			if errors.As(err, &pgErr) && pgErr.Code == "" {
-				found = true
-			} else {
-				return err
-			}
+			return fmt.Errorf("failed to get post: %w", err)
 		}
-		if found {
+		if post.Status != sqlc.PostStatusRegistered {
 			return nil
 		}
-		crawlID := uid.NewUUID(ctx)
-		postID := uid.NewUUID(ctx)
-		crawledAt := clock.Now(ctx)
-		if err := queries.InsertCrawl(ctx, sqlc.InsertCrawlParams{
-			CrawlID:   crawlID,
-			FeedID:    req.FeedID,
-			Status:    sqlc.CrawlStatusSuccess,
-			Message:   nil,
-			CrawledAt: crawledAt,
-		}); err != nil {
-			return err
+		fetchedAt := clock.Now(ctx)
+		fetched, err := http.Get(post.Url)
+		if err != nil {
+			return fmt.Errorf("failed to fetch page: %w", err)
 		}
-		if err := queries.InsertPost(ctx, sqlc.InsertPostParams{
-			PostID:  postID,
-			FeedID:  req.FeedID,
-			CrawlID: crawlID,
-			Title:   req.FeedItem.Title,
-			Author: func() *string {
-				if req.FeedItem.Author == nil {
-					return nil
-				}
-				if req.FeedItem.Author.Name == "" {
-					return nil
-				}
-				return &req.FeedItem.Author.Name
-			}(),
-			Url: req.FeedItem.Link,
-			SummaryOriginal: func() *string {
-				if req.FeedItem.Description == "" {
-					return nil
-				}
-				return &req.FeedItem.Description
-			}(),
-			PostedAt: *req.FeedItem.PublishedParsed,
-		}); err != nil {
-			return err
+		if fetched.StatusCode != http.StatusOK {
+			return fmt.Errorf("failed to fetch page: %w", err)
 		}
-		return nil
+
+		parsedHTML, err := goquery.NewDocumentFromReader(fetched.Body)
+		if err != nil {
+			return fmt.Errorf("failed to parse html: %w", err)
+		}
+
+		fetchedTitle := parsedHTML.Find("title").Text()
+		updatedTitle := post.Title
+		if fetchedTitle != "" {
+			updatedTitle = fetchedTitle
+		}
+
+		fetchedDescription := parsedHTML.Find("meta[name=description]").AttrOr("content", "")
+		updatedDescription := post.Description
+		if fetchedDescription != "" {
+			updatedDescription = &fetchedDescription
+		}
+
+		fetchedAuthor := parsedHTML.Find("meta[name=author]").AttrOr("content", "")
+		updatedAuthor := post.Author
+		if fetchedAuthor != "" {
+			updatedAuthor = &fetchedAuthor
+		}
+
+		if err := queries.UpdatePost(ctx, sqlc.UpdatePostParams{
+			Title:         updatedTitle,
+			Description:   updatedDescription,
+			Author:        updatedAuthor,
+			Url:           post.Url,
+			PostedAt:      post.PostedAt,
+			LastFetchedAt: lo.ToPtr(fetchedAt),
+			Status:        sqlc.PostStatusFetched,
+			PostID:        post.PostID,
+		}); err != nil {
+			return fmt.Errorf("failed to update post: %w", err)
+		}
 	}); err != nil {
-		return err
+		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
-	return nil
+	return &Result{
+		PostID: req.PostID,
+	}, nil
 }

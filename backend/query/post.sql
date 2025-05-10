@@ -10,6 +10,7 @@ set title           = @title,
     url             = @url,
     posted_at       = @posted_at,
     last_fetched_at = @last_fetched_at,
+    status          = @status,
     updated_at      = now()
 where post_id = @post_id;
 

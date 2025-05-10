@@ -135,8 +135,9 @@ set title           = $1,
     url             = $4,
     posted_at       = $5,
     last_fetched_at = $6,
+    status          = $7,
     updated_at      = now()
-where post_id = $7
+where post_id = $8
 `
 
 type UpdatePostParams struct {
@@ -146,6 +147,7 @@ type UpdatePostParams struct {
 	Url           string
 	PostedAt      *time.Time
 	LastFetchedAt *time.Time
+	Status        PostStatus
 	PostID        string
 }
 
@@ -157,6 +159,7 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 		arg.Url,
 		arg.PostedAt,
 		arg.LastFetchedAt,
+		arg.Status,
 		arg.PostID,
 	)
 	return err

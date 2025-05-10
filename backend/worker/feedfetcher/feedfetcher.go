@@ -7,27 +7,32 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
-	"github.com/abekoh/simple-rss/backend/worker/pagefetcher"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
 )
 
-type Request struct {
-	FeedID   string
-	NotifyCh chan<- bool
-}
+type (
+	Request struct {
+		FeedID   string
+		NotifyCh chan<- bool
+	}
+	Result struct {
+		FeedID string
+		PostID string
+	}
+)
 
 type FeedFetcher struct {
 	feedParser *gofeed.Parser
 	inCh       <-chan Request
-	outCh      chan<- pagefetcher.Request
+	outCh      chan<- Result
 	errCh      chan<- error
 }
 
 func NewFeedFetcher(
 	ctx context.Context,
 	inCh <-chan Request,
-	outCh chan<- pagefetcher.Request,
+	outCh chan<- Result,
 	errCh chan<- error,
 ) *FeedFetcher {
 	c := &FeedFetcher{
@@ -58,8 +63,9 @@ func (c FeedFetcher) Loop(ctx context.Context) {
 				continue
 			}
 			for _, item := range feedParsed.Items {
+				postID := uid.NewUUID(ctx)
 				if err := queries.InsertPost(ctx, sqlc.InsertPostParams{
-					PostID:      uid.NewUUID(ctx),
+					PostID:      postID,
 					FeedID:      req.FeedID,
 					Title:       item.Title,
 					Description: lo.ToPtr(item.Description),
@@ -75,6 +81,10 @@ func (c FeedFetcher) Loop(ctx context.Context) {
 				}); err != nil {
 					c.errCh <- fmt.Errorf("failed to insert post: %w", err)
 					continue
+				}
+				c.outCh <- Result{
+					FeedID: req.FeedID,
+					PostID: postID,
 				}
 			}
 		}
