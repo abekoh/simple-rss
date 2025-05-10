@@ -39,11 +39,11 @@ func NewPostFetcher(ctx context.Context,
 		outCh: outCh,
 		errCh: errCh,
 	}
-	go c.Loop(ctx)
+	go c.loop(ctx)
 	return c
 }
 
-func (c PostFetcher) Loop(ctx context.Context) {
+func (c PostFetcher) loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():

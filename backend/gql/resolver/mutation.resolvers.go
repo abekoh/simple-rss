@@ -13,6 +13,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
+	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -44,6 +45,10 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 	}); err != nil {
 		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
+
+	r.feedFetcher.Request(ctx, feedfetcher.Request{
+		FeedID: newFeedID,
+	})
 
 	return &gql.RegisterFeedPayload{
 		FeedID: newFeedID,

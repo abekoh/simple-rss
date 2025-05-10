@@ -13,8 +13,7 @@ import (
 
 type (
 	Request struct {
-		FeedID   string
-		NotifyCh chan<- bool
+		FeedID string
 	}
 	Result struct {
 		FeedID string
@@ -24,14 +23,14 @@ type (
 
 type FeedFetcher struct {
 	feedParser *gofeed.Parser
-	inCh       <-chan Request
+	inCh       chan Request
 	outCh      chan<- Result
 	errCh      chan<- error
 }
 
 func NewFeedFetcher(
 	ctx context.Context,
-	inCh <-chan Request,
+	inCh chan Request,
 	outCh chan<- Result,
 	errCh chan<- error,
 ) *FeedFetcher {
@@ -89,4 +88,8 @@ func (c FeedFetcher) loop(ctx context.Context) {
 			}
 		}
 	}
+}
+
+func (c FeedFetcher) Request(_ context.Context, req Request) {
+	c.inCh <- req
 }
