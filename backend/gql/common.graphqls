@@ -1,3 +1,15 @@
+directive @goModel(
+	model: String
+	models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(
+	forceResolver: Boolean
+	name: String
+	omittable: Boolean
+	type: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
 scalar Time
 
 enum FeedFetchStatus {
@@ -23,6 +35,13 @@ type Feed {
   description: String
   registeredAt: Time!
   lastFetchedAt: Time
+  posts(input: FeedPostsInput!): PostsPayload! @goField(forceResolver: true)
+}
+
+input FeedPostsInput {
+  limit: Int! = 20
+  offset: Int! = 0
+  order: PostsInputOrder! = PostedAtDesc
 }
 
 type FeedFetch {
@@ -43,6 +62,8 @@ type Post {
   status: PostStatus!
   postedAt: Time
   lastFetchedAt: Time
+  summary: PostSummary! @goField(forceResolver: true)
+  feed: Feed! @goField(forceResolver: true)
 }
 
 type PostFetch {

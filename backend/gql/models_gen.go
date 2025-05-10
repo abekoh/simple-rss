@@ -19,12 +19,13 @@ type DeleteFeedPayload struct {
 }
 
 type Feed struct {
-	FeedID        string     `json:"feedId"`
-	URL           string     `json:"url"`
-	Title         string     `json:"title"`
-	Description   *string    `json:"description,omitempty"`
-	RegisteredAt  time.Time  `json:"registeredAt"`
-	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
+	FeedID        string        `json:"feedId"`
+	URL           string        `json:"url"`
+	Title         string        `json:"title"`
+	Description   *string       `json:"description,omitempty"`
+	RegisteredAt  time.Time     `json:"registeredAt"`
+	LastFetchedAt *time.Time    `json:"lastFetchedAt,omitempty"`
+	Posts         *PostsPayload `json:"posts"`
 }
 
 type FeedFetch struct {
@@ -35,19 +36,27 @@ type FeedFetch struct {
 	FetchedAt   time.Time       `json:"fetchedAt"`
 }
 
+type FeedPostsInput struct {
+	Limit  int32           `json:"limit"`
+	Offset int32           `json:"offset"`
+	Order  PostsInputOrder `json:"order"`
+}
+
 type Mutation struct {
 }
 
 type Post struct {
-	PostID        string     `json:"postId"`
-	FeedID        string     `json:"feedId"`
-	URL           string     `json:"url"`
-	Title         string     `json:"title"`
-	Description   *string    `json:"description,omitempty"`
-	Author        *string    `json:"author,omitempty"`
-	Status        PostStatus `json:"status"`
-	PostedAt      *time.Time `json:"postedAt,omitempty"`
-	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
+	PostID        string       `json:"postId"`
+	FeedID        string       `json:"feedId"`
+	URL           string       `json:"url"`
+	Title         string       `json:"title"`
+	Description   *string      `json:"description,omitempty"`
+	Author        *string      `json:"author,omitempty"`
+	Status        PostStatus   `json:"status"`
+	PostedAt      *time.Time   `json:"postedAt,omitempty"`
+	LastFetchedAt *time.Time   `json:"lastFetchedAt,omitempty"`
+	Summary       *PostSummary `json:"summary"`
+	Feed          *Feed        `json:"feed"`
 }
 
 type PostFetch struct {
