@@ -1,12 +1,14 @@
 -- +goose Up
 CREATE TABLE feeds
 (
-    feed_id       uuid primary key,
-    url           text                     not null unique,
-    title         text                     not null,
-    description   text,
-    registered_at timestamp with time zone not null,
-    created_at    timestamp with time zone not null default now()
+    feed_id         uuid primary key,
+    url             text                     not null unique,
+    title           text                     not null,
+    description     text,
+    registered_at   timestamp with time zone not null,
+    last_fetched_at timestamp with time zone,
+    created_at      timestamp with time zone not null default now(),
+    updated_at      timestamp with time zone not null default now()
 );
 
 CREATE INDEX feeds_url_idx ON feeds (url);
@@ -23,16 +25,20 @@ CREATE TABLE feed_fetches
     created_at    timestamp with time zone not null default now()
 );
 
+CREATE TYPE post_status AS ENUM ('Registered', 'Fetched', 'Summarized');
+
 CREATE TABLE posts
 (
-    post_id     uuid primary key,
-    feed_id     uuid                     not null references feeds (feed_id),
-    title       text                     not null,
-    description text,
-    author      text,
-    url         text                     not null unique,
-    posted_at   timestamp with time zone not null,
-    created_at  timestamp with time zone not null default now()
+    post_id         uuid primary key,
+    feed_id         uuid                     not null references feeds (feed_id),
+    url             text                     not null unique,
+    title           text                     not null,
+    description     text,
+    author          text,
+    posted_at       timestamp with time zone,
+    last_fetched_at timestamp with time zone,
+    created_at      timestamp with time zone not null default now(),
+    updated_at      timestamp with time zone not null default now()
 );
 
 CREATE INDEX posts_feed_id_idx ON posts (feed_id);

@@ -94,13 +94,58 @@ func (ns NullPostFetchStatus) Value() (driver.Value, error) {
 	return string(ns.PostFetchStatus), nil
 }
 
+type PostStatus string
+
+const (
+	PostStatusRegistered PostStatus = "Registered"
+	PostStatusFetched    PostStatus = "Fetched"
+	PostStatusSummarized PostStatus = "Summarized"
+)
+
+func (e *PostStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PostStatus(s)
+	case string:
+		*e = PostStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PostStatus: %T", src)
+	}
+	return nil
+}
+
+type NullPostStatus struct {
+	PostStatus PostStatus
+	Valid      bool // Valid is true if PostStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPostStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.PostStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PostStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPostStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PostStatus), nil
+}
+
 type Feed struct {
-	FeedID       string
-	Url          string
-	Title        string
-	Description  *string
-	RegisteredAt time.Time
-	CreatedAt    time.Time
+	FeedID        string
+	Url           string
+	Title         string
+	Description   *string
+	RegisteredAt  time.Time
+	LastFetchedAt *time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type FeedFetch struct {
@@ -113,14 +158,16 @@ type FeedFetch struct {
 }
 
 type Post struct {
-	PostID      string
-	FeedID      string
-	Title       string
-	Description *string
-	Author      *string
-	Url         string
-	PostedAt    time.Time
-	CreatedAt   time.Time
+	PostID        string
+	FeedID        string
+	Url           string
+	Title         string
+	Description   *string
+	Author        *string
+	PostedAt      *time.Time
+	LastFetchedAt *time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type PostFetch struct {

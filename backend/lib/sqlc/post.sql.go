@@ -22,7 +22,7 @@ type InsertPostParams struct {
 	Description *string
 	Author      *string
 	Url         string
-	PostedAt    time.Time
+	PostedAt    *time.Time
 }
 
 func (q *Queries) InsertPost(ctx context.Context, arg InsertPostParams) error {
@@ -63,7 +63,9 @@ func (q *Queries) InsertPostFetch(ctx context.Context, arg InsertPostFetchParams
 }
 
 const selectPost = `-- name: SelectPost :one
-select post_id, feed_id, title, description, author, url, posted_at, created_at from posts where post_id = $1
+select post_id, feed_id, url, title, description, author, posted_at, last_fetched_at, created_at, updated_at
+from posts
+where post_id = $1
 `
 
 func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
@@ -72,18 +74,22 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 	err := row.Scan(
 		&i.PostID,
 		&i.FeedID,
+		&i.Url,
 		&i.Title,
 		&i.Description,
 		&i.Author,
-		&i.Url,
 		&i.PostedAt,
+		&i.LastFetchedAt,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const selectPostsOrderByPostedAtAsc = `-- name: SelectPostsOrderByPostedAtAsc :many
-select post_id, feed_id, title, description, author, url, posted_at, created_at from posts order by posted_at asc
+select post_id, feed_id, url, title, description, author, posted_at, last_fetched_at, created_at, updated_at
+from posts
+order by posted_at asc
 `
 
 func (q *Queries) SelectPostsOrderByPostedAtAsc(ctx context.Context) ([]Post, error) {
@@ -98,12 +104,14 @@ func (q *Queries) SelectPostsOrderByPostedAtAsc(ctx context.Context) ([]Post, er
 		if err := rows.Scan(
 			&i.PostID,
 			&i.FeedID,
+			&i.Url,
 			&i.Title,
 			&i.Description,
 			&i.Author,
-			&i.Url,
 			&i.PostedAt,
+			&i.LastFetchedAt,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -113,4 +121,39 @@ func (q *Queries) SelectPostsOrderByPostedAtAsc(ctx context.Context) ([]Post, er
 		return nil, err
 	}
 	return items, nil
+}
+
+const updatePost = `-- name: UpdatePost :exec
+update posts
+set title           = $1,
+    description     = $2,
+    author          = $3,
+    url             = $4,
+    posted_at       = $5,
+    last_fetched_at = $6,
+    updated_at      = now()
+where post_id = $7
+`
+
+type UpdatePostParams struct {
+	Title         string
+	Description   *string
+	Author        *string
+	Url           string
+	PostedAt      *time.Time
+	LastFetchedAt *time.Time
+	PostID        string
+}
+
+func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
+	_, err := q.db.Exec(ctx, updatePost,
+		arg.Title,
+		arg.Description,
+		arg.Author,
+		arg.Url,
+		arg.PostedAt,
+		arg.LastFetchedAt,
+		arg.PostID,
+	)
+	return err
 }

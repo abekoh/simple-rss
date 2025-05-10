@@ -59,7 +59,9 @@ func (q *Queries) InsertFeedFetch(ctx context.Context, arg InsertFeedFetchParams
 }
 
 const selectFeed = `-- name: SelectFeed :one
-select feed_id, url, title, description, registered_at, created_at from feeds where feed_id = $1
+select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
+from feeds
+where feed_id = $1
 `
 
 func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
@@ -71,13 +73,17 @@ func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
 		&i.Title,
 		&i.Description,
 		&i.RegisteredAt,
+		&i.LastFetchedAt,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const selectFeedsOrderByRegisteredAtAsc = `-- name: SelectFeedsOrderByRegisteredAtAsc :many
-select feed_id, url, title, description, registered_at, created_at from feeds order by registered_at asc
+select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
+from feeds
+order by registered_at asc
 `
 
 func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed, error) {
@@ -95,7 +101,9 @@ func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed
 			&i.Title,
 			&i.Description,
 			&i.RegisteredAt,
+			&i.LastFetchedAt,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -105,4 +113,15 @@ func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertFeedLastFetchedAt = `-- name: UpsertFeedLastFetchedAt :exec
+update feeds
+set last_fetched_at = $1,
+    updated_at      = now()
+`
+
+func (q *Queries) UpsertFeedLastFetchedAt(ctx context.Context, lastFetchedAt *time.Time) error {
+	_, err := q.db.Exec(ctx, upsertFeedLastFetchedAt, lastFetchedAt)
+	return err
 }
