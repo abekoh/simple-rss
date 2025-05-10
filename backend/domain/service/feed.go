@@ -8,7 +8,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
-	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
+	"github.com/mmcdole/gofeed"
 )
 
 type (
@@ -21,9 +21,8 @@ type (
 )
 
 func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOutput, error) {
-	res, err := feedfetcher.SendRequestSync(feedfetcher.Request{
-		URL: input.URL,
-	})
+	fp := gofeed.NewParser()
+	feedContent, err := fp.ParseURL(input.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -31,12 +30,12 @@ func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOu
 	newFeed := &feed.Feed{
 		FeedID: uid.NewUUID(ctx),
 		URL:    input.URL,
-		Title:  res.Content.Title,
+		Title:  feedContent.Title,
 		Description: func() *string {
-			if res.Content.Description == "" {
+			if feedContent.Description == "" {
 				return nil
 			}
-			return &res.Content.Description
+			return &feedContent.Description
 		}(),
 		RegisteredAt: clock.Now(ctx),
 	}
