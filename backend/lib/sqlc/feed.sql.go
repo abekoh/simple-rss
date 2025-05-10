@@ -221,11 +221,11 @@ func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetched
 
 const updateFeedLastFetchedAt = `-- name: UpdateFeedLastFetchedAt :exec
 update feeds
-set last_fetched_at = $1,
+set last_fetched_at = $1::timestamp with time zone,
     updated_at      = now()
 `
 
-func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, lastFetchedAt *time.Time) error {
+func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, lastFetchedAt time.Time) error {
 	_, err := q.db.Exec(ctx, updateFeedLastFetchedAt, lastFetchedAt)
 	return err
 }

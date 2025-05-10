@@ -87,6 +87,9 @@ func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
 		}); err != nil {
 			return fmt.Errorf("failed to insert feed fetch: %w", err)
 		}
+		if err := database.FromContext(ctx).Queries().UpdateFeedLastFetchedAt(ctx, fetchedAt); err != nil {
+			return fmt.Errorf("failed to update feed: %w", err)
+		}
 		return nil
 	}); err != nil {
 		ff.errCh <- err

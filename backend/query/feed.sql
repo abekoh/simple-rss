@@ -4,7 +4,7 @@ values (@feed_id, @url, @title, @description, @registered_at);
 
 -- name: UpdateFeedLastFetchedAt :exec
 update feeds
-set last_fetched_at = @last_fetched_at,
+set last_fetched_at = @last_fetched_at::timestamp with time zone,
     updated_at      = now();
 
 -- name: SelectFeed :one
