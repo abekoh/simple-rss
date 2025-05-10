@@ -28,8 +28,8 @@ func (r *queryResolver) Posts(ctx context.Context, input gql.PostsInput) (*gql.P
 	posts, err := database.FromContext(ctx).Queries().SelectPosts(ctx, sqlc.SelectPostsParams{
 		FeedIds: lo.Map(input.FeedIds, func(x string, _ int) string { return x }),
 		Ord:     string(input.Order),
-		Off:     input.Limit,
-		Lim:     input.Offset,
+		Off:     input.Offset,
+		Lim:     input.Limit,
 	})
 	if err != nil {
 		return nil, err
