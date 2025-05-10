@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
@@ -60,77 +61,99 @@ func (c PostFetcher) Loop(ctx context.Context) {
 var ErrFailedToFetch = fmt.Errorf("failed to fetch")
 
 func handleRequest(ctx context.Context, req Request) (*Result, error) {
-	queries := database.FromContext(ctx).Queries()
-	post, err := queries.SelectPost(ctx, req.PostID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get post: %w", err)
-	}
-	if post.Status != sqlc.PostStatusRegistered {
-		return nil, nil
-	}
-
-	fetchedAt := clock.Now(ctx)
-	fetchedStatus := sqlc.PostFetchStatusSuccess
-	var fetchMessage *string
-
-	fetched, err := http.Get(post.Url)
-	if err != nil {
-		fetchedStatus = sqlc.PostFetchStatusFailure
-		fetchMessage = lo.ToPtr(err.Error())
-	} else {
-		if fetched.StatusCode != http.StatusOK {
-			fetchedStatus = sqlc.PostFetchStatusFailure
-			fetchMessage = lo.ToPtr(fmt.Sprintf("status code: %d", fetched.StatusCode))
+	var (
+		fetched       *http.Response
+		fetchedAt     time.Time
+		fetchedStatus sqlc.PostFetchStatus
+	)
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		queries := database.FromContext(c).Queries()
+		post, err := queries.SelectPost(c, req.PostID)
+		if err != nil {
+			return fmt.Errorf("failed to get post: %w", err)
 		}
-	}
-	if err := queries.InsertPostFetch(ctx, sqlc.InsertPostFetchParams{
-		PostFetchID: uid.NewUUID(ctx),
-		PostID:      req.PostID,
-		Status:      fetchedStatus,
-		Message:     fetchMessage,
-		FetchedAt:   fetchedAt,
+		if post.Status != sqlc.PostStatusRegistered {
+			return nil
+		}
+
+		fetchedAt = clock.Now(c)
+		fetchedStatus = sqlc.PostFetchStatusSuccess
+		var fetchMessage *string
+
+		f, err := http.Get(post.Url)
+		if err != nil {
+			fetchedStatus = sqlc.PostFetchStatusFailure
+			fetchMessage = lo.ToPtr(err.Error())
+		} else {
+			fetched = f
+			if fetched.StatusCode != http.StatusOK {
+				fetchedStatus = sqlc.PostFetchStatusFailure
+				fetchMessage = lo.ToPtr(fmt.Sprintf("status code: %d", fetched.StatusCode))
+			}
+		}
+		if err := queries.InsertPostFetch(c, sqlc.InsertPostFetchParams{
+			PostFetchID: uid.NewUUID(c),
+			PostID:      req.PostID,
+			Status:      fetchedStatus,
+			Message:     fetchMessage,
+			FetchedAt:   fetchedAt,
+		}); err != nil {
+			return fmt.Errorf("failed to insert post fetch: %w", err)
+		}
+		return nil
 	}); err != nil {
-		return nil, fmt.Errorf("failed to insert post fetch: %w", err)
+		return nil, fmt.Errorf("transaction failed: %w", err)
 	}
 
 	if fetchedStatus == sqlc.PostFetchStatusFailure {
 		return nil, ErrFailedToFetch
 	}
 
-	parsedHTML, err := goquery.NewDocumentFromReader(fetched.Body)
-	if err != nil {
-		return nil, nil
-	}
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		queries := database.FromContext(c).Queries()
+		post, err := queries.SelectPostForUpdate(c, req.PostID)
+		if err != nil {
+			return fmt.Errorf("failed to get post: %w", err)
+		}
 
-	fetchedTitle := parsedHTML.Find("title").Text()
-	updatedTitle := post.Title
-	if fetchedTitle != "" {
-		updatedTitle = fetchedTitle
-	}
+		parsedHTML, err := goquery.NewDocumentFromReader(fetched.Body)
+		if err != nil {
+			return nil
+		}
 
-	fetchedDescription := parsedHTML.Find("meta[name=description]").AttrOr("content", "")
-	updatedDescription := post.Description
-	if fetchedDescription != "" {
-		updatedDescription = &fetchedDescription
-	}
+		fetchedTitle := parsedHTML.Find("title").Text()
+		updatedTitle := post.Title
+		if fetchedTitle != "" {
+			updatedTitle = fetchedTitle
+		}
 
-	fetchedAuthor := parsedHTML.Find("meta[name=author]").AttrOr("content", "")
-	updatedAuthor := post.Author
-	if fetchedAuthor != "" {
-		updatedAuthor = &fetchedAuthor
-	}
+		fetchedDescription := parsedHTML.Find("meta[name=description]").AttrOr("content", "")
+		updatedDescription := post.Description
+		if fetchedDescription != "" {
+			updatedDescription = &fetchedDescription
+		}
 
-	if err := queries.UpdatePost(ctx, sqlc.UpdatePostParams{
-		Title:         updatedTitle,
-		Description:   updatedDescription,
-		Author:        updatedAuthor,
-		Url:           post.Url,
-		PostedAt:      post.PostedAt,
-		LastFetchedAt: lo.ToPtr(fetchedAt),
-		Status:        sqlc.PostStatusFetched,
-		PostID:        post.PostID,
+		fetchedAuthor := parsedHTML.Find("meta[name=author]").AttrOr("content", "")
+		updatedAuthor := post.Author
+		if fetchedAuthor != "" {
+			updatedAuthor = &fetchedAuthor
+		}
+
+		if err := queries.UpdatePost(c, sqlc.UpdatePostParams{
+			Title:         updatedTitle,
+			Description:   updatedDescription,
+			Author:        updatedAuthor,
+			Url:           post.Url,
+			PostedAt:      post.PostedAt,
+			LastFetchedAt: lo.ToPtr(fetchedAt),
+			Status:        sqlc.PostStatusFetched,
+			PostID:        post.PostID,
+		}); err != nil {
+			return fmt.Errorf("failed to update post: %w", err)
+		}
+		return nil
 	}); err != nil {
-		return nil, fmt.Errorf("failed to update post: %w", err)
+		return nil, fmt.Errorf("transaction failed")
 	}
 
 	return &Result{

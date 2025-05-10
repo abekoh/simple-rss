@@ -89,6 +89,32 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 	return i, err
 }
 
+const selectPostForUpdate = `-- name: SelectPostForUpdate :one
+select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
+from posts
+where post_id = $1
+for update
+`
+
+func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post, error) {
+	row := q.db.QueryRow(ctx, selectPostForUpdate, postID)
+	var i Post
+	err := row.Scan(
+		&i.PostID,
+		&i.FeedID,
+		&i.Url,
+		&i.Title,
+		&i.Description,
+		&i.Author,
+		&i.Status,
+		&i.PostedAt,
+		&i.LastFetchedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const selectPostsOrderByPostedAtAsc = `-- name: SelectPostsOrderByPostedAtAsc :many
 select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
 from posts

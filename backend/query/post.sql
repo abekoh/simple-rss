@@ -19,6 +19,12 @@ select *
 from posts
 where post_id = @post_id;
 
+-- name: SelectPostForUpdate :one
+select *
+from posts
+where post_id = @post_id
+for update;
+
 -- name: SelectPostsOrderByPostedAtAsc :many
 select *
 from posts
