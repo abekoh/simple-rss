@@ -99,7 +99,11 @@ func Transaction(ctx context.Context, f func(c context.Context) error) error {
 	}
 	txD := &txDB{tx: tx, dataLoader: poolD.dataloader}
 	if err := f(WithDB(ctx, txD)); err != nil {
-		return tx.Rollback(ctx)
+		rollbackErr := tx.Rollback(ctx)
+		if rollbackErr != nil {
+			return errors.Join(err, rollbackErr)
+		}
+		return err
 	}
 	return tx.Commit(ctx)
 }
