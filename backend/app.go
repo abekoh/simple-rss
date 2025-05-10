@@ -129,8 +129,8 @@ func main() {
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := config.WithConfig(r.Context(), cnf)
-			ctx = database.WithDB(r.Context(), db)
-			ctx = dataloader.WithDataLoader(r.Context(), dataloader.New())
+			ctx = database.WithDB(ctx, db)
+			ctx = dataloader.WithDataLoader(ctx, dataloader.New())
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
