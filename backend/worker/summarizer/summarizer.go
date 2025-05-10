@@ -80,7 +80,7 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 		if err != nil {
 			return fmt.Errorf("failed to get post: %w", err)
 		}
-		if post.Status != sqlc.PostStatusSummarized {
+		if post.Status == sqlc.PostStatusSummarized {
 			return nil
 		}
 		fetched, err := s.httpClient.Get(post.Url)
