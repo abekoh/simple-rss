@@ -70,6 +70,6 @@ func (c FeedFetcher) SendRequestSync(req Request) (*Result, error) {
 
 var DefaultFeedFetcher *FeedFetcher
 
-func SendRequest(req Request) (*Result, error) {
+func SendRequestSync(req Request) (*Result, error) {
 	return DefaultFeedFetcher.SendRequestSync(req)
 }

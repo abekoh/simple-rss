@@ -21,7 +21,7 @@ type (
 )
 
 func RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedOutput, error) {
-	res, err := feedfetcher.SendRequest(feedfetcher.Request{
+	res, err := feedfetcher.SendRequestSync(feedfetcher.Request{
 		URL: input.URL,
 	})
 	if err != nil {
