@@ -1,4 +1,4 @@
-package pagefetcher
+package postfetcher
 
 import (
 	"context"
@@ -22,18 +22,18 @@ type (
 	}
 )
 
-type PageFetcher struct {
+type PostFetcher struct {
 	inCh  <-chan Request
 	outCh chan<- Result
 	errCh chan<- error
 }
 
-func NewPageFetcher(ctx context.Context,
+func NewPostFetcher(ctx context.Context,
 	inCh <-chan Request,
 	outCh chan<- Result,
 	errCh chan<- error,
-) *PageFetcher {
-	c := &PageFetcher{
+) *PostFetcher {
+	c := &PostFetcher{
 		inCh:  inCh,
 		outCh: outCh,
 		errCh: errCh,
@@ -42,7 +42,7 @@ func NewPageFetcher(ctx context.Context,
 	return c
 }
 
-func (c PageFetcher) Loop(ctx context.Context) {
+func (c PostFetcher) Loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
