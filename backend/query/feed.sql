@@ -17,6 +17,11 @@ select *
 from feeds
 order by registered_at asc;
 
+-- name: DeleteFeed :exec
+delete
+from feeds
+where feed_id = @feed_id;
+
 -- name: InsertFeedFetch :exec
 insert into feed_fetches (feed_fetch_id, feed_id, status, message, fetched_at)
 values (@feed_fetch_id, @feed_id, @status, @message, @fetched_at);

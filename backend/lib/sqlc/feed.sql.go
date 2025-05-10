@@ -10,6 +10,17 @@ import (
 	"time"
 )
 
+const deleteFeed = `-- name: DeleteFeed :exec
+delete
+from feeds
+where feed_id = $1
+`
+
+func (q *Queries) DeleteFeed(ctx context.Context, feedID string) error {
+	_, err := q.db.Exec(ctx, deleteFeed, feedID)
+	return err
+}
+
 const insertFeed = `-- name: InsertFeed :exec
 insert into feeds (feed_id, url, title, description, registered_at)
 values ($1, $2, $3, $4, $5)
