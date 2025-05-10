@@ -2,11 +2,13 @@ package feedfetcher
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
 )
@@ -78,6 +80,11 @@ func (c FeedFetcher) loop(ctx context.Context) {
 					PostedAt: item.PublishedParsed,
 					Status:   sqlc.PostStatusRegistered,
 				}); err != nil {
+					var pgError *pgconn.PgError
+					// skip if duplicate key error
+					if errors.As(err, &pgError) && pgError.Code == "23505" {
+						continue
+					}
 					c.errCh <- fmt.Errorf("failed to insert post: %w", err)
 					continue
 				}
