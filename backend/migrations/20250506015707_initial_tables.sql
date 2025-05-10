@@ -74,6 +74,7 @@ DROP TABLE post_summaries;
 DROP TABLE post_fetches;
 DROP TYPE post_fetch_status;
 DROP TABLE posts;
+DROP TYPE post_status;
 DROP TABLE feed_fetches;
 DROP TYPE feed_fetch_status;
 DROP TABLE feeds;
