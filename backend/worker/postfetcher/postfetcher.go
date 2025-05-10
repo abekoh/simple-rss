@@ -55,6 +55,7 @@ func (pf PostFetcher) loop(ctx context.Context) {
 			res, err := pf.handleRequest(ctx, req)
 			if err != nil {
 				pf.errCh <- err
+				continue
 			}
 			pf.outCh <- *res
 		}
