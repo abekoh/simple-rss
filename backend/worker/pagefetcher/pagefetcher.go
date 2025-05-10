@@ -1,4 +1,4 @@
-package pagecrawler
+package pagefetcher
 
 import (
 	"context"
@@ -27,19 +27,19 @@ type (
 	}
 )
 
-type PageCrawler struct {
+type PageFetcher struct {
 	requestCh chan Request
 }
 
-func NewPageCrawler(ctx context.Context) *PageCrawler {
-	c := &PageCrawler{
+func NewPageFetcher(ctx context.Context) *PageFetcher {
+	c := &PageFetcher{
 		requestCh: make(chan Request, 10),
 	}
 	go c.Loop(ctx)
 	return c
 }
 
-func (c PageCrawler) Loop(ctx context.Context) {
+func (c PageFetcher) Loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -55,7 +55,7 @@ func (c PageCrawler) Loop(ctx context.Context) {
 	}
 }
 
-func (c PageCrawler) handleRequest(ctx context.Context, req Request) error {
+func (c PageFetcher) handleRequest(ctx context.Context, req Request) error {
 	if req.FeedItem.Link == "" {
 		return fmt.Errorf("failed to get link")
 	}
@@ -119,13 +119,13 @@ func (c PageCrawler) handleRequest(ctx context.Context, req Request) error {
 	return nil
 }
 
-func (c PageCrawler) SendRequest(ctx context.Context, req Request) error {
+func (c PageFetcher) SendRequest(ctx context.Context, req Request) error {
 	c.requestCh <- req
 	return nil
 }
 
-var DefaultPageCrawler *PageCrawler
+var DefaultPageFetcher *PageFetcher
 
 func SendRequest(ctx context.Context, req Request) error {
-	return DefaultPageCrawler.SendRequest(ctx, req)
+	return DefaultPageFetcher.SendRequest(ctx, req)
 }

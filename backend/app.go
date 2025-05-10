@@ -16,7 +16,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/config"
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
-	"github.com/abekoh/simple-rss/backend/worker/pagecrawler"
+	"github.com/abekoh/simple-rss/backend/worker/pagefetcher"
 	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -28,7 +28,7 @@ func main() {
 
 	// batch
 	feedfetcher.DefaultFeedFetcher = feedfetcher.NewFeedFetcher(routerCtx)
-	pagecrawler.DefaultPageCrawler = pagecrawler.NewPageCrawler(routerCtx)
+	pagefetcher.DefaultPageFetcher = pagefetcher.NewPageFetcher(routerCtx)
 
 	// config
 	r.Use(func(next http.Handler) http.Handler {
