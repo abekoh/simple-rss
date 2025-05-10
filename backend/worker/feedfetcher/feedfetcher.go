@@ -41,11 +41,11 @@ func NewFeedFetcher(
 		outCh:      outCh,
 		errCh:      errCh,
 	}
-	go c.Loop(ctx)
+	go c.loop(ctx)
 	return c
 }
 
-func (c FeedFetcher) Loop(ctx context.Context) {
+func (c FeedFetcher) loop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
