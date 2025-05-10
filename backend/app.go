@@ -19,6 +19,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/postfetcher"
+	"github.com/abekoh/simple-rss/backend/worker/scheduler"
 	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -79,6 +80,13 @@ func main() {
 			}
 		}
 	}()
+
+	_ = scheduler.NewScheduler(
+		routerCtx,
+		feedFetcher,
+		postFetcher,
+		errCh,
+	)
 
 	// PostFetcher -> nop
 	go func() {

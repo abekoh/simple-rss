@@ -161,6 +161,42 @@ func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed
 	return items, nil
 }
 
+const selectRecentlyNotFetchedFeeds = `-- name: SelectRecentlyNotFetchedFeeds :many
+select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
+from feeds
+where last_fetched_at is null or last_fetched_at < $1::timestamp with time zone
+order by last_fetched_at asc
+`
+
+func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetchedAtThreshold time.Time) ([]Feed, error) {
+	rows, err := q.db.Query(ctx, selectRecentlyNotFetchedFeeds, lastFetchedAtThreshold)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Feed
+	for rows.Next() {
+		var i Feed
+		if err := rows.Scan(
+			&i.FeedID,
+			&i.Url,
+			&i.Title,
+			&i.Description,
+			&i.RegisteredAt,
+			&i.LastFetchedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertFeedLastFetchedAt = `-- name: UpsertFeedLastFetchedAt :exec
 update feeds
 set last_fetched_at = $1,

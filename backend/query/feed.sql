@@ -22,6 +22,12 @@ select *
 from feeds
 order by registered_at asc;
 
+-- name: SelectRecentlyNotFetchedFeeds :many
+select *
+from feeds
+where last_fetched_at is null or last_fetched_at < @last_fetched_at_threshold::timestamp with time zone
+order by last_fetched_at asc;
+
 -- name: DeleteFeed :exec
 delete
 from feeds
