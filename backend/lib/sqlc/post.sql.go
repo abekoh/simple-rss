@@ -11,8 +11,8 @@ import (
 )
 
 const insertPost = `-- name: InsertPost :exec
-insert into posts (post_id, feed_id, title, description, author, url, posted_at)
-values ($1, $2, $3, $4, $5, $6, $7)
+insert into posts (post_id, feed_id, title, description, author, url, posted_at, status)
+values ($1, $2, $3, $4, $5, $6, $7, $8)
 `
 
 type InsertPostParams struct {
@@ -23,6 +23,7 @@ type InsertPostParams struct {
 	Author      *string
 	Url         string
 	PostedAt    *time.Time
+	Status      PostStatus
 }
 
 func (q *Queries) InsertPost(ctx context.Context, arg InsertPostParams) error {
@@ -34,6 +35,7 @@ func (q *Queries) InsertPost(ctx context.Context, arg InsertPostParams) error {
 		arg.Author,
 		arg.Url,
 		arg.PostedAt,
+		arg.Status,
 	)
 	return err
 }
@@ -63,7 +65,7 @@ func (q *Queries) InsertPostFetch(ctx context.Context, arg InsertPostFetchParams
 }
 
 const selectPost = `-- name: SelectPost :one
-select post_id, feed_id, url, title, description, author, posted_at, last_fetched_at, created_at, updated_at
+select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
 from posts
 where post_id = $1
 `
@@ -78,6 +80,7 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 		&i.Title,
 		&i.Description,
 		&i.Author,
+		&i.Status,
 		&i.PostedAt,
 		&i.LastFetchedAt,
 		&i.CreatedAt,
@@ -87,7 +90,7 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 }
 
 const selectPostsOrderByPostedAtAsc = `-- name: SelectPostsOrderByPostedAtAsc :many
-select post_id, feed_id, url, title, description, author, posted_at, last_fetched_at, created_at, updated_at
+select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
 from posts
 order by posted_at asc
 `
@@ -108,6 +111,7 @@ func (q *Queries) SelectPostsOrderByPostedAtAsc(ctx context.Context) ([]Post, er
 			&i.Title,
 			&i.Description,
 			&i.Author,
+			&i.Status,
 			&i.PostedAt,
 			&i.LastFetchedAt,
 			&i.CreatedAt,

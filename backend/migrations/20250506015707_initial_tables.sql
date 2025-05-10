@@ -35,6 +35,7 @@ CREATE TABLE posts
     title           text                     not null,
     description     text,
     author          text,
+    status          post_status              not null,
     posted_at       timestamp with time zone,
     last_fetched_at timestamp with time zone,
     created_at      timestamp with time zone not null default now(),

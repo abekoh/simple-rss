@@ -1,6 +1,6 @@
 -- name: InsertPost :exec
-insert into posts (post_id, feed_id, title, description, author, url, posted_at)
-values (@post_id, @feed_id, @title, @description, @author, @url, @posted_at);
+insert into posts (post_id, feed_id, title, description, author, url, posted_at, status)
+values (@post_id, @feed_id, @title, @description, @author, @url, @posted_at, @status);
 
 -- name: UpdatePost :exec
 update posts

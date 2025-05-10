@@ -71,6 +71,7 @@ func (c FeedFetcher) Loop(ctx context.Context) {
 					}(),
 					Url:      item.Link,
 					PostedAt: item.PublishedParsed,
+					Status:   sqlc.PostStatusRegistered,
 				}); err != nil {
 					c.errCh <- fmt.Errorf("failed to insert post: %w", err)
 					continue

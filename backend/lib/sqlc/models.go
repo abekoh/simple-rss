@@ -164,6 +164,7 @@ type Post struct {
 	Title         string
 	Description   *string
 	Author        *string
+	Status        PostStatus
 	PostedAt      *time.Time
 	LastFetchedAt *time.Time
 	CreatedAt     time.Time
