@@ -6,29 +6,55 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/abekoh/simple-rss/backend/domain/service"
+	"github.com/abekoh/simple-rss/backend/domain/model/feed"
 	"github.com/abekoh/simple-rss/backend/gql"
+	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/lib/sqlc"
+	"github.com/abekoh/simple-rss/backend/lib/uid"
+	"github.com/mmcdole/gofeed"
 )
 
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
-	var newFeedID string
+	fp := gofeed.NewParser()
+	feedContent, err := fp.ParseURL(input.URL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse url: %w", err)
+	}
+
+	newFeed := &feed.Feed{
+		FeedID: uid.NewUUID(ctx),
+		URL:    input.URL,
+		Title:  feedContent.Title,
+		Description: func() *string {
+			if feedContent.Description == "" {
+				return nil
+			}
+			return &feedContent.Description
+		}(),
+		RegisteredAt: clock.Now(ctx),
+	}
+
 	if err := database.Transaction(ctx, func(c context.Context) error {
-		createRes, err := service.RegisterFeed(ctx, service.RegisterFeedInput{
-			URL: input.URL,
-		})
-		if err != nil {
-			return err
+		if err := database.FromContext(ctx).Queries().InsertFeed(ctx, sqlc.InsertFeedParams{
+			FeedID:       newFeed.FeedID,
+			Url:          newFeed.URL,
+			Title:        newFeed.Title,
+			Description:  newFeed.Description,
+			RegisteredAt: newFeed.RegisteredAt,
+		}); err != nil {
+			return fmt.Errorf("failed to insert feed: %w", err)
 		}
-		newFeedID = createRes.NewFeed.FeedID
 		return nil
 	}); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
+
 	return &gql.RegisterFeedPayload{
-		FeedID: newFeedID,
+		FeedID: newFeed.FeedID,
 	}, nil
 }
 
