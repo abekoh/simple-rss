@@ -15,6 +15,8 @@ import (
 	"github.com/abekoh/simple-rss/backend/gql/resolver"
 	"github.com/abekoh/simple-rss/backend/lib/config"
 	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
+	"github.com/abekoh/simple-rss/backend/worker/postfetcher"
 	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -23,6 +25,51 @@ func main() {
 	routerCtx := context.Background()
 	cnf := config.Load()
 	r := chi.NewRouter()
+
+	errCh := make(chan error, 10)
+	feedFetcherRequestCh := make(chan feedfetcher.Request, 10)
+	feedFetcherResultCh := make(chan feedfetcher.Result, 10)
+	postFetcherRequestCh := make(chan postfetcher.Request, 10)
+	postFetcherResultCh := make(chan postfetcher.Result, 10)
+
+	feedFetcher := feedfetcher.NewFeedFetcher(
+		routerCtx,
+		feedFetcherRequestCh,
+		feedFetcherResultCh,
+		errCh,
+	)
+	postFetcher := postfetcher.NewPostFetcher(
+		routerCtx,
+		postFetcherRequestCh,
+		postFetcherResultCh,
+		errCh,
+	)
+
+	// error handler
+	go func() {
+		for {
+			err := <-errCh
+			slog.Error(err.Error())
+		}
+	}()
+
+	// FeedFetcher -> PostFetcher
+	go func() {
+		for {
+			ffResult := <-feedFetcherResultCh
+			postFetcherRequestCh <- postfetcher.Request{
+				PostID: ffResult.PostID,
+			}
+		}
+	}()
+
+	// PostFetcher -> nop
+	go func() {
+		for {
+			ppResult := <-postFetcherResultCh
+			_ = ppResult
+		}
+	}()
 
 	// config
 	r.Use(func(next http.Handler) http.Handler {
