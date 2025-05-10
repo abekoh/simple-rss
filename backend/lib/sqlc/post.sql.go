@@ -139,6 +139,39 @@ func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post,
 	return i, err
 }
 
+const selectPostSummaries = `-- name: SelectPostSummaries :many
+select post_summary_id, post_id, summarize_method, summary, summarized_at, created_at
+from post_summaries
+where post_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) SelectPostSummaries(ctx context.Context, postIds []string) ([]PostSummary, error) {
+	rows, err := q.db.Query(ctx, selectPostSummaries, postIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PostSummary
+	for rows.Next() {
+		var i PostSummary
+		if err := rows.Scan(
+			&i.PostSummaryID,
+			&i.PostID,
+			&i.SummarizeMethod,
+			&i.Summary,
+			&i.SummarizedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const selectPosts = `-- name: SelectPosts :many
 select count(*) over () as total_count,
        posts.post_id, posts.feed_id, posts.url, posts.title, posts.description, posts.author, posts.status, posts.posted_at, posts.last_fetched_at, posts.created_at, posts.updated_at

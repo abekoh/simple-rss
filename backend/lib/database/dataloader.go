@@ -10,8 +10,9 @@ import (
 )
 
 type DataLoader struct {
-	keyMutex *keymutex.KeyMutex
-	feed     *dataloader.Loader[string, sqlc.Feed]
+	keyMutex            *keymutex.KeyMutex
+	feed                *dataloader.Loader[string, sqlc.Feed]
+	postSummaryByPostID *dataloader.Loader[string, sqlc.PostSummary]
 }
 
 func NewDataLoader() *DataLoader {
@@ -34,6 +35,22 @@ func (d *DataLoader) Feed(ctx context.Context, feedID string) (sqlc.Feed, error)
 	}
 	d.keyMutex.Unlock("Feed")
 	return d.feed.Load(ctx, feedID)()
+}
+
+func (d *DataLoader) PostSummaryByPostID(ctx context.Context, postID string) (sqlc.PostSummary, error) {
+	d.keyMutex.Lock("PostSummaryByPostID")
+	if d.postSummaryByPostID == nil {
+		d.postSummaryByPostID = newLoaderOne(
+			func(ctx context.Context, ids []string) ([]sqlc.PostSummary, error) {
+				return FromContext(ctx).Queries().SelectPostSummaries(ctx, ids)
+			},
+			func(datum *sqlc.PostSummary) string {
+				return datum.PostID
+			},
+		)
+	}
+	d.keyMutex.Unlock("PostSummaryByPostID")
+	return d.postSummaryByPostID.Load(ctx, postID)()
 }
 
 var ErrNotFound = errors.New("not found")
