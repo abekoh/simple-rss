@@ -35,7 +35,6 @@ type Feed {
   description: String
   registeredAt: Time!
   lastFetchedAt: Time
-  posts(input: FeedPostsInput!): PostsPayload! @goField(forceResolver: true)
 }
 
 input FeedPostsInput {

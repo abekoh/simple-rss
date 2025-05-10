@@ -19,13 +19,12 @@ type DeleteFeedPayload struct {
 }
 
 type Feed struct {
-	FeedID        string        `json:"feedId"`
-	URL           string        `json:"url"`
-	Title         string        `json:"title"`
-	Description   *string       `json:"description,omitempty"`
-	RegisteredAt  time.Time     `json:"registeredAt"`
-	LastFetchedAt *time.Time    `json:"lastFetchedAt,omitempty"`
-	Posts         *PostsPayload `json:"posts"`
+	FeedID        string     `json:"feedId"`
+	URL           string     `json:"url"`
+	Title         string     `json:"title"`
+	Description   *string    `json:"description,omitempty"`
+	RegisteredAt  time.Time  `json:"registeredAt"`
+	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
 }
 
 type FeedFetch struct {
