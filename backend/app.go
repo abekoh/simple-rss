@@ -23,7 +23,6 @@ import (
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
 	"github.com/abekoh/simple-rss/backend/worker/summarizer"
 	"github.com/go-chi/chi/v5"
-	"github.com/vektah/gqlparser/v2/ast"
 )
 
 func main() {
@@ -148,7 +147,6 @@ func main() {
 	gqlSrv.AddTransport(transport.Options{})
 	gqlSrv.AddTransport(transport.GET{})
 	gqlSrv.AddTransport(transport.POST{})
-	gqlSrv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 	gqlSrv.Use(extension.Introspection{})
 	gqlSrv.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
