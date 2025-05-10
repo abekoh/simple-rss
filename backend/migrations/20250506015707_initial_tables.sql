@@ -18,7 +18,7 @@ CREATE TYPE feed_fetch_status AS ENUM ('Success', 'Failure');
 CREATE TABLE feed_fetches
 (
     feed_fetch_id uuid primary key,
-    feed_id       uuid                     not null references feeds (feed_id),
+    feed_id       uuid                     not null references feeds (feed_id) on delete cascade,
     status        feed_fetch_status        not null,
     message       text,
     fetched_at    timestamp with time zone not null,
@@ -30,7 +30,7 @@ CREATE TYPE post_status AS ENUM ('Registered', 'Fetched', 'Summarized');
 CREATE TABLE posts
 (
     post_id         uuid primary key,
-    feed_id         uuid                     not null references feeds (feed_id),
+    feed_id         uuid                     not null references feeds (feed_id) on delete cascade,
     url             text                     not null unique,
     title           text                     not null,
     description     text,
@@ -49,7 +49,7 @@ CREATE TYPE post_fetch_status AS ENUM ('Success', 'Failure');
 CREATE TABLE post_fetches
 (
     post_fetch_id uuid primary key,
-    post_id       uuid                     not null references posts (post_id),
+    post_id       uuid                     not null references posts (post_id) on delete cascade,
     status        post_fetch_status        not null,
     message       text,
     fetched_at    timestamp with time zone not null,
@@ -59,7 +59,7 @@ CREATE TABLE post_fetches
 CREATE TABLE post_summaries
 (
     post_summary_id  uuid primary key,
-    post_id          uuid                     not null references posts (post_id),
+    post_id          uuid                     not null references posts (post_id) on delete cascade,
     summarize_method text                     not null,
     summary          text                     not null,
     summarized_at    timestamp with time zone not null,
