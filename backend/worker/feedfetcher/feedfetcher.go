@@ -2,36 +2,36 @@ package feedfetcher
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/worker/pagefetcher"
 	"github.com/mmcdole/gofeed"
 )
 
-type (
-	Request struct {
-		URL string
-	}
-
-	requestWithResultCh struct {
-		Request
-		ResultCh chan *Result
-	}
-
-	Result struct {
-		Success bool
-		Content *gofeed.Feed
-		Error   error
-	}
-)
+type Request struct {
+	FeedID   string
+	NotifyCh chan<- bool
+}
 
 type FeedFetcher struct {
 	feedParser *gofeed.Parser
-	requestCh  chan *requestWithResultCh
+	inCh       <-chan Request
+	outCh      chan<- pagefetcher.Request
+	errCh      chan<- error
 }
 
-func NewFeedFetcher(ctx context.Context) *FeedFetcher {
+func NewFeedFetcher(
+	ctx context.Context,
+	inCh <-chan Request,
+	outCh chan<- pagefetcher.Request,
+	errCh chan<- error,
+) *FeedFetcher {
 	c := &FeedFetcher{
 		feedParser: gofeed.NewParser(),
-		requestCh:  make(chan *requestWithResultCh, 10),
+		inCh:       inCh,
+		outCh:      outCh,
+		errCh:      errCh,
 	}
 	go c.Loop(ctx)
 	return c
@@ -42,34 +42,21 @@ func (c FeedFetcher) Loop(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case req := <-c.requestCh:
-			feedContent, err := c.feedParser.ParseURL(req.URL)
+		case req := <-c.inCh:
+			queries := database.FromContext(ctx).Queries()
+			feedRow, err := queries.SelectFeed(ctx, req.FeedID)
 			if err != nil {
-				req.ResultCh <- &Result{
-					Success: false,
-					Error:   err,
-				}
+				c.errCh <- fmt.Errorf("failed to get feed: %w", err)
 				continue
 			}
-			req.ResultCh <- &Result{
-				Success: true,
-				Content: feedContent,
+			feedParsed, err := c.feedParser.ParseURL(feedRow.Url)
+			if err != nil {
+				c.errCh <- fmt.Errorf("failed to parse feed: %w", err)
+				continue
+			}
+			for _, _ = range feedParsed.Items {
+				// TODO
 			}
 		}
 	}
-}
-
-func (c FeedFetcher) SendRequestSync(req Request) (*Result, error) {
-	resCh := make(chan *Result)
-	c.requestCh <- &requestWithResultCh{
-		Request:  req,
-		ResultCh: resCh,
-	}
-	return <-resCh, nil
-}
-
-var DefaultFeedFetcher *FeedFetcher
-
-func SendRequestSync(req Request) (*Result, error) {
-	return DefaultFeedFetcher.SendRequestSync(req)
 }

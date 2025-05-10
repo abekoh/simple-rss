@@ -19,12 +19,6 @@ type (
 		FeedID   string
 		FeedItem *gofeed.Item
 	}
-
-	Result struct {
-		Success bool
-		Body    string
-		Error   error
-	}
 )
 
 type PageFetcher struct {
@@ -117,15 +111,4 @@ func (c PageFetcher) handleRequest(ctx context.Context, req Request) error {
 		return err
 	}
 	return nil
-}
-
-func (c PageFetcher) SendRequestSync(ctx context.Context, req Request) error {
-	c.requestCh <- req
-	return nil
-}
-
-var DefaultPageFetcher *PageFetcher
-
-func SendRequestSync(ctx context.Context, req Request) error {
-	return DefaultPageFetcher.SendRequestSync(ctx, req)
 }
