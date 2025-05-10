@@ -45,21 +45,44 @@ func newLoaderOne[K comparable, V any](
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys []K) []*dataloader.Result[V] {
 		data, err := fetch(ctx, keys)
 		var res []*dataloader.Result[V]
-		var dataMap = make(map[K]V)
+		datumMap := make(map[K]V, len(data))
 		for _, d := range data {
-			dataMap[getKey(&d)] = d
+			datumMap[getKey(&d)] = d
 		}
 		for _, key := range keys {
 			datumErr := err
-			found, ok := dataMap[key]
+			foundDatum, ok := datumMap[key]
 			if err == nil && !ok {
 				datumErr = ErrNotFound
 			}
 			res = append(res, &dataloader.Result[V]{
-				Data:  found,
+				Data:  foundDatum,
 				Error: datumErr,
 			})
 		}
 		return res
 	}, dataloader.WithCache[K, V](dataloader.NewCache[K, V]()))
+}
+
+func newLoaderMany[K comparable, V any](
+	fetch func(ctx context.Context, ids []K) ([]V, error),
+	getKey func(datum *V) K,
+) *dataloader.Loader[K, []V] {
+	return dataloader.NewBatchedLoader(func(ctx context.Context, keys []K) []*dataloader.Result[[]V] {
+		data, err := fetch(ctx, keys)
+		var res []*dataloader.Result[[]V]
+		dataMap := make(map[K][]V)
+		for _, d := range data {
+			dataMap[getKey(&d)] = append(dataMap[getKey(&d)], d)
+		}
+		for _, key := range keys {
+			datumErr := err
+			foundData := dataMap[key]
+			res = append(res, &dataloader.Result[[]V]{
+				Data:  foundData,
+				Error: datumErr,
+			})
+		}
+		return res
+	}, dataloader.WithCache[K, []V](dataloader.NewCache[K, []V]()))
 }
