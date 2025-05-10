@@ -36,3 +36,13 @@ func mapPost(x sqlc.Post) *gql.Post {
 		LastFetchedAt: x.LastFetchedAt,
 	}
 }
+
+func mapPostSummary(x sqlc.PostSummary) *gql.PostSummary {
+	return &gql.PostSummary{
+		PostSummaryID:   x.PostSummaryID,
+		PostID:          x.PostID,
+		SummarizeMethod: x.SummarizeMethod,
+		Summary:         x.Summary,
+		SummarizedAt:    x.SummarizedAt,
+	}
+}

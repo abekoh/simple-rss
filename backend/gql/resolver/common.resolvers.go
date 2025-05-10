@@ -14,7 +14,11 @@ import (
 
 // Summary is the resolver for the summary field.
 func (r *postResolver) Summary(ctx context.Context, obj *gql.Post) (*gql.PostSummary, error) {
-	panic(fmt.Errorf("not implemented: Summary - summary"))
+	summary, err := database.FromContext(ctx).Loader().PostSummaryByPostID(ctx, obj.PostID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get post summary: %w", err)
+	}
+	return mapPostSummary(summary), nil
 }
 
 // Feed is the resolver for the feed field.
