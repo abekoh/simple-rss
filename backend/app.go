@@ -15,11 +15,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/gql/resolver"
+	"github.com/abekoh/simple-rss/backend/lib/cachehttp"
 	"github.com/abekoh/simple-rss/backend/lib/config"
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/postfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
+	"github.com/abekoh/simple-rss/backend/worker/summarizer"
 	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -48,7 +50,10 @@ func main() {
 	feedFetcherResultCh := make(chan feedfetcher.Result, 10)
 	postFetcherRequestCh := make(chan postfetcher.Request, 10)
 	postFetcherResultCh := make(chan postfetcher.Result, 10)
+	summarizerRequestCh := make(chan summarizer.Request, 10)
+	summarizerResultCh := make(chan summarizer.Result, 10)
 
+	cacheHTTPCLient := cachehttp.NewClient()
 	feedFetcher := feedfetcher.NewFeedFetcher(
 		routerCtx,
 		feedFetcherRequestCh,
@@ -60,7 +65,19 @@ func main() {
 		postFetcherRequestCh,
 		postFetcherResultCh,
 		errCh,
+		cacheHTTPCLient,
 	)
+	sum, err := summarizer.NewSummarizer(
+		routerCtx,
+		summarizerRequestCh,
+		summarizerResultCh,
+		errCh,
+		cacheHTTPCLient,
+	)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
 
 	// error handler
 	go func() {
@@ -115,6 +132,7 @@ func main() {
 		Resolvers: resolver.NewResolver(
 			feedFetcher,
 			postFetcher,
+			sum,
 		)},
 	))
 	gqlSrv.AddTransport(transport.Options{})

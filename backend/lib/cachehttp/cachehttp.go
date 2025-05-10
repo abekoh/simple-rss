@@ -79,12 +79,8 @@ func cloneResponse(cached *cachedResponse) (*http.Response, error) {
 	return &clone, nil
 }
 
-type Client struct {
-	*http.Client
-}
-
-func NewClient() *Client {
-	client := &http.Client{
+func NewClient() *http.Client {
+	return &http.Client{
 		Transport: &cacheTransport{
 			transport: http.DefaultTransport,
 			cache:     make(map[string]*cachedResponse),
@@ -92,8 +88,5 @@ func NewClient() *Client {
 			duration:  10 * time.Minute,
 		},
 		Timeout: 10 * time.Second,
-	}
-	return &Client{
-		Client: client,
 	}
 }
