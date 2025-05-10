@@ -10,55 +10,88 @@ import (
 	"time"
 )
 
-type CrawlStatus string
+type FeedFetchStatus string
 
 const (
-	CrawlStatusSuccess CrawlStatus = "Success"
-	CrawlStatusFailure CrawlStatus = "Failure"
+	FeedFetchStatusSuccess FeedFetchStatus = "Success"
+	FeedFetchStatusFailure FeedFetchStatus = "Failure"
 )
 
-func (e *CrawlStatus) Scan(src interface{}) error {
+func (e *FeedFetchStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = CrawlStatus(s)
+		*e = FeedFetchStatus(s)
 	case string:
-		*e = CrawlStatus(s)
+		*e = FeedFetchStatus(s)
 	default:
-		return fmt.Errorf("unsupported scan type for CrawlStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for FeedFetchStatus: %T", src)
 	}
 	return nil
 }
 
-type NullCrawlStatus struct {
-	CrawlStatus CrawlStatus
-	Valid       bool // Valid is true if CrawlStatus is not NULL
+type NullFeedFetchStatus struct {
+	FeedFetchStatus FeedFetchStatus
+	Valid           bool // Valid is true if FeedFetchStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullCrawlStatus) Scan(value interface{}) error {
+func (ns *NullFeedFetchStatus) Scan(value interface{}) error {
 	if value == nil {
-		ns.CrawlStatus, ns.Valid = "", false
+		ns.FeedFetchStatus, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.CrawlStatus.Scan(value)
+	return ns.FeedFetchStatus.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullCrawlStatus) Value() (driver.Value, error) {
+func (ns NullFeedFetchStatus) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.CrawlStatus), nil
+	return string(ns.FeedFetchStatus), nil
 }
 
-type Crawl struct {
-	CrawlID   string
-	FeedID    string
-	Status    CrawlStatus
-	Message   *string
-	CrawledAt time.Time
-	CreatedAt time.Time
+type PostFetchStatus string
+
+const (
+	PostFetchStatusSuccess PostFetchStatus = "Success"
+	PostFetchStatusFailure PostFetchStatus = "Failure"
+)
+
+func (e *PostFetchStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PostFetchStatus(s)
+	case string:
+		*e = PostFetchStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PostFetchStatus: %T", src)
+	}
+	return nil
+}
+
+type NullPostFetchStatus struct {
+	PostFetchStatus PostFetchStatus
+	Valid           bool // Valid is true if PostFetchStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPostFetchStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.PostFetchStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PostFetchStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPostFetchStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PostFetchStatus), nil
 }
 
 type Feed struct {
@@ -70,14 +103,40 @@ type Feed struct {
 	CreatedAt    time.Time
 }
 
+type FeedFetch struct {
+	FeedFetchID string
+	FeedID      string
+	Status      FeedFetchStatus
+	Message     *string
+	FetchedAt   time.Time
+	CreatedAt   time.Time
+}
+
 type Post struct {
+	PostID      string
+	FeedID      string
+	Title       string
+	Description *string
+	Author      *string
+	Url         string
+	PostedAt    time.Time
+	CreatedAt   time.Time
+}
+
+type PostFetch struct {
+	PostFetchID string
+	PostID      string
+	Status      PostFetchStatus
+	Message     *string
+	FetchedAt   time.Time
+	CreatedAt   time.Time
+}
+
+type PostSummary struct {
+	PostSummaryID   string
 	PostID          string
-	FeedID          string
-	CrawlID         string
-	Title           string
-	Author          *string
-	Url             string
-	SummaryOriginal *string
-	PostedAt        time.Time
+	SummarizeMethod string
+	Summary         string
+	SummarizedAt    time.Time
 	CreatedAt       time.Time
 }

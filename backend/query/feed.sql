@@ -7,3 +7,7 @@ select * from feeds where feed_id = @feed_id;
 
 -- name: SelectFeedsOrderByRegisteredAtAsc :many
 select * from feeds order by registered_at asc;
+
+-- name: InsertFeedFetch :exec
+insert into feed_fetches (feed_fetch_id, feed_id, status, message, fetched_at)
+values (@feed_fetch_id, @feed_id, @status, @message, @fetched_at);

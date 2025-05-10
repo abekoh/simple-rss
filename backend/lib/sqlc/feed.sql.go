@@ -34,6 +34,30 @@ func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
 	return err
 }
 
+const insertFeedFetch = `-- name: InsertFeedFetch :exec
+insert into feed_fetches (feed_fetch_id, feed_id, status, message, fetched_at)
+values ($1, $2, $3, $4, $5)
+`
+
+type InsertFeedFetchParams struct {
+	FeedFetchID string
+	FeedID      string
+	Status      FeedFetchStatus
+	Message     *string
+	FetchedAt   time.Time
+}
+
+func (q *Queries) InsertFeedFetch(ctx context.Context, arg InsertFeedFetchParams) error {
+	_, err := q.db.Exec(ctx, insertFeedFetch,
+		arg.FeedFetchID,
+		arg.FeedID,
+		arg.Status,
+		arg.Message,
+		arg.FetchedAt,
+	)
+	return err
+}
+
 const selectFeed = `-- name: SelectFeed :one
 select feed_id, url, title, description, registered_at, created_at from feeds where feed_id = $1
 `
