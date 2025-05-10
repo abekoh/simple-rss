@@ -219,13 +219,13 @@ func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetched
 	return items, nil
 }
 
-const upsertFeedLastFetchedAt = `-- name: UpsertFeedLastFetchedAt :exec
+const updateFeedLastFetchedAt = `-- name: UpdateFeedLastFetchedAt :exec
 update feeds
 set last_fetched_at = $1,
     updated_at      = now()
 `
 
-func (q *Queries) UpsertFeedLastFetchedAt(ctx context.Context, lastFetchedAt *time.Time) error {
-	_, err := q.db.Exec(ctx, upsertFeedLastFetchedAt, lastFetchedAt)
+func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, lastFetchedAt *time.Time) error {
+	_, err := q.db.Exec(ctx, updateFeedLastFetchedAt, lastFetchedAt)
 	return err
 }

@@ -2,7 +2,7 @@
 insert into feeds (feed_id, url, title, description, registered_at)
 values (@feed_id, @url, @title, @description, @registered_at);
 
--- name: UpsertFeedLastFetchedAt :exec
+-- name: UpdateFeedLastFetchedAt :exec
 update feeds
 set last_fetched_at = @last_fetched_at,
     updated_at      = now();
