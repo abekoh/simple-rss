@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/abekoh/simple-rss/backend/lib/database"
@@ -44,6 +45,7 @@ func (s Scheduler) loop(ctx context.Context) {
 }
 
 func (s Scheduler) fetchFeeds(ctx context.Context) {
+	slog.Info("fetch feeds")
 	threshold := time.Now().Add(-1 * time.Hour)
 	feeds, err := database.FromContext(ctx).Queries().SelectRecentlyNotFetchedFeeds(ctx, threshold)
 	if err != nil {
