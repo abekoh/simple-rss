@@ -67,7 +67,7 @@ type PostSummary struct {
 }
 
 type PostsInput struct {
-	FeedIds []string        `json:"feedIds,omitempty"`
+	FeedIds []string        `json:"feedIds"`
 	Limit   int32           `json:"limit"`
 	Offset  int32           `json:"offset"`
 	Order   PostsInputOrder `json:"order"`

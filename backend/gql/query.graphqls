@@ -9,10 +9,10 @@ enum PostsInputOrder {
 }
 
 input PostsInput {
-  feedIds: [ID!]
+  feedIds: [ID!]! = []
   limit: Int! = 20
   offset: Int! = 0
-  order: PostsInputOrder!
+  order: PostsInputOrder! = PostedAtDesc
 }
 
 type PostsPayload {
