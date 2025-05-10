@@ -52,47 +52,51 @@ func (c FeedFetcher) loop(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case req := <-c.inCh:
-			queries := database.FromContext(ctx).Queries()
-			feedRow, err := queries.SelectFeed(ctx, req.FeedID)
-			if err != nil {
-				c.errCh <- fmt.Errorf("failed to get feed: %w", err)
+			c.handleRequest(ctx, req)
+		}
+	}
+}
+
+func (c FeedFetcher) handleRequest(ctx context.Context, req Request) {
+	queries := database.FromContext(ctx).Queries()
+	feedRow, err := queries.SelectFeed(ctx, req.FeedID)
+	if err != nil {
+		c.errCh <- fmt.Errorf("failed to get feed: %w", err)
+		return
+	}
+	feedParsed, err := c.feedParser.ParseURL(feedRow.Url)
+	if err != nil {
+		c.errCh <- fmt.Errorf("failed to parse feed: %w", err)
+		return
+	}
+	for _, item := range feedParsed.Items {
+		postID := uid.NewUUID(ctx)
+		if err := queries.InsertPost(ctx, sqlc.InsertPostParams{
+			PostID:      postID,
+			FeedID:      req.FeedID,
+			Title:       item.Title,
+			Description: lo.ToPtr(item.Description),
+			Author: func() *string {
+				if len(item.Authors) == 0 {
+					return nil
+				}
+				return &item.Authors[0].Name
+			}(),
+			Url:      item.Link,
+			PostedAt: item.PublishedParsed,
+			Status:   sqlc.PostStatusRegistered,
+		}); err != nil {
+			var pgError *pgconn.PgError
+			// skip if duplicate key error
+			if errors.As(err, &pgError) && pgError.Code == "23505" {
 				continue
 			}
-			feedParsed, err := c.feedParser.ParseURL(feedRow.Url)
-			if err != nil {
-				c.errCh <- fmt.Errorf("failed to parse feed: %w", err)
-				continue
-			}
-			for _, item := range feedParsed.Items {
-				postID := uid.NewUUID(ctx)
-				if err := queries.InsertPost(ctx, sqlc.InsertPostParams{
-					PostID:      postID,
-					FeedID:      req.FeedID,
-					Title:       item.Title,
-					Description: lo.ToPtr(item.Description),
-					Author: func() *string {
-						if len(item.Authors) == 0 {
-							return nil
-						}
-						return &item.Authors[0].Name
-					}(),
-					Url:      item.Link,
-					PostedAt: item.PublishedParsed,
-					Status:   sqlc.PostStatusRegistered,
-				}); err != nil {
-					var pgError *pgconn.PgError
-					// skip if duplicate key error
-					if errors.As(err, &pgError) && pgError.Code == "23505" {
-						continue
-					}
-					c.errCh <- fmt.Errorf("failed to insert post: %w", err)
-					continue
-				}
-				c.outCh <- Result{
-					FeedID: req.FeedID,
-					PostID: postID,
-				}
-			}
+			c.errCh <- fmt.Errorf("failed to insert post: %w", err)
+			continue
+		}
+		c.outCh <- Result{
+			FeedID: req.FeedID,
+			PostID: postID,
 		}
 	}
 }
