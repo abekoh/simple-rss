@@ -18,6 +18,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/cachehttp"
 	"github.com/abekoh/simple-rss/backend/lib/config"
 	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/lib/dataloader"
 	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/postfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
@@ -128,12 +129,8 @@ func main() {
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := config.WithConfig(r.Context(), cnf)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	})
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := database.WithDB(r.Context(), db)
+			ctx = database.WithDB(r.Context(), db)
+			ctx = dataloader.WithDataLoader(r.Context(), dataloader.New())
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})

@@ -14,14 +14,12 @@ var _ sqlc.DBTX = (*pgxpool.Pool)(nil)
 
 type DB interface {
 	Queries() *sqlc.Queries
-	Loader() *DataLoader
 	Close()
 	Ping(ctx context.Context) error
 }
 
 type poolDB struct {
-	pool       *pgxpool.Pool
-	dataloader *DataLoader
+	pool *pgxpool.Pool
 }
 
 var _ DB = (*poolDB)(nil)
@@ -32,8 +30,7 @@ func New(ctx context.Context, cnf *config.Config) (*poolDB, error) {
 		return nil, err
 	}
 	return &poolDB{
-		pool:       pool,
-		dataloader: NewDataLoader(),
+		pool: pool,
 	}, nil
 }
 
@@ -45,27 +42,18 @@ func (db *poolDB) Queries() *sqlc.Queries {
 	return sqlc.New(db.pool)
 }
 
-func (db *poolDB) Loader() *DataLoader {
-	return db.dataloader
-}
-
 func (db *poolDB) Ping(ctx context.Context) error {
 	return db.pool.Ping(ctx)
 }
 
 type txDB struct {
-	tx         pgx.Tx
-	dataLoader *DataLoader
+	tx pgx.Tx
 }
 
 var _ DB = (*txDB)(nil)
 
 func (t *txDB) Queries() *sqlc.Queries {
 	return sqlc.New(t.tx)
-}
-
-func (t *txDB) Loader() *DataLoader {
-	return t.dataLoader
 }
 
 func (t *txDB) Close() {
@@ -97,7 +85,7 @@ func Transaction(ctx context.Context, f func(c context.Context) error) error {
 	if err != nil {
 		return err
 	}
-	txD := &txDB{tx: tx, dataLoader: poolD.dataloader}
+	txD := &txDB{tx: tx}
 	if err := f(WithDB(ctx, txD)); err != nil {
 		rollbackErr := tx.Rollback(ctx)
 		if rollbackErr != nil {

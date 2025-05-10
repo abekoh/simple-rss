@@ -1,9 +1,10 @@
-package database
+package dataloader
 
 import (
 	"context"
 	"errors"
 
+	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/keymutex"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/graph-gophers/dataloader/v7"
@@ -15,7 +16,7 @@ type DataLoader struct {
 	postSummaryByPostID *dataloader.Loader[string, sqlc.PostSummary]
 }
 
-func NewDataLoader() *DataLoader {
+func New() *DataLoader {
 	return &DataLoader{
 		keyMutex: keymutex.New(),
 	}
@@ -26,7 +27,7 @@ func (d *DataLoader) Feed(ctx context.Context, feedID string) (sqlc.Feed, error)
 	if d.feed == nil {
 		d.feed = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.Feed, error) {
-				return FromContext(ctx).Queries().SelectFeeds(ctx, ids)
+				return database.FromContext(ctx).Queries().SelectFeeds(ctx, ids)
 			},
 			func(datum *sqlc.Feed) string {
 				return datum.FeedID
@@ -42,7 +43,7 @@ func (d *DataLoader) PostSummaryByPostID(ctx context.Context, postID string) (sq
 	if d.postSummaryByPostID == nil {
 		d.postSummaryByPostID = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.PostSummary, error) {
-				return FromContext(ctx).Queries().SelectPostSummariesByPostIDs(ctx, ids)
+				return database.FromContext(ctx).Queries().SelectPostSummariesByPostIDs(ctx, ids)
 			},
 			func(datum *sqlc.PostSummary) string {
 				return datum.PostID
@@ -102,4 +103,14 @@ func newLoaderMany[K comparable, V any](
 		}
 		return res
 	}, dataloader.WithCache[K, []V](dataloader.NewCache[K, []V]()))
+}
+
+type ctxKey struct{}
+
+func WithDataLoader(ctx context.Context, dl *DataLoader) context.Context {
+	return context.WithValue(ctx, ctxKey{}, dl)
+}
+
+func FromContext(ctx context.Context) *DataLoader {
+	return ctx.Value(ctxKey{}).(*DataLoader)
 }

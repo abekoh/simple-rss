@@ -10,14 +10,14 @@ import (
 	"fmt"
 
 	"github.com/abekoh/simple-rss/backend/gql"
-	"github.com/abekoh/simple-rss/backend/lib/database"
+	"github.com/abekoh/simple-rss/backend/lib/dataloader"
 )
 
 // Summary is the resolver for the summary field.
 func (r *postResolver) Summary(ctx context.Context, obj *gql.Post) (*gql.PostSummary, error) {
-	summary, err := database.FromContext(ctx).Loader().PostSummaryByPostID(ctx, obj.PostID)
+	summary, err := dataloader.FromContext(ctx).PostSummaryByPostID(ctx, obj.PostID)
 	if err != nil {
-		if errors.Is(err, database.ErrNotFound) {
+		if errors.Is(err, dataloader.ErrNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get post summary: %w", err)
@@ -27,7 +27,7 @@ func (r *postResolver) Summary(ctx context.Context, obj *gql.Post) (*gql.PostSum
 
 // Feed is the resolver for the feed field.
 func (r *postResolver) Feed(ctx context.Context, obj *gql.Post) (*gql.Feed, error) {
-	feed, err := database.FromContext(ctx).Loader().Feed(ctx, obj.FeedID)
+	feed, err := dataloader.FromContext(ctx).Feed(ctx, obj.FeedID)
 	if err != nil {
 		return nil, err
 	}
