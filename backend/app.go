@@ -97,8 +97,23 @@ func main() {
 		})
 	})
 
+	gqlSrv := handler.New(gql.NewExecutableSchema(gql.Config{
+		Resolvers: resolver.NewResolver(
+			feedFetcher,
+			postFetcher,
+		)},
+	))
+	gqlSrv.AddTransport(transport.Options{})
+	gqlSrv.AddTransport(transport.GET{})
+	gqlSrv.AddTransport(transport.POST{})
+	gqlSrv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
+	gqlSrv.Use(extension.Introspection{})
+	gqlSrv.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New[string](100),
+	})
+
 	// graphql
-	r.Post("/query", initializeGQLServer().ServeHTTP)
+	r.Post("/query", gqlSrv.ServeHTTP)
 	r.Get("/query", playground.Handler("GraphQL playground", "/query"))
 
 	slog.Info("listening on port", "port", cnf.Port)
@@ -106,20 +121,4 @@ func main() {
 		slog.Error(err.Error())
 		os.Exit(1)
 	}
-}
-
-func initializeGQLServer() *handler.Server {
-	srv := handler.New(gql.NewExecutableSchema(gql.Config{Resolvers: &resolver.Resolver{}}))
-
-	srv.AddTransport(transport.Options{})
-	srv.AddTransport(transport.GET{})
-	srv.AddTransport(transport.POST{})
-
-	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-
-	srv.Use(extension.Introspection{})
-	srv.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New[string](100),
-	})
-	return srv
 }
