@@ -119,13 +119,13 @@ func (c PageFetcher) handleRequest(ctx context.Context, req Request) error {
 	return nil
 }
 
-func (c PageFetcher) SendRequest(ctx context.Context, req Request) error {
+func (c PageFetcher) SendRequestSync(ctx context.Context, req Request) error {
 	c.requestCh <- req
 	return nil
 }
 
 var DefaultPageFetcher *PageFetcher
 
-func SendRequest(ctx context.Context, req Request) error {
-	return DefaultPageFetcher.SendRequest(ctx, req)
+func SendRequestSync(ctx context.Context, req Request) error {
+	return DefaultPageFetcher.SendRequestSync(ctx, req)
 }
