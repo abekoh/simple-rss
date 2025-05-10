@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Port  string `envconfig:"PORT"`
-	DBURL string `envconfig:"DB_URL"`
+	Port         string `envconfig:"PORT"`
+	DBURL        string `envconfig:"DB_URL"`
+	GeminiAPIKey string `envconfig:"GEMINI_API_KEY"`
 }
 
 func Load() *Config {

@@ -64,6 +64,30 @@ func (q *Queries) InsertPostFetch(ctx context.Context, arg InsertPostFetchParams
 	return err
 }
 
+const insertPostSummary = `-- name: InsertPostSummary :exec
+insert into post_summaries (post_summary_id, post_id, summarize_method, summary, summarized_at)
+values ($1, $2, $3, $4, $5)
+`
+
+type InsertPostSummaryParams struct {
+	PostSummaryID   string
+	PostID          string
+	SummarizeMethod string
+	Summary         string
+	SummarizedAt    time.Time
+}
+
+func (q *Queries) InsertPostSummary(ctx context.Context, arg InsertPostSummaryParams) error {
+	_, err := q.db.Exec(ctx, insertPostSummary,
+		arg.PostSummaryID,
+		arg.PostID,
+		arg.SummarizeMethod,
+		arg.Summary,
+		arg.SummarizedAt,
+	)
+	return err
+}
+
 const selectPost = `-- name: SelectPost :one
 select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
 from posts

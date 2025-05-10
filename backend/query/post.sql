@@ -43,3 +43,7 @@ limit @lim offset @off
 -- name: InsertPostFetch :exec
 insert into post_fetches (post_fetch_id, post_id, status, message, fetched_at)
 values (@post_fetch_id, @post_id, @status, @message, @fetched_at);
+
+-- name: InsertPostSummary :exec
+insert into post_summaries (post_summary_id, post_id, summarize_method, summary, summarized_at)
+values (@post_summary_id, @post_id, @summarize_method, @summary, @summarized_at);
