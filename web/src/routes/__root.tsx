@@ -278,7 +278,14 @@ export const Route = createRootRoute({
         </GridItem>
 
         {/* メインコンテンツ */}
-        <GridItem area="main" p={6} overflowY="auto">
+        <GridItem
+          area="main"
+          p={6}
+          overflowY="auto"
+          style={{
+            scrollbarWidth: "none",
+          }}
+        >
           <Outlet />
           <TanStackRouterDevtools />
         </GridItem>
