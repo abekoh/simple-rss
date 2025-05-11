@@ -106,16 +106,6 @@ export const PostItem = ({
           {post.author && `${post.author} - `}
           {formatDate(post.postedAt)}
         </Text>
-        <Box
-          as="button"
-          px={3}
-          py={1}
-          borderWidth="1px"
-          borderRadius="md"
-          fontSize="sm"
-        >
-          詳細を見る
-        </Box>
       </Box>
     </Box>
   );
