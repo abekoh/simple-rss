@@ -192,7 +192,9 @@ export const Route = createRootRoute({
                   if (isMobile) setDrawerOpen(false);
                 }}
               >
-                <Text>お気に入り</Text>
+                <Text fontWeight={isFavoriteSelected ? "bold" : "normal"}>
+                  お気に入り
+                </Text>
               </Box>
             </Link>
 
