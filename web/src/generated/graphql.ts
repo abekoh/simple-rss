@@ -165,7 +165,7 @@ export type GetPostsQueryVariables = Exact<{
 }>;
 
 
-export type GetPostsQuery = { __typename?: 'Query', posts: { __typename?: 'PostsPayload', totalCount: number, posts: Array<{ __typename?: 'Post', postId: string, feedId: string, url: string, title: string, description?: string | null, author?: string | null, status: PostStatus, postedAt?: any | null, lastFetchedAt?: any | null, feed: { __typename?: 'Feed', feedId: string, title: string, url: string, registeredAt: any } }> } };
+export type GetPostsQuery = { __typename?: 'Query', posts: { __typename?: 'PostsPayload', totalCount: number, posts: Array<{ __typename?: 'Post', postId: string, feedId: string, url: string, title: string, description?: string | null, author?: string | null, status: PostStatus, postedAt?: any | null, lastFetchedAt?: any | null, summary?: { __typename?: 'PostSummary', summary: string, summarizeMethod: string, summarizedAt: any } | null, feed: { __typename?: 'Feed', feedId: string, title: string, url: string, registeredAt: any } }> } };
 
 export type RegisterFeedMutationVariables = Exact<{
   input: RegisterFeedInput;
@@ -240,6 +240,11 @@ export const GetPostsDocument = gql`
       status
       postedAt
       lastFetchedAt
+      summary {
+        summary
+        summarizeMethod
+        summarizedAt
+      }
       feed {
         feedId
         title

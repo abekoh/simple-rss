@@ -29,6 +29,11 @@ export const GET_POSTS = gql`
         status
         postedAt
         lastFetchedAt
+        summary {
+          summary
+          summarizeMethod
+          summarizedAt
+        }
         feed {
           feedId
           title
