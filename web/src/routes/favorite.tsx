@@ -30,7 +30,7 @@ function Favorite() {
   } = useGetPostsQuery({
     variables: {
       input: {
-        feedIds: [],
+        onlyHaveFavorites: true,
         limit: itemsPerPage,
         offset: (page - 1) * itemsPerPage,
         order: PostsInputOrder.PostedAtDesc,
