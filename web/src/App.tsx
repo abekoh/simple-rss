@@ -11,104 +11,26 @@ import {
   Text,
   Stack,
   HStack,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
+import { toaster } from "./components/ui/toaster";
 import { ColorModeToggle } from "./components/color-mode-toggle";
 import { useState } from "react";
 import dayjs from "dayjs";
-
-// モックデータ
-const mockFeeds = [
-  {
-    feedId: "1",
-    url: "https://example.com/feed1",
-    title: "テックニュース",
-    description: "最新のテクノロジーニュース",
-    registeredAt: "2025-05-01T00:00:00Z",
-    lastFetchedAt: "2025-05-10T00:00:00Z",
-  },
-  {
-    feedId: "2",
-    url: "https://example.com/feed2",
-    title: "プログラミングブログ",
-    description: "プログラミングに関する記事",
-    registeredAt: "2025-05-02T00:00:00Z",
-    lastFetchedAt: "2025-05-10T00:00:00Z",
-  },
-  {
-    feedId: "3",
-    url: "https://example.com/feed3",
-    title: "デザインニュース",
-    description: "デザインに関する最新情報",
-    registeredAt: "2025-05-03T00:00:00Z",
-    lastFetchedAt: "2025-05-10T00:00:00Z",
-  },
-];
-
-const mockPosts = [
-  {
-    postId: "1",
-    feedId: "1",
-    url: "https://example.com/post1",
-    title: "最新のAI技術動向",
-    description:
-      "AIの最新技術動向についての記事です。機械学習の進化と今後の展望について解説します。",
-    author: "山田太郎",
-    status: "Summarized",
-    postedAt: "2025-05-10T10:00:00Z",
-    lastFetchedAt: "2025-05-10T12:00:00Z",
-  },
-  {
-    postId: "2",
-    feedId: "1",
-    url: "https://example.com/post2",
-    title: "Webフロントエンドの最新トレンド",
-    description:
-      "Webフロントエンド開発の最新トレンドについて解説します。ReactやVueの最新機能や、新しいフレームワークの動向を紹介します。",
-    author: "佐藤次郎",
-    status: "Fetched",
-    postedAt: "2025-05-09T15:00:00Z",
-    lastFetchedAt: "2025-05-10T12:00:00Z",
-  },
-  {
-    postId: "3",
-    feedId: "2",
-    url: "https://example.com/post3",
-    title: "Goによる高速なバックエンド開発",
-    description:
-      "Goを使った高速なバックエンド開発の方法について解説します。Goの特徴や、効率的な開発手法を紹介します。",
-    author: "鈴木三郎",
-    status: "Summarized",
-    postedAt: "2025-05-08T09:00:00Z",
-    lastFetchedAt: "2025-05-10T12:00:00Z",
-  },
-  {
-    postId: "4",
-    feedId: "3",
-    url: "https://example.com/post4",
-    title: "UIデザインの基本原則",
-    description:
-      "UIデザインの基本原則について解説します。ユーザビリティを向上させるためのデザイン手法や、効果的なカラーパレットの選び方を紹介します。",
-    author: "田中四郎",
-    status: "Fetched",
-    postedAt: "2025-05-07T14:00:00Z",
-    lastFetchedAt: "2025-05-10T12:00:00Z",
-  },
-  {
-    postId: "5",
-    feedId: "3",
-    url: "https://example.com/post5",
-    title: "レスポンシブデザインの実践テクニック",
-    description:
-      "レスポンシブデザインの実践テクニックについて解説します。様々なデバイスに対応するためのデザイン手法や、効率的な実装方法を紹介します。",
-    author: "高橋五郎",
-    status: "Summarized",
-    postedAt: "2025-05-06T11:00:00Z",
-    lastFetchedAt: "2025-05-10T12:00:00Z",
-  },
-];
+import {
+  useGetFeedsQuery,
+  useGetPostsQuery,
+  useRegisterFeedMutation,
+  Feed,
+  Post,
+  PostStatus,
+  PostsInputOrder,
+} from "./generated/graphql";
 
 // 日付をフォーマットする関数
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: any | null | undefined) => {
+  if (!dateString) return "";
   return dayjs(dateString).format("YYYY年MM月DD日 HH:mm");
 };
 
@@ -118,7 +40,7 @@ const FeedItem = ({
   isSelected,
   onSelect,
 }: {
-  feed: (typeof mockFeeds)[0];
+  feed: Feed;
   isSelected: boolean;
   onSelect: () => void;
 }) => {
@@ -138,7 +60,7 @@ const FeedItem = ({
 };
 
 // 記事アイテムコンポーネント
-const PostItem = ({ post }: { post: (typeof mockPosts)[0] }) => {
+const PostItem = ({ post }: { post: Post }) => {
   return (
     <Box mb={4} p={4} borderWidth="1px" borderRadius="md">
       <Box pb={0}>
@@ -164,19 +86,84 @@ export default function App() {
   const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null);
   const [newFeedUrl, setNewFeedUrl] = useState("");
 
-  // 選択されたフィードに基づいて記事をフィルタリング
-  const filteredPosts = selectedFeedId
-    ? mockPosts.filter((post) => post.feedId === selectedFeedId)
-    : mockPosts;
+  // フィード一覧を取得
+  const {
+    loading: feedsLoading,
+    error: feedsError,
+    data: feedsData,
+    refetch: refetchFeeds,
+  } = useGetFeedsQuery();
 
-  // 新しいフィードを追加する処理（モック）
+  // 記事一覧を取得
+  const {
+    loading: postsLoading,
+    error: postsError,
+    data: postsData,
+    refetch: refetchPosts,
+  } = useGetPostsQuery({
+    variables: {
+      input: {
+        feedIds: selectedFeedId ? [selectedFeedId] : [],
+        limit: 20,
+        offset: 0,
+        order: PostsInputOrder.PostedAtDesc,
+      },
+    },
+  });
+
+  // フィード登録ミューテーション
+  const [registerFeed, { loading: registerLoading }] = useRegisterFeedMutation({
+    onCompleted: () => {
+      toaster.create({
+        title: "フィードを追加しました",
+        type: "success",
+      });
+      setNewFeedUrl("");
+      refetchFeeds();
+    },
+    onError: (error) => {
+      toaster.create({
+        title: "エラーが発生しました",
+        description: error.message,
+        type: "error",
+      });
+    },
+  });
+
+  // 新しいフィードを追加する処理
   const handleAddFeed = () => {
     if (newFeedUrl.trim()) {
-      console.log(`新しいフィードを追加: ${newFeedUrl}`);
-      setNewFeedUrl("");
-      // 実際にはここでGraphQLミューテーションを呼び出す
+      registerFeed({
+        variables: {
+          input: {
+            url: newFeedUrl.trim(),
+          },
+        },
+      });
     }
   };
+
+  // データ取得中の表示
+  if (feedsLoading && !feedsData) {
+    return (
+      <Center h="100vh">
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
+
+  // エラー表示
+  if (feedsError) {
+    return (
+      <Center h="100vh">
+        <Text>エラーが発生しました: {feedsError.message}</Text>
+      </Center>
+    );
+  }
+
+  const feeds = feedsData?.feeds || [];
+  const posts = postsData?.posts?.posts || [];
+  const totalCount = postsData?.posts?.totalCount || 0;
 
   return (
     <Grid
@@ -252,7 +239,7 @@ export default function App() {
               <Text fontSize="sm" color="gray.500" mb={1}>
                 RSSフィード
               </Text>
-              {mockFeeds.map((feed) => (
+              {feeds.map((feed) => (
                 <FeedItem
                   key={feed.feedId}
                   feed={feed}
@@ -260,6 +247,11 @@ export default function App() {
                   onSelect={() => setSelectedFeedId(feed.feedId)}
                 />
               ))}
+              {feedsLoading && (
+                <Center py={2}>
+                  <Spinner size="sm" />
+                </Center>
+              )}
             </Stack>
           </Box>
 
@@ -280,8 +272,15 @@ export default function App() {
                   onChange={(e) => setNewFeedUrl(e.target.value)}
                   placeholder="https://example.com/feed"
                   mr={2}
+                  disabled={registerLoading}
                 />
-                <Button onClick={handleAddFeed}>追加</Button>
+                <Button
+                  onClick={handleAddFeed}
+                  loading={registerLoading}
+                  loadingText="追加中"
+                >
+                  追加
+                </Button>
               </Flex>
             </Box>
           </Box>
@@ -292,16 +291,27 @@ export default function App() {
       <GridItem area="main" p={6} overflowY="auto">
         <Heading size="lg" mb={4}>
           {selectedFeedId
-            ? mockFeeds.find((feed) => feed.feedId === selectedFeedId)?.title ||
+            ? feeds.find((feed) => feed.feedId === selectedFeedId)?.title ||
               "記事一覧"
             : "すべての記事"}
         </Heading>
         <Text mb={4} color="gray.500">
-          {filteredPosts.length}件の記事
+          {totalCount}件の記事
         </Text>
-        {filteredPosts.map((post) => (
-          <PostItem key={post.postId} post={post} />
-        ))}
+
+        {postsLoading ? (
+          <Center py={10}>
+            <Spinner size="lg" />
+          </Center>
+        ) : postsError ? (
+          <Text color="red.500">
+            記事の取得中にエラーが発生しました: {postsError.message}
+          </Text>
+        ) : posts.length === 0 ? (
+          <Text>記事がありません</Text>
+        ) : (
+          posts.map((post) => <PostItem key={post.postId} post={post} />)
+        )}
       </GridItem>
     </Grid>
   );
