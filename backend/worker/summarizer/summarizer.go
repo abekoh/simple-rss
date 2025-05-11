@@ -108,7 +108,11 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 					Data:     body,
 				},
 			},
-			genai.NewPartFromText("Summarize this page in Japanese"),
+			genai.NewPartFromText(`Summarize this page in Japanese. 
+Result must be format in markdown.
+Do not include the title of the page, just the content.
+Max header level is 2.
+Do not surround the content with any other text.`),
 		}
 		contents := []*genai.Content{
 			genai.NewContentFromParts(parts, genai.RoleUser),
