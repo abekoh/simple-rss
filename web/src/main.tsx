@@ -3,7 +3,6 @@ import { ApolloProvider } from "@apollo/client";
 import { ThemeProvider } from "next-themes";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import { apolloClient } from "./lib/apollo";
 import { Toaster } from "./components/ui/toaster";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
