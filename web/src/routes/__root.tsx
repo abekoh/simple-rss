@@ -121,20 +121,15 @@ export const Route = createRootRoute({
           "header header"
           "sidebar main"
         `}
-        gridTemplateRows={"60px 1fr"}
+        gridTemplateRows={"50px 1fr"}
         gridTemplateColumns={"250px 1fr"}
         h="100vh"
         gap={0}
       >
         {/* ヘッダー */}
-        <GridItem area="header" bg="blue.500" _dark={{ bg: "blue.800" }} px={4}>
-          <Flex h="100%" alignItems="center" justifyContent="space-between">
-            <Heading size="lg" color="white">
-              Simple RSS
-            </Heading>
-            <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
-              <ColorModeToggle />
-            </ClientOnly>
+        <GridItem area="header" px={4}>
+          <Flex h="100%" alignItems="center">
+            <Heading size="lg">Simple RSS</Heading>
           </Flex>
         </GridItem>
 
@@ -243,6 +238,13 @@ export const Route = createRootRoute({
                     追加
                   </Button>
                 </Flex>
+              </Box>
+
+              {/* カラーモード切替 */}
+              <Box mt={4}>
+                <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
+                  <ColorModeToggle />
+                </ClientOnly>
               </Box>
             </Box>
           </Stack>
