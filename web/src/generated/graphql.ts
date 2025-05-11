@@ -18,6 +18,16 @@ export type Scalars = {
   Time: { input: any; output: any; }
 };
 
+export type AddPostFavoriteInput = {
+  postId: Scalars['ID']['input'];
+};
+
+export type AddPostFavoritePayload = {
+  __typename?: 'AddPostFavoritePayload';
+  postFavoriteId: Scalars['ID']['output'];
+  postId: Scalars['ID']['output'];
+};
+
 export type DeleteFeedInput = {
   feedId: Scalars['ID']['input'];
 };
@@ -59,8 +69,14 @@ export type FeedPostsInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addPostFavorite: AddPostFavoritePayload;
   deleteFeed: DeleteFeedPayload;
   registerFeed: RegisterFeedPayload;
+};
+
+
+export type MutationAddPostFavoriteArgs = {
+  input: AddPostFavoriteInput;
 };
 
 
@@ -77,6 +93,7 @@ export type Post = {
   __typename?: 'Post';
   author?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
+  favorite?: Maybe<PostFavorite>;
   feed: Feed;
   feedId: Scalars['ID']['output'];
   lastFetchedAt?: Maybe<Scalars['Time']['output']>;
@@ -86,6 +103,13 @@ export type Post = {
   summary?: Maybe<PostSummary>;
   title: Scalars['String']['output'];
   url: Scalars['String']['output'];
+};
+
+export type PostFavorite = {
+  __typename?: 'PostFavorite';
+  addedAt: Scalars['Time']['output'];
+  postFavoriteId: Scalars['ID']['output'];
+  postId: Scalars['ID']['output'];
 };
 
 export type PostFetch = {
