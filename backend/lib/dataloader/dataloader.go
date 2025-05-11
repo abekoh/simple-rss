@@ -24,7 +24,8 @@ func New() *DataLoader {
 }
 
 func (d *DataLoader) Feed(ctx context.Context, feedID string) (sqlc.Feed, error) {
-	d.keyMutex.Lock("Feed")
+	const k = "Feed"
+	d.keyMutex.Lock(k)
 	if d.feed == nil {
 		d.feed = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.Feed, error) {
@@ -35,12 +36,13 @@ func (d *DataLoader) Feed(ctx context.Context, feedID string) (sqlc.Feed, error)
 			},
 		)
 	}
-	d.keyMutex.Unlock("Feed")
+	d.keyMutex.Unlock(k)
 	return d.feed.Load(ctx, feedID)()
 }
 
 func (d *DataLoader) PostSummaryByPostID(ctx context.Context, postID string) (sqlc.PostSummary, error) {
-	d.keyMutex.Lock("PostSummaryByPostID")
+	const k = "PostSummaryByPostID"
+	d.keyMutex.Lock(k)
 	if d.postSummaryByPostID == nil {
 		d.postSummaryByPostID = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.PostSummary, error) {
@@ -51,12 +53,13 @@ func (d *DataLoader) PostSummaryByPostID(ctx context.Context, postID string) (sq
 			},
 		)
 	}
-	d.keyMutex.Unlock("PostSummaryByPostID")
+	d.keyMutex.Unlock(k)
 	return d.postSummaryByPostID.Load(ctx, postID)()
 }
 
 func (d *DataLoader) PostFavoritesByPostID(ctx context.Context, postID string) (sqlc.PostFavorite, error) {
-	d.keyMutex.Lock("PostFavoriteByPostID")
+	const k = "PostFavoriteByPostID"
+	d.keyMutex.Lock(k)
 	if d.postFavoriteByPostID == nil {
 		d.postFavoriteByPostID = newLoaderOne(
 			func(ctx context.Context, ids []string) ([]sqlc.PostFavorite, error) {
@@ -67,7 +70,7 @@ func (d *DataLoader) PostFavoritesByPostID(ctx context.Context, postID string) (
 			},
 		)
 	}
-	d.keyMutex.Unlock("PostFavoriteByPostID")
+	d.keyMutex.Unlock(k)
 	return d.postFavoriteByPostID.Load(ctx, postID)()
 }
 
