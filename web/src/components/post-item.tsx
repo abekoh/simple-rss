@@ -11,6 +11,7 @@ import {
 import {
   GetPostsQuery,
   useAddPostFavoriteMutation,
+  useRemovePostFavoriteMutation,
 } from "../generated/graphql";
 import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
@@ -132,43 +133,45 @@ const FavoriteButton = ({
 }: {
   post: GetPostsQuery["posts"]["posts"][0];
 }) => {
-  const [addPostFavorite, { loading }] = useAddPostFavoriteMutation({
-    onCompleted: () => {
-      toaster.create({
-        title: "お気に入りに追加しました",
-        type: "success",
-      });
-    },
-    onError: (error) => {
-      toaster.create({
-        title: "エラーが発生しました",
-        description: error.message,
-        type: "error",
-      });
-    },
-    update: (cache, { data }) => {
-      if (!data) return;
+  const [addPostFavorite, { loading: addLoading }] = useAddPostFavoriteMutation(
+    {
+      onCompleted: () => {
+        toaster.create({
+          title: "お気に入りに追加しました",
+          type: "success",
+        });
+      },
+      onError: (error) => {
+        toaster.create({
+          title: "エラーが発生しました",
+          description: error.message,
+          type: "error",
+        });
+      },
+      update: (cache, { data }) => {
+        if (!data) return;
 
-      // キャッシュからデータを取得
-      const cacheId = cache.identify({
-        __typename: "Post",
-        postId: post.postId,
-      });
+        // キャッシュからデータを取得
+        const cacheId = cache.identify({
+          __typename: "Post",
+          postId: post.postId,
+        });
 
-      // キャッシュを更新
-      cache.modify({
-        id: cacheId,
-        fields: {
-          favorite: () => ({
-            __typename: "PostFavorite",
-            postFavoriteId: data.addPostFavorite.postFavoriteId,
-            postId: data.addPostFavorite.postId,
-            addedAt: new Date().toISOString(),
-          }),
-        },
-      });
-    },
-  });
+        // キャッシュを更新
+        cache.modify({
+          id: cacheId,
+          fields: {
+            favorite: () => ({
+              __typename: "PostFavorite",
+              postFavoriteId: data.addPostFavorite.postFavoriteId,
+              postId: data.addPostFavorite.postId,
+              addedAt: new Date().toISOString(),
+            }),
+          },
+        });
+      },
+    }
+  );
 
   const handleAddFavorite = async () => {
     if (post.favorite) return;
@@ -182,14 +185,61 @@ const FavoriteButton = ({
     });
   };
 
-  // すでにお気に入り済みの場合は黄色で表示
+  const [removePostFavorite, { loading: removeLoading }] =
+    useRemovePostFavoriteMutation({
+      onCompleted: () => {
+        toaster.create({
+          title: "お気に入りから削除しました",
+          type: "success",
+        });
+      },
+      onError: (error) => {
+        toaster.create({
+          title: "エラーが発生しました",
+          description: error.message,
+          type: "error",
+        });
+      },
+      update: (cache, { data }) => {
+        if (!data) return;
+
+        // キャッシュからデータを取得
+        const cacheId = cache.identify({
+          __typename: "Post",
+          postId: post.postId,
+        });
+
+        // キャッシュを更新
+        cache.modify({
+          id: cacheId,
+          fields: {
+            favorite: () => null,
+          },
+        });
+      },
+    });
+
+  const handleRemoveFavorite = async () => {
+    if (!post.favorite) return;
+
+    await removePostFavorite({
+      variables: {
+        input: {
+          postFavoriteId: post.favorite.postFavoriteId,
+        },
+      },
+    });
+  };
+
+  // すでにお気に入り済みの場合は黄色で表示し、クリックで削除
   if (post.favorite) {
     return (
       <IconButton
-        aria-label="お気に入り済み"
+        aria-label="お気に入りから削除"
         colorScheme="yellow"
         size="sm"
-        disabled
+        onClick={handleRemoveFavorite}
+        loading={removeLoading}
       >
         <LuStar />
       </IconButton>
@@ -202,7 +252,7 @@ const FavoriteButton = ({
       variant="outline"
       size="sm"
       onClick={handleAddFavorite}
-      loading={loading}
+      loading={addLoading}
     >
       <LuStar />
     </IconButton>

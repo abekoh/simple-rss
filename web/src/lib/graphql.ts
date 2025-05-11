@@ -76,3 +76,12 @@ export const ADD_POST_FAVORITE = gql`
     }
   }
 `;
+
+// 記事をお気に入りから削除するミューテーション
+export const REMOVE_POST_FAVORITE = gql`
+  mutation RemovePostFavorite($input: RemovePostFavoriteInput!) {
+    removePostFavorite(input: $input) {
+      postFavoriteId
+    }
+  }
+`;
