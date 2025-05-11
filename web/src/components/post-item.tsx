@@ -1,4 +1,4 @@
-import { Box, Heading, Text, Code, Link, List } from "@chakra-ui/react";
+import { Box, Heading, Text, Code, Link, List, Tag } from "@chakra-ui/react";
 import { Post } from "../generated/graphql";
 import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 // 日付をフォーマットする関数
 export const formatDate = (dateString: any | null | undefined) => {
   if (!dateString) return "";
-  return dayjs(dateString).format("YYYY年MM月DD日 HH:mm");
+  return dayjs(dateString).tz().format("YYYY-MM-DD HH:mm");
 };
 
 // 記事アイテムコンポーネント
@@ -77,9 +77,9 @@ export const PostItem = ({ post }: { post: Post }) => {
             >
               {post.summary.summary}
             </ReactMarkdown>
-            <Text fontSize="xs" color="gray.500" mt={1}>
-              要約方法: {post.summary.summarizeMethod}
-            </Text>
+            <Tag.Root>
+              <Tag.Label>{post.summary.summarizeMethod}</Tag.Label>
+            </Tag.Root>
           </>
         ) : post.description ? (
           <Text>{post.description}</Text>
