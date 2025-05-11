@@ -19,8 +19,13 @@ import (
 
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
+	feedURL, err := findFeedURL(ctx, input.URL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find feed url: %w", err)
+	}
+
 	fp := gofeed.NewParser()
-	feedContent, err := fp.ParseURL(input.URL)
+	feedContent, err := fp.ParseURL(feedURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url: %w", err)
 	}
