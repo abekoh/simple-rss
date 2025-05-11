@@ -1,4 +1,11 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  Link,
+  Outlet,
+  useMatches,
+  useMatchRoute,
+  useRouterState,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
   Box,
@@ -38,7 +45,7 @@ const LAYOUT = {
 };
 import { LuMenu } from "react-icons/lu";
 import { ColorModeToggle } from "../components/color-mode-toggle";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   useGetFeedsQuery,
   useRegisterFeedMutation,
@@ -72,9 +79,13 @@ const FeedItem = ({
 
 export const Route = createRootRoute({
   component: () => {
-    const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null);
+    const matches = useMatches();
     const [newFeedUrl, setNewFeedUrl] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const currentMatch = useMemo(() => {
+      return matches.find((match) => match.id !== "__root__");
+    }, [matches]);
 
     // ブレイクポイントに基づいてサイドバーの表示/非表示を決定
     const isMobile = useBreakpointValue({
@@ -143,6 +154,9 @@ export const Route = createRootRoute({
 
     const feeds = feedsData?.feeds || [];
 
+    const isTopSelected = currentMatch?.routeId === "/";
+    const isFavoriteSelected = currentMatch?.routeId === "/favorite";
+
     // サイドバーの内容をコンポーネント化
     const SidebarContent = () => (
       <Stack align="stretch" gap={4} h="100%">
@@ -155,18 +169,17 @@ export const Route = createRootRoute({
             <Link to="/" search={{ page: 1 }}>
               <Box
                 p={2}
-                bg={selectedFeedId === null ? "blue.50" : "transparent"}
+                bg={isTopSelected ? "blue.50" : "transparent"}
                 _dark={{
-                  bg: selectedFeedId === null ? "blue.900" : "transparent",
+                  bg: isTopSelected ? "blue.900" : "transparent",
                 }}
                 borderRadius="md"
                 cursor="pointer"
                 onClick={() => {
-                  setSelectedFeedId(null);
                   if (isMobile) setDrawerOpen(false);
                 }}
               >
-                <Text fontWeight={selectedFeedId === null ? "bold" : "normal"}>
+                <Text fontWeight={isTopSelected ? "bold" : "normal"}>
                   すべての記事
                 </Text>
               </Box>
@@ -174,8 +187,10 @@ export const Route = createRootRoute({
             <Link to="/favorite" search={{ page: 1 }}>
               <Box
                 p={2}
-                bg="transparent"
-                _dark={{ bg: "transparent" }}
+                bg={isFavoriteSelected ? "blue.50" : "transparent"}
+                _dark={{
+                  bg: isFavoriteSelected ? "blue.900" : "transparent",
+                }}
                 borderRadius="md"
                 cursor="pointer"
                 onClick={() => {
@@ -207,9 +222,11 @@ export const Route = createRootRoute({
               >
                 <FeedItem
                   feed={feed}
-                  isSelected={selectedFeedId === feed.feedId}
+                  isSelected={
+                    currentMatch?.routeId === "/feeds/$feedId" &&
+                    currentMatch.params.feedId === feed.feedId
+                  }
                   onSelect={() => {
-                    setSelectedFeedId(feed.feedId);
                     if (isMobile) setDrawerOpen(false);
                   }}
                 />
