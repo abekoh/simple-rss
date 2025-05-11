@@ -21,6 +21,20 @@ import {
   Center,
   useBreakpointValue,
 } from "@chakra-ui/react";
+
+// レイアウトに関する定数
+const LAYOUT = {
+  // ブレークポイント
+  breakpoints: {
+    mobile: "base",
+    desktop: "lg",
+  },
+  // サイズ
+  sizes: {
+    headerHeight: "50px",
+    sidebarWidth: "250px",
+  },
+};
 import { LuMenu } from "react-icons/lu";
 import { ColorModeToggle } from "../components/color-mode-toggle";
 import { useState } from "react";
@@ -62,7 +76,10 @@ export const Route = createRootRoute({
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     // ブレイクポイントに基づいてサイドバーの表示/非表示を決定
-    const isMobile = useBreakpointValue({ base: true, md: false });
+    const isMobile = useBreakpointValue({
+      [LAYOUT.breakpoints.mobile]: true,
+      [LAYOUT.breakpoints.desktop]: false,
+    });
 
     // フィード一覧を取得
     const {
@@ -247,16 +264,16 @@ export const Route = createRootRoute({
     return (
       <Grid
         templateAreas={{
-          base: `"header" "main"`,
-          md: `"header header" "main sidebar"`,
+          [LAYOUT.breakpoints.mobile]: `"header" "main"`,
+          [LAYOUT.breakpoints.desktop]: `"header header" "main sidebar"`,
         }}
         gridTemplateRows={{
-          base: "50px 1fr",
-          md: "50px 1fr",
+          [LAYOUT.breakpoints.mobile]: `${LAYOUT.sizes.headerHeight} 1fr`,
+          [LAYOUT.breakpoints.desktop]: `${LAYOUT.sizes.headerHeight} 1fr`,
         }}
         gridTemplateColumns={{
-          base: "1fr",
-          md: "1fr 250px",
+          [LAYOUT.breakpoints.mobile]: "1fr",
+          [LAYOUT.breakpoints.desktop]: `1fr ${LAYOUT.sizes.sidebarWidth}`,
         }}
         h="100vh"
         gap={0}
