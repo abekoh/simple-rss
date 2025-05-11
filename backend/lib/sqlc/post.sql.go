@@ -40,6 +40,22 @@ func (q *Queries) InsertPost(ctx context.Context, arg InsertPostParams) error {
 	return err
 }
 
+const insertPostFavorite = `-- name: InsertPostFavorite :exec
+insert into post_favorites (post_favorite_id, post_id, added_at)
+values ($1, $2, $3)
+`
+
+type InsertPostFavoriteParams struct {
+	PostFavoriteID string
+	PostID         string
+	AddedAt        time.Time
+}
+
+func (q *Queries) InsertPostFavorite(ctx context.Context, arg InsertPostFavoriteParams) error {
+	_, err := q.db.Exec(ctx, insertPostFavorite, arg.PostFavoriteID, arg.PostID, arg.AddedAt)
+	return err
+}
+
 const insertPostFetch = `-- name: InsertPostFetch :exec
 insert into post_fetches (post_fetch_id, post_id, status, message, fetched_at)
 values ($1, $2, $3, $4, $5)

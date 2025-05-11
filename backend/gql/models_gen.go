@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+type AddPostFavoriteInput struct {
+	PostID string `json:"postId"`
+}
+
+type AddPostFavoritePayload struct {
+	PostID         string `json:"postId"`
+	PostFavoriteID string `json:"postFavoriteId"`
+}
+
 type DeleteFeedInput struct {
 	FeedID string `json:"feedId"`
 }

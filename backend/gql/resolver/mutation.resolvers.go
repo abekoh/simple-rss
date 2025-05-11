@@ -7,6 +7,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
@@ -70,6 +71,26 @@ func (r *mutationResolver) DeleteFeed(ctx context.Context, input gql.DeleteFeedI
 	}
 	return &gql.DeleteFeedPayload{
 		FeedID: input.FeedID,
+	}, nil
+}
+
+// AddPostFavorite is the resolver for the addPostFavorite field.
+func (r *mutationResolver) AddPostFavorite(ctx context.Context, input gql.AddPostFavoriteInput) (*gql.AddPostFavoritePayload, error) {
+	postFavoriteID := uid.NewUUID(ctx)
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		if err := database.FromContext(ctx).Queries().InsertPostFavorite(ctx, sqlc.InsertPostFavoriteParams{
+			PostFavoriteID: postFavoriteID,
+			PostID:         input.PostID,
+			AddedAt:        clock.Now(ctx),
+		}); err != nil {
+			return fmt.Errorf("failed to insert post favorite: %w", err)
+		}
+	}); err != nil {
+		return nil, fmt.Errorf("failed in transaction: %w", err)
+	}
+	return &gql.AddPostFavoritePayload{
+		PostID:         input.PostID,
+		PostFavoriteID: postFavoriteID,
 	}, nil
 }
 

@@ -58,3 +58,7 @@ where post_id = ANY (@post_ids::uuid[]);
 select *
 from post_favorites
 where post_id = ANY (@post_ids::uuid[]);
+
+-- name: InsertPostFavorite :exec
+insert into post_favorites (post_favorite_id, post_id, added_at)
+values (@post_favorite_id, @post_id, @added_at);
