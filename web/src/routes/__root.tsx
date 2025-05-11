@@ -4,18 +4,24 @@ import {
   Box,
   Button,
   ClientOnly,
+  CloseButton,
+  Drawer,
   Flex,
   Grid,
   GridItem,
   Heading,
+  IconButton,
   Input,
+  Portal,
   Skeleton,
   Text,
   Stack,
   HStack,
   Spinner,
   Center,
+  useBreakpointValue,
 } from "@chakra-ui/react";
+import { LuMenu } from "react-icons/lu";
 import { ColorModeToggle } from "../components/color-mode-toggle";
 import { useState } from "react";
 import {
@@ -53,6 +59,10 @@ export const Route = createRootRoute({
   component: () => {
     const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null);
     const [newFeedUrl, setNewFeedUrl] = useState("");
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    // ブレイクポイントに基づいてサイドバーの表示/非表示を決定
+    const isMobile = useBreakpointValue({ base: true, md: false });
 
     // フィード一覧を取得
     const {
@@ -115,140 +125,156 @@ export const Route = createRootRoute({
 
     const feeds = feedsData?.feeds || [];
 
+    // サイドバーの内容をコンポーネント化
+    const SidebarContent = () => (
+      <Stack align="stretch" gap={4} h="100%">
+        <Box>
+          <Heading size="md" mb={2}>
+            フィード
+          </Heading>
+          <Stack gap={1}>
+            {/* システムフィード */}
+            <Link to="/" search={{ page: 1 }}>
+              <Box
+                p={2}
+                bg={selectedFeedId === null ? "blue.50" : "transparent"}
+                _dark={{
+                  bg: selectedFeedId === null ? "blue.900" : "transparent",
+                }}
+                borderRadius="md"
+                cursor="pointer"
+                onClick={() => {
+                  setSelectedFeedId(null);
+                  if (isMobile) setDrawerOpen(false);
+                }}
+              >
+                <Text fontWeight={selectedFeedId === null ? "bold" : "normal"}>
+                  すべての記事
+                </Text>
+              </Box>
+            </Link>
+            <Link to="/favorite" search={{ page: 1 }}>
+              <Box
+                p={2}
+                bg="transparent"
+                _dark={{ bg: "transparent" }}
+                borderRadius="md"
+                cursor="pointer"
+                onClick={() => {
+                  if (isMobile) setDrawerOpen(false);
+                }}
+              >
+                <Text>お気に入り</Text>
+              </Box>
+            </Link>
+
+            {/* 罫線 */}
+            <Box
+              borderTopWidth="1px"
+              borderColor="gray.200"
+              _dark={{ borderColor: "gray.700" }}
+              my={2}
+            />
+
+            {/* RSSフィード */}
+            <Text fontSize="sm" color="gray.500" mb={1}>
+              RSSフィード
+            </Text>
+            {feeds.map((feed) => (
+              <Link
+                key={feed.feedId}
+                to="/feeds/$feedId"
+                params={{ feedId: feed.feedId }}
+                search={{ page: 1 }}
+              >
+                <FeedItem
+                  feed={feed}
+                  isSelected={selectedFeedId === feed.feedId}
+                  onSelect={() => {
+                    setSelectedFeedId(feed.feedId);
+                    if (isMobile) setDrawerOpen(false);
+                  }}
+                />
+              </Link>
+            ))}
+            {feedsLoading && (
+              <Center py={2}>
+                <Spinner size="sm" />
+              </Center>
+            )}
+          </Stack>
+        </Box>
+
+        <Box
+          borderTopWidth="1px"
+          borderColor="gray.200"
+          _dark={{ borderColor: "gray.700" }}
+          pt={4}
+        >
+          <Heading size="md" mb={2}>
+            フィードを追加
+          </Heading>
+          <Box>
+            <Text mb={2}>フィードURL</Text>
+            <Flex>
+              <Input
+                value={newFeedUrl}
+                onChange={(e) => setNewFeedUrl(e.target.value)}
+                placeholder="https://example.com/feed"
+                mr={2}
+                disabled={registerLoading}
+              />
+              <Button
+                onClick={handleAddFeed}
+                loading={registerLoading}
+                loadingText="追加中"
+              >
+                追加
+              </Button>
+            </Flex>
+          </Box>
+
+          {/* カラーモード切替 */}
+          <Box mt={4}>
+            <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
+              <ColorModeToggle />
+            </ClientOnly>
+          </Box>
+        </Box>
+      </Stack>
+    );
+
     return (
       <Grid
-        templateAreas={`
-          "header header"
-          "sidebar main"
-        `}
-        gridTemplateRows={"50px 1fr"}
-        gridTemplateColumns={"250px 1fr"}
+        templateAreas={{
+          base: `"header" "main"`,
+          md: `"header header" "main sidebar"`,
+        }}
+        gridTemplateRows={{
+          base: "50px 1fr",
+          md: "50px 1fr",
+        }}
+        gridTemplateColumns={{
+          base: "1fr",
+          md: "1fr 250px",
+        }}
         h="100vh"
         gap={0}
       >
         {/* ヘッダー */}
         <GridItem area="header" px={4}>
-          <Flex h="100%" alignItems="center">
+          <Flex h="100%" alignItems="center" justifyContent="space-between">
             <Heading size="lg">Simple RSS</Heading>
+            {isMobile && (
+              <IconButton
+                variant="ghost"
+                aria-label="メニューを開く"
+                onClick={() => setDrawerOpen(true)}
+              >
+                <LuMenu />
+              </IconButton>
+            )}
           </Flex>
-        </GridItem>
-
-        {/* サイドバー */}
-        <GridItem
-          area="sidebar"
-          borderRight="1px"
-          borderColor="gray.200"
-          _dark={{ borderColor: "gray.700" }}
-          p={4}
-        >
-          <Stack align="stretch" gap={4} h="100%">
-            <Box>
-              <Heading size="md" mb={2}>
-                フィード
-              </Heading>
-              <Stack gap={1}>
-                {/* システムフィード */}
-                <Link to="/" search={{ page: 1 }}>
-                  <Box
-                    p={2}
-                    bg={selectedFeedId === null ? "blue.50" : "transparent"}
-                    _dark={{
-                      bg: selectedFeedId === null ? "blue.900" : "transparent",
-                    }}
-                    borderRadius="md"
-                    cursor="pointer"
-                    onClick={() => setSelectedFeedId(null)}
-                  >
-                    <Text
-                      fontWeight={selectedFeedId === null ? "bold" : "normal"}
-                    >
-                      すべての記事
-                    </Text>
-                  </Box>
-                </Link>
-                <Link to="/favorite" search={{ page: 1 }}>
-                  <Box
-                    p={2}
-                    bg="transparent"
-                    _dark={{ bg: "transparent" }}
-                    borderRadius="md"
-                    cursor="pointer"
-                  >
-                    <Text>お気に入り</Text>
-                  </Box>
-                </Link>
-
-                {/* 罫線 */}
-                <Box
-                  borderTopWidth="1px"
-                  borderColor="gray.200"
-                  _dark={{ borderColor: "gray.700" }}
-                  my={2}
-                />
-
-                {/* RSSフィード */}
-                <Text fontSize="sm" color="gray.500" mb={1}>
-                  RSSフィード
-                </Text>
-                {feeds.map((feed) => (
-                  <Link
-                    key={feed.feedId}
-                    to="/feeds/$feedId"
-                    params={{ feedId: feed.feedId }}
-                    search={{ page: 1 }}
-                  >
-                    <FeedItem
-                      feed={feed}
-                      isSelected={selectedFeedId === feed.feedId}
-                      onSelect={() => setSelectedFeedId(feed.feedId)}
-                    />
-                  </Link>
-                ))}
-                {feedsLoading && (
-                  <Center py={2}>
-                    <Spinner size="sm" />
-                  </Center>
-                )}
-              </Stack>
-            </Box>
-
-            <Box
-              borderTopWidth="1px"
-              borderColor="gray.200"
-              _dark={{ borderColor: "gray.700" }}
-              pt={4}
-            >
-              <Heading size="md" mb={2}>
-                フィードを追加
-              </Heading>
-              <Box>
-                <Text mb={2}>フィードURL</Text>
-                <Flex>
-                  <Input
-                    value={newFeedUrl}
-                    onChange={(e) => setNewFeedUrl(e.target.value)}
-                    placeholder="https://example.com/feed"
-                    mr={2}
-                    disabled={registerLoading}
-                  />
-                  <Button
-                    onClick={handleAddFeed}
-                    loading={registerLoading}
-                    loadingText="追加中"
-                  >
-                    追加
-                  </Button>
-                </Flex>
-              </Box>
-
-              {/* カラーモード切替 */}
-              <Box mt={4}>
-                <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
-                  <ColorModeToggle />
-                </ClientOnly>
-              </Box>
-            </Box>
-          </Stack>
         </GridItem>
 
         {/* メインコンテンツ */}
@@ -256,6 +282,44 @@ export const Route = createRootRoute({
           <Outlet />
           <TanStackRouterDevtools />
         </GridItem>
+
+        {/* PC用サイドバー - モバイルでは非表示 */}
+        {!isMobile && (
+          <GridItem
+            area="sidebar"
+            borderLeft="1px"
+            borderColor="gray.200"
+            _dark={{ borderColor: "gray.700" }}
+            p={4}
+          >
+            <SidebarContent />
+          </GridItem>
+        )}
+
+        {/* モバイル用Drawer - 右側に表示 */}
+        {isMobile && (
+          <Drawer.Root
+            open={drawerOpen}
+            onOpenChange={(e) => setDrawerOpen(e.open)}
+          >
+            <Portal>
+              <Drawer.Backdrop />
+              <Drawer.Positioner placement="right">
+                <Drawer.Content>
+                  <Drawer.Header>
+                    <Drawer.Title>Simple RSS</Drawer.Title>
+                    <Drawer.CloseTrigger asChild>
+                      <CloseButton size="sm" />
+                    </Drawer.CloseTrigger>
+                  </Drawer.Header>
+                  <Drawer.Body>
+                    <SidebarContent />
+                  </Drawer.Body>
+                </Drawer.Content>
+              </Drawer.Positioner>
+            </Portal>
+          </Drawer.Root>
+        )}
       </Grid>
     );
   },
