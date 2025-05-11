@@ -2,12 +2,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useGetPostsQuery, PostsInputOrder } from "../../generated/graphql";
 import { PostList } from "../../components/post-list";
 
+// 検索パラメータの型定義
+interface FeedDetailSearch {
+  page: number;
+}
+
 export const Route = createFileRoute("/feeds/$feedId")({
+  validateSearch: (search: Record<string, unknown>): FeedDetailSearch => {
+    return {
+      page: Number(search?.page || 1),
+    };
+  },
   component: FeedDetail,
 });
 
 function FeedDetail() {
   const { feedId } = Route.useParams();
+  // 検索パラメータを取得
+  const { page } = Route.useSearch();
+  const itemsPerPage = 10;
 
   // フィードの記事一覧を取得
   const {
@@ -18,8 +31,8 @@ function FeedDetail() {
     variables: {
       input: {
         feedIds: [feedId],
-        limit: 20,
-        offset: 0,
+        limit: itemsPerPage,
+        offset: (page - 1) * itemsPerPage,
         order: PostsInputOrder.PostedAtDesc,
       },
     },
@@ -38,6 +51,9 @@ function FeedDetail() {
       totalCount={totalCount}
       loading={postsLoading}
       error={postsError}
+      baseUrl={`/feeds/${feedId}`}
+      currentPage={page}
+      itemsPerPage={itemsPerPage}
     />
   );
 }

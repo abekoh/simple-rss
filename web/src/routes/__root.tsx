@@ -148,7 +148,7 @@ export const Route = createRootRoute({
               </Heading>
               <Stack gap={1}>
                 {/* システムフィード */}
-                <Link to="/">
+                <Link to="/" search={{ page: 1 }}>
                   <Box
                     p={2}
                     bg={selectedFeedId === null ? "blue.50" : "transparent"}
@@ -166,7 +166,7 @@ export const Route = createRootRoute({
                     </Text>
                   </Box>
                 </Link>
-                <Link to="/favorite">
+                <Link to="/favorite" search={{ page: 1 }}>
                   <Box
                     p={2}
                     bg="transparent"
@@ -195,6 +195,7 @@ export const Route = createRootRoute({
                     key={feed.feedId}
                     to="/feeds/$feedId"
                     params={{ feedId: feed.feedId }}
+                    search={{ page: 1 }}
                   >
                     <FeedItem
                       feed={feed}
