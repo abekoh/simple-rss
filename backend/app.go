@@ -24,6 +24,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
 	"github.com/abekoh/simple-rss/backend/worker/summarizer"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -126,6 +127,13 @@ func main() {
 	}()
 
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := config.WithConfig(r.Context(), cnf)
