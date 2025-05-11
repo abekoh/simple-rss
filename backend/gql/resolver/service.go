@@ -50,7 +50,7 @@ func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 			}
 			if strings.HasPrefix(href, "https://") || strings.HasPrefix(href, "http://") {
 				urlSet[href] = struct{}{}
-			} else if strings.HasPrefix("href", "/") {
+			} else if strings.HasPrefix(href, "/") {
 				urlSet[fmt.Sprintf("%s://%s%s", parsedURL.Scheme, parsedURL.Host, href)] = struct{}{}
 			}
 		}
