@@ -20,6 +20,7 @@ import {
   Spinner,
   Center,
   useBreakpointValue,
+  Container,
 } from "@chakra-ui/react";
 
 // レイアウトに関する定数
@@ -262,89 +263,91 @@ export const Route = createRootRoute({
     );
 
     return (
-      <Grid
-        templateAreas={{
-          [LAYOUT.breakpoints.mobile]: `"header" "main"`,
-          [LAYOUT.breakpoints.desktop]: `"header header" "main sidebar"`,
-        }}
-        gridTemplateRows={{
-          [LAYOUT.breakpoints.mobile]: `${LAYOUT.sizes.headerHeight} 1fr`,
-          [LAYOUT.breakpoints.desktop]: `${LAYOUT.sizes.headerHeight} 1fr`,
-        }}
-        gridTemplateColumns={{
-          [LAYOUT.breakpoints.mobile]: "1fr",
-          [LAYOUT.breakpoints.desktop]: `1fr ${LAYOUT.sizes.sidebarWidth}`,
-        }}
-        h="100vh"
-        gap={0}
-      >
-        {/* ヘッダー */}
-        <GridItem area="header" px={4}>
-          <Flex h="100%" alignItems="center" justifyContent="space-between">
-            <Heading size="lg">Simple RSS</Heading>
-            {isMobile && (
-              <IconButton
-                variant="ghost"
-                aria-label="メニューを開く"
-                onClick={() => setDrawerOpen(true)}
-              >
-                <LuMenu />
-              </IconButton>
-            )}
-          </Flex>
-        </GridItem>
-
-        {/* メインコンテンツ */}
-        <GridItem
-          area="main"
-          p={6}
-          overflowY="auto"
-          style={{
-            scrollbarWidth: "none",
+      <Container>
+        <Grid
+          templateAreas={{
+            [LAYOUT.breakpoints.mobile]: `"header" "main"`,
+            [LAYOUT.breakpoints.desktop]: `"header header" "main sidebar"`,
           }}
+          gridTemplateRows={{
+            [LAYOUT.breakpoints.mobile]: `${LAYOUT.sizes.headerHeight} 1fr`,
+            [LAYOUT.breakpoints.desktop]: `${LAYOUT.sizes.headerHeight} 1fr`,
+          }}
+          gridTemplateColumns={{
+            [LAYOUT.breakpoints.mobile]: "1fr",
+            [LAYOUT.breakpoints.desktop]: `1fr ${LAYOUT.sizes.sidebarWidth}`,
+          }}
+          h="100vh"
+          gap={0}
         >
-          <Outlet />
-          <TanStackRouterDevtools />
-        </GridItem>
-
-        {/* PC用サイドバー - モバイルでは非表示 */}
-        {!isMobile && (
-          <GridItem
-            area="sidebar"
-            borderLeft="1px"
-            borderColor="gray.200"
-            _dark={{ borderColor: "gray.700" }}
-            p={4}
-          >
-            <SidebarContent />
+          {/* ヘッダー */}
+          <GridItem area="header" px={4}>
+            <Flex h="100%" alignItems="center" justifyContent="space-between">
+              <Heading size="lg">Simple RSS</Heading>
+              {isMobile && (
+                <IconButton
+                  variant="ghost"
+                  aria-label="メニューを開く"
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  <LuMenu />
+                </IconButton>
+              )}
+            </Flex>
           </GridItem>
-        )}
 
-        {/* モバイル用Drawer - 右側に表示 */}
-        {isMobile && (
-          <Drawer.Root
-            open={drawerOpen}
-            onOpenChange={(e) => setDrawerOpen(e.open)}
+          {/* メインコンテンツ */}
+          <GridItem
+            area="main"
+            p={6}
+            overflowY="auto"
+            style={{
+              scrollbarWidth: "none",
+            }}
           >
-            <Portal>
-              <Drawer.Backdrop />
-              <Drawer.Positioner>
-                <Drawer.Content>
-                  <Drawer.Header>
-                    <Drawer.Title>Simple RSS</Drawer.Title>
-                    <Drawer.CloseTrigger asChild>
-                      <CloseButton size="sm" />
-                    </Drawer.CloseTrigger>
-                  </Drawer.Header>
-                  <Drawer.Body>
-                    <SidebarContent />
-                  </Drawer.Body>
-                </Drawer.Content>
-              </Drawer.Positioner>
-            </Portal>
-          </Drawer.Root>
-        )}
-      </Grid>
+            <Outlet />
+            <TanStackRouterDevtools />
+          </GridItem>
+
+          {/* PC用サイドバー - モバイルでは非表示 */}
+          {!isMobile && (
+            <GridItem
+              area="sidebar"
+              borderLeft="1px"
+              borderColor="gray.200"
+              _dark={{ borderColor: "gray.700" }}
+              p={4}
+            >
+              <SidebarContent />
+            </GridItem>
+          )}
+
+          {/* モバイル用Drawer - 右側に表示 */}
+          {isMobile && (
+            <Drawer.Root
+              open={drawerOpen}
+              onOpenChange={(e) => setDrawerOpen(e.open)}
+            >
+              <Portal>
+                <Drawer.Backdrop />
+                <Drawer.Positioner>
+                  <Drawer.Content>
+                    <Drawer.Header>
+                      <Drawer.Title>Simple RSS</Drawer.Title>
+                      <Drawer.CloseTrigger asChild>
+                        <CloseButton size="sm" />
+                      </Drawer.CloseTrigger>
+                    </Drawer.Header>
+                    <Drawer.Body>
+                      <SidebarContent />
+                    </Drawer.Body>
+                  </Drawer.Content>
+                </Drawer.Positioner>
+              </Portal>
+            </Drawer.Root>
+          )}
+        </Grid>
+      </Container>
     );
   },
 });
