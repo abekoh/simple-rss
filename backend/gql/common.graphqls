@@ -62,6 +62,7 @@ type Post {
   postedAt: Time
   lastFetchedAt: Time
   summary: PostSummary @goField(forceResolver: true)
+  favorite: PostFavorite @goField(forceResolver: true)
   feed: Feed! @goField(forceResolver: true)
 }
 
@@ -79,4 +80,10 @@ type PostSummary {
   summarizeMethod: String!
   summary: String!
   summarizedAt: Time!
+}
+
+type PostFavorite {
+  postFavoriteId: ID!
+  postId: ID!
+  addedAt: Time!
 }

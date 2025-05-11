@@ -27,16 +27,17 @@ where post_id = @post_id
 
 -- name: SelectPosts :many
 select count(*) over () as total_count,
-       sqlc.embed(posts)
-from posts
-where (cardinality(@feed_ids::uuid[]) = 0 or feed_id = ANY (@feed_ids::uuid[]))
+       sqlc.embed(p)
+from posts p
+left join post_favorites pf using (post_id)
+where (cardinality(@feed_ids::uuid[]) = 0 or p.feed_id = ANY (@feed_ids::uuid[]))
 order by case
-             when @ord::text = 'PostedAtAsc' then posted_at
+             when @ord::text = 'PostedAtAsc' then p.posted_at
              end asc,
          case
-             when @ord::text = 'PostedAtDesc' then posted_at
+             when @ord::text = 'PostedAtDesc' then p.posted_at
              end desc,
-         posted_at desc
+         p.posted_at desc
 limit @lim offset @off
 ;
 
@@ -51,4 +52,9 @@ values (@post_summary_id, @post_id, @summarize_method, @summary, @summarized_at)
 -- name: SelectPostSummariesByPostIDs :many
 select *
 from post_summaries
+where post_id = ANY (@post_ids::uuid[]);
+
+-- name: SelectPostFavoritesByPostIDs :many
+select *
+from post_favorites
 where post_id = ANY (@post_ids::uuid[]);

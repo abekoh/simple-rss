@@ -45,17 +45,24 @@ type Mutation struct {
 }
 
 type Post struct {
-	PostID        string       `json:"postId"`
-	FeedID        string       `json:"feedId"`
-	URL           string       `json:"url"`
-	Title         string       `json:"title"`
-	Description   *string      `json:"description,omitempty"`
-	Author        *string      `json:"author,omitempty"`
-	Status        PostStatus   `json:"status"`
-	PostedAt      *time.Time   `json:"postedAt,omitempty"`
-	LastFetchedAt *time.Time   `json:"lastFetchedAt,omitempty"`
-	Summary       *PostSummary `json:"summary,omitempty"`
-	Feed          *Feed        `json:"feed"`
+	PostID        string        `json:"postId"`
+	FeedID        string        `json:"feedId"`
+	URL           string        `json:"url"`
+	Title         string        `json:"title"`
+	Description   *string       `json:"description,omitempty"`
+	Author        *string       `json:"author,omitempty"`
+	Status        PostStatus    `json:"status"`
+	PostedAt      *time.Time    `json:"postedAt,omitempty"`
+	LastFetchedAt *time.Time    `json:"lastFetchedAt,omitempty"`
+	Summary       *PostSummary  `json:"summary,omitempty"`
+	Favorite      *PostFavorite `json:"favorite,omitempty"`
+	Feed          *Feed         `json:"feed"`
+}
+
+type PostFavorite struct {
+	PostFavoriteID string    `json:"postFavoriteId"`
+	PostID         string    `json:"postId"`
+	AddedAt        time.Time `json:"addedAt"`
 }
 
 type PostFetch struct {

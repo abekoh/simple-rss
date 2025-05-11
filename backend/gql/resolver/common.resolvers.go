@@ -25,6 +25,18 @@ func (r *postResolver) Summary(ctx context.Context, obj *gql.Post) (*gql.PostSum
 	return mapPostSummary(summary), nil
 }
 
+// Favorite is the resolver for the favorite field.
+func (r *postResolver) Favorite(ctx context.Context, obj *gql.Post) (*gql.PostFavorite, error) {
+	favorite, err := dataloader.FromContext(ctx).PostFavoritesByPostID(ctx, obj.PostID)
+	if err != nil {
+		if errors.Is(err, dataloader.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get post favorite: %w", err)
+	}
+	return mapPostFavorite(favorite), nil
+}
+
 // Feed is the resolver for the feed field.
 func (r *postResolver) Feed(ctx context.Context, obj *gql.Post) (*gql.Feed, error) {
 	feed, err := dataloader.FromContext(ctx).Feed(ctx, obj.FeedID)

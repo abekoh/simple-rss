@@ -46,3 +46,11 @@ func mapPostSummary(x sqlc.PostSummary) *gql.PostSummary {
 		SummarizedAt:    x.SummarizedAt,
 	}
 }
+
+func mapPostFavorite(x sqlc.PostFavorite) *gql.PostFavorite {
+	return &gql.PostFavorite{
+		PostFavoriteID: x.PostFavoriteID,
+		PostID:         x.PostID,
+		AddedAt:        x.AddedAt,
+	}
+}

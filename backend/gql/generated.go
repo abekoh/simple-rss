@@ -77,6 +77,7 @@ type ComplexityRoot struct {
 	Post struct {
 		Author        func(childComplexity int) int
 		Description   func(childComplexity int) int
+		Favorite      func(childComplexity int) int
 		Feed          func(childComplexity int) int
 		FeedID        func(childComplexity int) int
 		LastFetchedAt func(childComplexity int) int
@@ -86,6 +87,12 @@ type ComplexityRoot struct {
 		Summary       func(childComplexity int) int
 		Title         func(childComplexity int) int
 		URL           func(childComplexity int) int
+	}
+
+	PostFavorite struct {
+		AddedAt        func(childComplexity int) int
+		PostFavoriteID func(childComplexity int) int
+		PostID         func(childComplexity int) int
 	}
 
 	PostFetch struct {
@@ -125,6 +132,7 @@ type MutationResolver interface {
 }
 type PostResolver interface {
 	Summary(ctx context.Context, obj *Post) (*PostSummary, error)
+	Favorite(ctx context.Context, obj *Post) (*PostFavorite, error)
 	Feed(ctx context.Context, obj *Post) (*Feed, error)
 }
 type QueryResolver interface {
@@ -273,6 +281,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Post.Description(childComplexity), true
 
+	case "Post.favorite":
+		if e.complexity.Post.Favorite == nil {
+			break
+		}
+
+		return e.complexity.Post.Favorite(childComplexity), true
+
 	case "Post.feed":
 		if e.complexity.Post.Feed == nil {
 			break
@@ -335,6 +350,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Post.URL(childComplexity), true
+
+	case "PostFavorite.addedAt":
+		if e.complexity.PostFavorite.AddedAt == nil {
+			break
+		}
+
+		return e.complexity.PostFavorite.AddedAt(childComplexity), true
+
+	case "PostFavorite.postFavoriteId":
+		if e.complexity.PostFavorite.PostFavoriteID == nil {
+			break
+		}
+
+		return e.complexity.PostFavorite.PostFavoriteID(childComplexity), true
+
+	case "PostFavorite.postId":
+		if e.complexity.PostFavorite.PostID == nil {
+			break
+		}
+
+		return e.complexity.PostFavorite.PostID(childComplexity), true
 
 	case "PostFetch.fetchedAt":
 		if e.complexity.PostFetch.FetchedAt == nil {
@@ -1842,6 +1878,55 @@ func (ec *executionContext) fieldContext_Post_summary(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_favorite(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_favorite(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Post().Favorite(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*PostFavorite)
+	fc.Result = res
+	return ec.marshalOPostFavorite2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostFavorite(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_favorite(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "postFavoriteId":
+				return ec.fieldContext_PostFavorite_postFavoriteId(ctx, field)
+			case "postId":
+				return ec.fieldContext_PostFavorite_postId(ctx, field)
+			case "addedAt":
+				return ec.fieldContext_PostFavorite_addedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostFavorite", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Post_feed(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_feed(ctx, field)
 	if err != nil {
@@ -1895,6 +1980,138 @@ func (ec *executionContext) fieldContext_Post_feed(_ context.Context, field grap
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostFavorite_postFavoriteId(ctx context.Context, field graphql.CollectedField, obj *PostFavorite) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostFavorite_postFavoriteId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PostFavoriteID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostFavorite_postFavoriteId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostFavorite",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostFavorite_postId(ctx context.Context, field graphql.CollectedField, obj *PostFavorite) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostFavorite_postId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PostID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostFavorite_postId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostFavorite",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostFavorite_addedAt(ctx context.Context, field graphql.CollectedField, obj *PostFavorite) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PostFavorite_addedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AddedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PostFavorite_addedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostFavorite",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2440,6 +2657,8 @@ func (ec *executionContext) fieldContext_PostsPayload_posts(_ context.Context, f
 				return ec.fieldContext_Post_lastFetchedAt(ctx, field)
 			case "summary":
 				return ec.fieldContext_Post_summary(ctx, field)
+			case "favorite":
+				return ec.fieldContext_Post_favorite(ctx, field)
 			case "feed":
 				return ec.fieldContext_Post_feed(ctx, field)
 			}
@@ -5154,6 +5373,39 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "favorite":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Post_favorite(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "feed":
 			field := field
 
@@ -5190,6 +5442,55 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postFavoriteImplementors = []string{"PostFavorite"}
+
+func (ec *executionContext) _PostFavorite(ctx context.Context, sel ast.SelectionSet, obj *PostFavorite) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postFavoriteImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostFavorite")
+		case "postFavoriteId":
+			out.Values[i] = ec._PostFavorite_postFavoriteId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "postId":
+			out.Values[i] = ec._PostFavorite_postId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "addedAt":
+			out.Values[i] = ec._PostFavorite_addedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6440,6 +6741,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOPostFavorite2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostFavorite(ctx context.Context, sel ast.SelectionSet, v *PostFavorite) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostFavorite(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPostSummary2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐPostSummary(ctx context.Context, sel ast.SelectionSet, v *PostSummary) graphql.Marshaler {

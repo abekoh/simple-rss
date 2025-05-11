@@ -113,6 +113,37 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 	return i, err
 }
 
+const selectPostFavoritesByPostIDs = `-- name: SelectPostFavoritesByPostIDs :many
+select post_favorite_id, post_id, added_at, created_at
+from post_favorites
+where post_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) SelectPostFavoritesByPostIDs(ctx context.Context, postIds []string) ([]PostFavorite, error) {
+	rows, err := q.db.Query(ctx, selectPostFavoritesByPostIDs, postIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PostFavorite
+	for rows.Next() {
+		var i PostFavorite
+		if err := rows.Scan(
+			&i.PostFavoriteID,
+			&i.PostID,
+			&i.AddedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const selectPostForUpdate = `-- name: SelectPostForUpdate :one
 select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
 from posts
@@ -174,16 +205,17 @@ func (q *Queries) SelectPostSummariesByPostIDs(ctx context.Context, postIds []st
 
 const selectPosts = `-- name: SelectPosts :many
 select count(*) over () as total_count,
-       posts.post_id, posts.feed_id, posts.url, posts.title, posts.description, posts.author, posts.status, posts.posted_at, posts.last_fetched_at, posts.created_at, posts.updated_at
-from posts
-where (cardinality($1::uuid[]) = 0 or feed_id = ANY ($1::uuid[]))
+       p.post_id, p.feed_id, p.url, p.title, p.description, p.author, p.status, p.posted_at, p.last_fetched_at, p.created_at, p.updated_at
+from posts p
+left join post_favorites pf using (post_id)
+where (cardinality($1::uuid[]) = 0 or p.feed_id = ANY ($1::uuid[]))
 order by case
-             when $2::text = 'PostedAtAsc' then posted_at
+             when $2::text = 'PostedAtAsc' then p.posted_at
              end asc,
          case
-             when $2::text = 'PostedAtDesc' then posted_at
+             when $2::text = 'PostedAtDesc' then p.posted_at
              end desc,
-         posted_at desc
+         p.posted_at desc
 limit $4 offset $3
 `
 

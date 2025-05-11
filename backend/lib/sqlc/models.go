@@ -171,6 +171,13 @@ type Post struct {
 	UpdatedAt     time.Time
 }
 
+type PostFavorite struct {
+	PostFavoriteID string
+	PostID         string
+	AddedAt        time.Time
+	CreatedAt      time.Time
+}
+
 type PostFetch struct {
 	PostFetchID string
 	PostID      string

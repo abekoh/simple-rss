@@ -11,9 +11,10 @@ import (
 )
 
 type DataLoader struct {
-	keyMutex            *keymutex.KeyMutex
-	feed                *dataloader.Loader[string, sqlc.Feed]
-	postSummaryByPostID *dataloader.Loader[string, sqlc.PostSummary]
+	keyMutex             *keymutex.KeyMutex
+	feed                 *dataloader.Loader[string, sqlc.Feed]
+	postSummaryByPostID  *dataloader.Loader[string, sqlc.PostSummary]
+	postFavoriteByPostID *dataloader.Loader[string, sqlc.PostFavorite]
 }
 
 func New() *DataLoader {
@@ -52,6 +53,22 @@ func (d *DataLoader) PostSummaryByPostID(ctx context.Context, postID string) (sq
 	}
 	d.keyMutex.Unlock("PostSummaryByPostID")
 	return d.postSummaryByPostID.Load(ctx, postID)()
+}
+
+func (d *DataLoader) PostFavoritesByPostID(ctx context.Context, postID string) (sqlc.PostFavorite, error) {
+	d.keyMutex.Lock("PostFavoriteByPostID")
+	if d.postFavoriteByPostID == nil {
+		d.postFavoriteByPostID = newLoaderOne(
+			func(ctx context.Context, ids []string) ([]sqlc.PostFavorite, error) {
+				return database.FromContext(ctx).Queries().SelectPostFavoritesByPostIDs(ctx, ids)
+			},
+			func(datum *sqlc.PostFavorite) string {
+				return datum.PostID
+			},
+		)
+	}
+	d.keyMutex.Unlock("PostFavoriteByPostID")
+	return d.postFavoriteByPostID.Load(ctx, postID)()
 }
 
 var ErrNotFound = errors.New("not found")
