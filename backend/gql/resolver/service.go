@@ -35,10 +35,10 @@ func findFeedURL(ctx context.Context, url string) (string, error) {
 		// HTMLでなければそのまま返却
 		return url, nil
 	}
-	if atomURL, ok := parsedHTML.Find("link[rel=alternate][type=application/atom+xml]").Attr("href"); ok {
+	if atomURL, ok := parsedHTML.Find("link[rel=alternate][type='application/atom+xml']").Attr("href"); ok {
 		return atomURL, nil
 	}
-	if rssURL, ok := parsedHTML.Find("link[rel=alternate][type=application/rss+xml]").Attr("href"); ok {
+	if rssURL, ok := parsedHTML.Find("link[rel=alternate][type='application/rss+xml']").Attr("href"); ok {
 		return rssURL, nil
 	}
 	return url, nil

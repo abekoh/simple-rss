@@ -34,7 +34,7 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 	if err := database.Transaction(ctx, func(c context.Context) error {
 		if err := database.FromContext(ctx).Queries().InsertFeed(ctx, sqlc.InsertFeedParams{
 			FeedID: newFeedID,
-			Url:    input.URL,
+			Url:    feedURL,
 			Title:  feedContent.Title,
 			Description: func() *string {
 				if feedContent.Description == "" {
