@@ -38,7 +38,6 @@ func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 	}
 
 	urlSet := make(map[string]struct{})
-	urlSet[url] = struct{}{}
 	for _, selector := range []string{
 		"link[rel=alternate][type='application/atom+xml']",
 		"link[rel=alternate][type='application/rss+xml']",
@@ -61,7 +60,7 @@ func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 		urls = append(urls, url)
 	}
 	if len(urls) == 0 {
-		return nil, fmt.Errorf("failed to find feed url")
+		return []string{url}, nil
 	}
 	return urls, nil
 }
