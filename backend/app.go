@@ -4,6 +4,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"embed"
 	"log/slog"
 	"net/http"
 	"os"
@@ -25,12 +27,30 @@ import (
 	"github.com/abekoh/simple-rss/backend/worker/summarizer"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"github.com/vektah/gqlparser/v2/ast"
 )
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
 
 func main() {
 	cnf := config.Load()
 	routerCtx := context.Background()
+
+	// migration
+	goose.SetBaseFS(embedMigrations)
+	if err := goose.SetDialect("postgres"); err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+	sqlDB, err := sql.Open("pgx", cnf.DBURL)
+	if err := goose.Up(sqlDB, "migrations"); err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+	_ = sqlDB.Close()
 
 	// database
 	db, err := database.New(routerCtx, cnf)
