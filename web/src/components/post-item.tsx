@@ -15,7 +15,8 @@ import {
 } from "../generated/graphql";
 import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
-import { LuStar } from "react-icons/lu";
+import { MdOutlineStar, MdOutlineStarBorder } from "react-icons/md";
+
 import { toaster } from "../components/ui/toaster";
 
 // 日付をフォーマットする関数
@@ -236,12 +237,12 @@ const FavoriteButton = ({
     return (
       <IconButton
         aria-label="お気に入りから削除"
-        colorScheme="yellow"
-        size="sm"
+        size="lg"
         onClick={handleRemoveFavorite}
         loading={removeLoading}
+        variant="ghost"
       >
-        <LuStar />
+        <MdOutlineStar />
       </IconButton>
     );
   }
@@ -249,12 +250,12 @@ const FavoriteButton = ({
   return (
     <IconButton
       aria-label="お気に入りに追加"
-      variant="outline"
-      size="sm"
+      size="lg"
       onClick={handleAddFavorite}
       loading={addLoading}
+      variant="ghost"
     >
-      <LuStar />
+      <MdOutlineStarBorder />
     </IconButton>
   );
 };

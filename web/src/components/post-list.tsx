@@ -72,9 +72,7 @@ export const PostList = ({
                   </Dialog.Body>
                   <Dialog.Footer>
                     <Dialog.ActionTrigger asChild>
-                      <Button variant="outline" onClick={() => setOpen(false)}>
-                        キャンセル
-                      </Button>
+                      <Button variant="outline">キャンセル</Button>
                     </Dialog.ActionTrigger>
                     <Button colorScheme="red" onClick={onDeleteClick}>
                       削除
