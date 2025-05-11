@@ -68,8 +68,19 @@ CREATE TABLE post_summaries
 
 create index post_summaries_post_id_idx ON post_summaries (post_id);
 
+CREATE TABLE post_favorites
+(
+    post_favorite_id uuid primary key,
+    post_id          uuid                     not null references posts (post_id) on delete cascade,
+    added_at         timestamp with time zone not null,
+    created_at       timestamp with time zone not null default now()
+);
+
+CREATE INDEX post_favorites_post_id_idx ON post_favorites (post_id);
+
 -- +goose Down
 
+DROP TABLE post_favorites;
 DROP TABLE post_summaries;
 DROP TABLE post_fetches;
 DROP TYPE post_fetch_status;
