@@ -10,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func findFeedURL(ctx context.Context, url string) ([]string, error) {
+func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 	parsedURL, err := urlpkg.Parse(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url: %w", err)

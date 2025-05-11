@@ -10,7 +10,7 @@ input RegisterFeedInput {
 }
 
 type RegisterFeedPayload {
-  feedId: ID!
+  feedIds: [ID!]!
 }
 
 input DeleteFeedInput {

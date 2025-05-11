@@ -129,7 +129,7 @@ type ComplexityRoot struct {
 	}
 
 	RegisterFeedPayload struct {
-		FeedID func(childComplexity int) int
+		FeedIds func(childComplexity int) int
 	}
 
 	RemovePostFavoritePayload struct {
@@ -526,12 +526,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Posts(childComplexity, args["input"].(PostsInput)), true
 
-	case "RegisterFeedPayload.feedId":
-		if e.complexity.RegisterFeedPayload.FeedID == nil {
+	case "RegisterFeedPayload.feedIds":
+		if e.complexity.RegisterFeedPayload.FeedIds == nil {
 			break
 		}
 
-		return e.complexity.RegisterFeedPayload.FeedID(childComplexity), true
+		return e.complexity.RegisterFeedPayload.FeedIds(childComplexity), true
 
 	case "RemovePostFavoritePayload.postFavoriteId":
 		if e.complexity.RemovePostFavoritePayload.PostFavoriteID == nil {
@@ -1556,8 +1556,8 @@ func (ec *executionContext) fieldContext_Mutation_registerFeed(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "feedId":
-				return ec.fieldContext_RegisterFeedPayload_feedId(ctx, field)
+			case "feedIds":
+				return ec.fieldContext_RegisterFeedPayload_feedIds(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RegisterFeedPayload", field.Name)
 		},
@@ -3232,8 +3232,8 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _RegisterFeedPayload_feedId(ctx context.Context, field graphql.CollectedField, obj *RegisterFeedPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RegisterFeedPayload_feedId(ctx, field)
+func (ec *executionContext) _RegisterFeedPayload_feedIds(ctx context.Context, field graphql.CollectedField, obj *RegisterFeedPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RegisterFeedPayload_feedIds(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3246,7 +3246,7 @@ func (ec *executionContext) _RegisterFeedPayload_feedId(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FeedID, nil
+		return obj.FeedIds, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3258,12 +3258,12 @@ func (ec *executionContext) _RegisterFeedPayload_feedId(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RegisterFeedPayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RegisterFeedPayload_feedIds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RegisterFeedPayload",
 		Field:      field,
@@ -6258,8 +6258,8 @@ func (ec *executionContext) _RegisterFeedPayload(ctx context.Context, sel ast.Se
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RegisterFeedPayload")
-		case "feedId":
-			out.Values[i] = ec._RegisterFeedPayload_feedId(ctx, field, obj)
+		case "feedIds":
+			out.Values[i] = ec._RegisterFeedPayload_feedIds(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

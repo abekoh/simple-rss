@@ -19,44 +19,54 @@ import (
 
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
-	feedURL, err := findFeedURL(ctx, input.URL)
+	feedURLs, err := detectFeedURLs(ctx, input.URL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find feed url: %w", err)
 	}
 
+	feedContentSet := make(map[string]gofeed.Feed, len(feedURLs))
 	fp := gofeed.NewParser()
-	feedContent, err := fp.ParseURL(feedURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse url: %w", err)
+	for _, feedURL := range feedURLs {
+		feedContent, err := fp.ParseURL(feedURL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse url: %w", err)
+		}
+		feedContentSet[feedURL] = *feedContent
 	}
 
-	newFeedID := uid.NewUUID(ctx)
+	newFeedIDs := make([]string, 0, len(feedContentSet))
 	if err := database.Transaction(ctx, func(c context.Context) error {
-		if err := database.FromContext(ctx).Queries().InsertFeed(ctx, sqlc.InsertFeedParams{
-			FeedID: newFeedID,
-			Url:    feedURL,
-			Title:  feedContent.Title,
-			Description: func() *string {
-				if feedContent.Description == "" {
-					return nil
-				}
-				return &feedContent.Description
-			}(),
-			RegisteredAt: clock.Now(ctx),
-		}); err != nil {
-			return fmt.Errorf("failed to insert feed: %w", err)
+		for feedURL, feedContent := range feedContentSet {
+			newFeedID := uid.NewUUID(ctx)
+			newFeedIDs = append(newFeedIDs, newFeedID)
+			if err := database.FromContext(ctx).Queries().InsertFeed(ctx, sqlc.InsertFeedParams{
+				FeedID: newFeedID,
+				Url:    feedURL,
+				Title:  feedContent.Title,
+				Description: func() *string {
+					if feedContent.Description == "" {
+						return nil
+					}
+					return &feedContent.Description
+				}(),
+				RegisteredAt: clock.Now(ctx),
+			}); err != nil {
+				return fmt.Errorf("failed to insert feed: %w", err)
+			}
 		}
 		return nil
 	}); err != nil {
 		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
 
-	r.feedFetcher.Request(ctx, feedfetcher.Request{
-		FeedID: newFeedID,
-	})
+	for _, newFeedID := range newFeedIDs {
+		r.feedFetcher.Request(ctx, feedfetcher.Request{
+			FeedID: newFeedID,
+		})
+	}
 
 	return &gql.RegisterFeedPayload{
-		FeedID: newFeedID,
+		FeedIds: newFeedIDs,
 	}, nil
 }
 

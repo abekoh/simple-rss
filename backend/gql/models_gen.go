@@ -111,7 +111,7 @@ type RegisterFeedInput struct {
 }
 
 type RegisterFeedPayload struct {
-	FeedID string `json:"feedId"`
+	FeedIds []string `json:"feedIds"`
 }
 
 type RemovePostFavoriteInput struct {
