@@ -53,7 +53,7 @@ export const GET_POSTS = gql`
 export const REGISTER_FEED = gql`
   mutation RegisterFeed($input: RegisterFeedInput!) {
     registerFeed(input: $input) {
-      feedId
+      feedIds
     }
   }
 `;

@@ -183,7 +183,7 @@ export type RegisterFeedInput = {
 
 export type RegisterFeedPayload = {
   __typename?: 'RegisterFeedPayload';
-  feedId: Scalars['ID']['output'];
+  feedIds: Array<Scalars['ID']['output']>;
 };
 
 export type RemovePostFavoriteInput = {
@@ -212,7 +212,7 @@ export type RegisterFeedMutationVariables = Exact<{
 }>;
 
 
-export type RegisterFeedMutation = { __typename?: 'Mutation', registerFeed: { __typename?: 'RegisterFeedPayload', feedId: string } };
+export type RegisterFeedMutation = { __typename?: 'Mutation', registerFeed: { __typename?: 'RegisterFeedPayload', feedIds: Array<string> } };
 
 export type DeleteFeedMutationVariables = Exact<{
   input: DeleteFeedInput;
@@ -349,7 +349,7 @@ export type GetPostsQueryResult = Apollo.QueryResult<GetPostsQuery, GetPostsQuer
 export const RegisterFeedDocument = gql`
     mutation RegisterFeed($input: RegisterFeedInput!) {
   registerFeed(input: $input) {
-    feedId
+    feedIds
   }
 }
     `;
