@@ -18,7 +18,14 @@ export const PostItem = ({
   return (
     <Box mb={4} p={4} borderWidth="1px" borderRadius="md">
       <Box pb={0}>
-        <Heading size="lg">{post.title}</Heading>
+        <Link
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          _hover={{ textDecoration: "none" }}
+        >
+          <Heading size="lg">{post.title}</Heading>
+        </Link>
       </Box>
       <Box py={2}>
         {post.summary?.summary ? (
