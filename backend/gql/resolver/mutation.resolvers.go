@@ -7,7 +7,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
@@ -85,6 +84,7 @@ func (r *mutationResolver) AddPostFavorite(ctx context.Context, input gql.AddPos
 		}); err != nil {
 			return fmt.Errorf("failed to insert post favorite: %w", err)
 		}
+		return nil
 	}); err != nil {
 		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
