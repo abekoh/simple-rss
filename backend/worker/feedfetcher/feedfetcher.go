@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"time"
 
 	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/database"
@@ -100,7 +102,13 @@ func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
 		return
 	}
 
-	for i, item := range feedParsed.Items {
+	sortedItems := slices.SortedFunc(slices.Values(feedParsed.Items), func(a, b *gofeed.Item) int {
+		if a.PublishedParsed == nil || b.PublishedParsed == nil {
+			return 0
+		}
+		return -time.Time.Compare(*a.PublishedParsed, *b.PublishedParsed)
+	})
+	for i, item := range sortedItems {
 		// 最大10件まで
 		if i >= 10 {
 			break
