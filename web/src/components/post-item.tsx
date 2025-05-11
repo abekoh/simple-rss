@@ -1,7 +1,21 @@
-import { Box, Heading, Text, Code, Link, List, Tag } from "@chakra-ui/react";
-import { GetPostsQuery, Post } from "../generated/graphql";
+import {
+  Box,
+  Heading,
+  Text,
+  Code,
+  Link,
+  List,
+  Tag,
+  IconButton,
+} from "@chakra-ui/react";
+import {
+  GetPostsQuery,
+  useAddPostFavoriteMutation,
+} from "../generated/graphql";
 import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
+import { LuStar } from "react-icons/lu";
+import { toaster } from "../components/ui/toaster";
 
 // 日付をフォーマットする関数
 export const formatDate = (dateString: any | null | undefined) => {
@@ -106,7 +120,91 @@ export const PostItem = ({
           {post.author && `${post.author} - `}
           {formatDate(post.postedAt)}
         </Text>
+        <FavoriteButton post={post} />
       </Box>
     </Box>
+  );
+};
+
+// お気に入りボタンコンポーネント
+const FavoriteButton = ({
+  post,
+}: {
+  post: GetPostsQuery["posts"]["posts"][0];
+}) => {
+  const [addPostFavorite, { loading }] = useAddPostFavoriteMutation({
+    onCompleted: () => {
+      toaster.create({
+        title: "お気に入りに追加しました",
+        type: "success",
+      });
+    },
+    onError: (error) => {
+      toaster.create({
+        title: "エラーが発生しました",
+        description: error.message,
+        type: "error",
+      });
+    },
+    update: (cache, { data }) => {
+      if (!data) return;
+
+      // キャッシュからデータを取得
+      const cacheId = cache.identify({
+        __typename: "Post",
+        postId: post.postId,
+      });
+
+      // キャッシュを更新
+      cache.modify({
+        id: cacheId,
+        fields: {
+          favorite: () => ({
+            __typename: "PostFavorite",
+            postFavoriteId: data.addPostFavorite.postFavoriteId,
+            postId: data.addPostFavorite.postId,
+            addedAt: new Date().toISOString(),
+          }),
+        },
+      });
+    },
+  });
+
+  const handleAddFavorite = async () => {
+    if (post.favorite) return;
+
+    await addPostFavorite({
+      variables: {
+        input: {
+          postId: post.postId,
+        },
+      },
+    });
+  };
+
+  // すでにお気に入り済みの場合は黄色で表示
+  if (post.favorite) {
+    return (
+      <IconButton
+        aria-label="お気に入り済み"
+        colorScheme="yellow"
+        size="sm"
+        disabled
+      >
+        <LuStar />
+      </IconButton>
+    );
+  }
+
+  return (
+    <IconButton
+      aria-label="お気に入りに追加"
+      variant="outline"
+      size="sm"
+      onClick={handleAddFavorite}
+      loading={loading}
+    >
+      <LuStar />
+    </IconButton>
   );
 };

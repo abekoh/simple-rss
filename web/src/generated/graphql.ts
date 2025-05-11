@@ -189,7 +189,7 @@ export type GetPostsQueryVariables = Exact<{
 }>;
 
 
-export type GetPostsQuery = { __typename?: 'Query', posts: { __typename?: 'PostsPayload', totalCount: number, posts: Array<{ __typename?: 'Post', postId: string, feedId: string, url: string, title: string, description?: string | null, author?: string | null, status: PostStatus, postedAt?: any | null, lastFetchedAt?: any | null, summary?: { __typename?: 'PostSummary', summary: string, summarizeMethod: string, summarizedAt: any } | null, feed: { __typename?: 'Feed', feedId: string, title: string, url: string, registeredAt: any } }> } };
+export type GetPostsQuery = { __typename?: 'Query', posts: { __typename?: 'PostsPayload', totalCount: number, posts: Array<{ __typename?: 'Post', postId: string, feedId: string, url: string, title: string, description?: string | null, author?: string | null, status: PostStatus, postedAt?: any | null, lastFetchedAt?: any | null, summary?: { __typename?: 'PostSummary', summary: string, summarizeMethod: string, summarizedAt: any } | null, feed: { __typename?: 'Feed', feedId: string, title: string, url: string, registeredAt: any }, favorite?: { __typename?: 'PostFavorite', postFavoriteId: string, addedAt: any } | null }> } };
 
 export type RegisterFeedMutationVariables = Exact<{
   input: RegisterFeedInput;
@@ -204,6 +204,13 @@ export type DeleteFeedMutationVariables = Exact<{
 
 
 export type DeleteFeedMutation = { __typename?: 'Mutation', deleteFeed: { __typename?: 'DeleteFeedPayload', feedId: string } };
+
+export type AddPostFavoriteMutationVariables = Exact<{
+  input: AddPostFavoriteInput;
+}>;
+
+
+export type AddPostFavoriteMutation = { __typename?: 'Mutation', addPostFavorite: { __typename?: 'AddPostFavoritePayload', postId: string, postFavoriteId: string } };
 
 
 export const GetFeedsDocument = gql`
@@ -274,6 +281,10 @@ export const GetPostsDocument = gql`
         title
         url
         registeredAt
+      }
+      favorite {
+        postFavoriteId
+        addedAt
       }
     }
   }
@@ -378,3 +389,37 @@ export function useDeleteFeedMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeleteFeedMutationHookResult = ReturnType<typeof useDeleteFeedMutation>;
 export type DeleteFeedMutationResult = Apollo.MutationResult<DeleteFeedMutation>;
 export type DeleteFeedMutationOptions = Apollo.BaseMutationOptions<DeleteFeedMutation, DeleteFeedMutationVariables>;
+export const AddPostFavoriteDocument = gql`
+    mutation AddPostFavorite($input: AddPostFavoriteInput!) {
+  addPostFavorite(input: $input) {
+    postId
+    postFavoriteId
+  }
+}
+    `;
+export type AddPostFavoriteMutationFn = Apollo.MutationFunction<AddPostFavoriteMutation, AddPostFavoriteMutationVariables>;
+
+/**
+ * __useAddPostFavoriteMutation__
+ *
+ * To run a mutation, you first call `useAddPostFavoriteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPostFavoriteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPostFavoriteMutation, { data, loading, error }] = useAddPostFavoriteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddPostFavoriteMutation(baseOptions?: Apollo.MutationHookOptions<AddPostFavoriteMutation, AddPostFavoriteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPostFavoriteMutation, AddPostFavoriteMutationVariables>(AddPostFavoriteDocument, options);
+      }
+export type AddPostFavoriteMutationHookResult = ReturnType<typeof useAddPostFavoriteMutation>;
+export type AddPostFavoriteMutationResult = Apollo.MutationResult<AddPostFavoriteMutation>;
+export type AddPostFavoriteMutationOptions = Apollo.BaseMutationOptions<AddPostFavoriteMutation, AddPostFavoriteMutationVariables>;

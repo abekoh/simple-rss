@@ -40,6 +40,10 @@ export const GET_POSTS = gql`
           url
           registeredAt
         }
+        favorite {
+          postFavoriteId
+          addedAt
+        }
       }
     }
   }
@@ -59,6 +63,16 @@ export const DELETE_FEED = gql`
   mutation DeleteFeed($input: DeleteFeedInput!) {
     deleteFeed(input: $input) {
       feedId
+    }
+  }
+`;
+
+// 記事をお気に入りに追加するミューテーション
+export const ADD_POST_FAVORITE = gql`
+  mutation AddPostFavorite($input: AddPostFavoriteInput!) {
+    addPostFavorite(input: $input) {
+      postId
+      postFavoriteId
     }
   }
 `;
