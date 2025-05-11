@@ -42,62 +42,53 @@ export const PostList = ({
   showDeleteButton = false,
   onDeleteClick,
 }: PostListProps) => {
-  const [open, setOpen] = useState(false);
-
-  const handleDelete = () => {
-    setOpen(false);
-    if (onDeleteClick) {
-      onDeleteClick();
-    }
-  };
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   return (
     <Box>
       <Flex alignItems="center" mb={4}>
         <Heading size="lg">{title}</Heading>
         {showDeleteButton && (
-          <IconButton
-            aria-label="フィードを削除"
-            colorScheme="red"
-            variant="ghost"
-            size="sm"
-            ml={2}
-            onClick={() => setOpen(true)}
-          >
-            <LuTrash />
-          </IconButton>
+          <Dialog.Root lazyMount>
+            <Dialog.Trigger asChild>
+              <IconButton
+                aria-label="フィードを削除"
+                colorScheme="red"
+                variant="ghost"
+                size="sm"
+                ml={2}
+              >
+                <LuTrash />
+              </IconButton>
+            </Dialog.Trigger>
+            <Portal>
+              <Dialog.Backdrop />
+              <Dialog.Positioner>
+                <Dialog.Content>
+                  <Dialog.Header>
+                    <Dialog.Title>フィードを削除</Dialog.Title>
+                  </Dialog.Header>
+                  <Dialog.Body>
+                    このフィードを削除してもよろしいですか？この操作は取り消せません。
+                  </Dialog.Body>
+                  <Dialog.Footer>
+                    <Dialog.ActionTrigger asChild>
+                      <Button variant="outline" onClick={() => setOpen(false)}>
+                        キャンセル
+                      </Button>
+                    </Dialog.ActionTrigger>
+                    <Button colorScheme="red" onClick={onDeleteClick}>
+                      削除
+                    </Button>
+                  </Dialog.Footer>
+                </Dialog.Content>
+              </Dialog.Positioner>
+            </Portal>
+          </Dialog.Root>
         )}
       </Flex>
       <Text mb={4} color="gray.500">
         {totalCount}件の記事
       </Text>
-
-      {/* 削除確認ダイアログ */}
-      <Dialog.Root lazyMount open={open} onOpenChange={(e) => setOpen(e.open)}>
-        <Portal>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Header>
-                <Dialog.Title>フィードを削除</Dialog.Title>
-              </Dialog.Header>
-              <Dialog.Body>
-                このフィードを削除してもよろしいですか？この操作は取り消せません。
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Dialog.ActionTrigger asChild>
-                  <Button variant="outline" onClick={() => setOpen(false)}>
-                    キャンセル
-                  </Button>
-                </Dialog.ActionTrigger>
-                <Button colorScheme="red" onClick={handleDelete}>
-                  削除
-                </Button>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
 
       {loading ? (
         <Center py={10}>
