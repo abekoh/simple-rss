@@ -8,10 +8,12 @@ import { Toaster } from "./components/ui/toaster";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
 const router = createRouter({ routeTree });
 
+dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Asia/Tokyo");
 
