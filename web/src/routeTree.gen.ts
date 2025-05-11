@@ -11,13 +11,27 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as FavoriteImport } from './routes/favorite'
 import { Route as IndexImport } from './routes/index'
+import { Route as FeedsFeedIdImport } from './routes/feeds/$feedId'
 
 // Create/Update Routes
+
+const FavoriteRoute = FavoriteImport.update({
+  id: '/favorite',
+  path: '/favorite',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FeedsFeedIdRoute = FeedsFeedIdImport.update({
+  id: '/feeds/$feedId',
+  path: '/feeds/$feedId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -32,6 +46,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/favorite': {
+      id: '/favorite'
+      path: '/favorite'
+      fullPath: '/favorite'
+      preLoaderRoute: typeof FavoriteImport
+      parentRoute: typeof rootRoute
+    }
+    '/feeds/$feedId': {
+      id: '/feeds/$feedId'
+      path: '/feeds/$feedId'
+      fullPath: '/feeds/$feedId'
+      preLoaderRoute: typeof FeedsFeedIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -39,32 +67,42 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/favorite': typeof FavoriteRoute
+  '/feeds/$feedId': typeof FeedsFeedIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/favorite': typeof FavoriteRoute
+  '/feeds/$feedId': typeof FeedsFeedIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/favorite': typeof FavoriteRoute
+  '/feeds/$feedId': typeof FeedsFeedIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/favorite' | '/feeds/$feedId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/favorite' | '/feeds/$feedId'
+  id: '__root__' | '/' | '/favorite' | '/feeds/$feedId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FavoriteRoute: typeof FavoriteRoute
+  FeedsFeedIdRoute: typeof FeedsFeedIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FavoriteRoute: FavoriteRoute,
+  FeedsFeedIdRoute: FeedsFeedIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +115,19 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/favorite",
+        "/feeds/$feedId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/favorite": {
+      "filePath": "favorite.tsx"
+    },
+    "/feeds/$feedId": {
+      "filePath": "feeds/$feedId.tsx"
     }
   }
 }
