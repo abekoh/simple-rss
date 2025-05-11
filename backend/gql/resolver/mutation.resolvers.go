@@ -94,6 +94,24 @@ func (r *mutationResolver) AddPostFavorite(ctx context.Context, input gql.AddPos
 	}, nil
 }
 
+// RemovePostFavorite is the resolver for the removePostFavorite field.
+func (r *mutationResolver) RemovePostFavorite(ctx context.Context, input gql.RemovePostFavoriteInput) (*gql.RemovePostFavoritePayload, error) {
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		if _, err := database.FromContext(ctx).Queries().SelectPostFavorite(ctx, input.PostFavoriteID); err != nil {
+			return fmt.Errorf("failed to select post favorite: %w", err)
+		}
+		if err := database.FromContext(ctx).Queries().DeletePostFavorite(ctx, input.PostFavoriteID); err != nil {
+			return fmt.Errorf("failed to delete post favorite: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("failed in transaction: %w", err)
+	}
+	return &gql.RemovePostFavoritePayload{
+		PostFavoriteID: input.PostFavoriteID,
+	}, nil
+}
+
 // Mutation returns gql.MutationResolver implementation.
 func (r *Resolver) Mutation() gql.MutationResolver { return &mutationResolver{r} }
 

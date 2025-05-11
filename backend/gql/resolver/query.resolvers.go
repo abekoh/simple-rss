@@ -26,10 +26,11 @@ func (r *queryResolver) Feeds(ctx context.Context) ([]*gql.Feed, error) {
 // Posts is the resolver for the posts field.
 func (r *queryResolver) Posts(ctx context.Context, input gql.PostsInput) (*gql.PostsPayload, error) {
 	posts, err := database.FromContext(ctx).Queries().SelectPosts(ctx, sqlc.SelectPostsParams{
-		FeedIds: lo.Map(input.FeedIds, func(x string, _ int) string { return x }),
-		Ord:     string(input.Order),
-		Off:     input.Offset,
-		Lim:     input.Limit,
+		FeedIds:           lo.Map(input.FeedIds, func(x string, _ int) string { return x }),
+		OnlyHaveFavorites: input.OnlyHaveFavorites,
+		Ord:               string(input.Order),
+		Off:               input.Offset,
+		Lim:               input.Limit,
 	})
 	if err != nil {
 		return nil, err

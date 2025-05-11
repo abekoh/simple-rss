@@ -91,10 +91,11 @@ type PostSummary struct {
 }
 
 type PostsInput struct {
-	FeedIds []string        `json:"feedIds"`
-	Limit   int32           `json:"limit"`
-	Offset  int32           `json:"offset"`
-	Order   PostsInputOrder `json:"order"`
+	FeedIds           []string        `json:"feedIds"`
+	OnlyHaveFavorites bool            `json:"onlyHaveFavorites"`
+	Limit             int32           `json:"limit"`
+	Offset            int32           `json:"offset"`
+	Order             PostsInputOrder `json:"order"`
 }
 
 type PostsPayload struct {
@@ -111,6 +112,14 @@ type RegisterFeedInput struct {
 
 type RegisterFeedPayload struct {
 	FeedID string `json:"feedId"`
+}
+
+type RemovePostFavoriteInput struct {
+	PostFavoriteID string `json:"postFavoriteId"`
+}
+
+type RemovePostFavoritePayload struct {
+	PostFavoriteID string `json:"postFavoriteId"`
 }
 
 type FeedFetchStatus string

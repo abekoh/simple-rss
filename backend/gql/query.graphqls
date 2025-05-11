@@ -10,6 +10,7 @@ enum PostsInputOrder {
 
 input PostsInput {
   feedIds: [ID!]! = []
+  onlyHaveFavorites: Boolean! = false
   limit: Int! = 20
   offset: Int! = 0
   order: PostsInputOrder! = PostedAtDesc

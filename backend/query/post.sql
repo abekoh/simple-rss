@@ -30,7 +30,8 @@ select count(*) over () as total_count,
        sqlc.embed(p)
 from posts p
 left join post_favorites pf using (post_id)
-where (cardinality(@feed_ids::uuid[]) = 0 or p.feed_id = ANY (@feed_ids::uuid[]))
+where ((cardinality(@feed_ids::uuid[]) = 0 or p.feed_id = ANY (@feed_ids::uuid[])))
+and (@only_have_favorites::boolean = false or pf.post_favorite_id is not null)
 order by case
              when @ord::text = 'PostedAtAsc' then p.posted_at
              end asc,
@@ -59,6 +60,12 @@ select *
 from post_favorites
 where post_id = ANY (@post_ids::uuid[]);
 
+-- name: SelectPostFavorite :one
+select * from post_favorites where post_favorite_id = @post_favorite_id;
+
 -- name: InsertPostFavorite :exec
 insert into post_favorites (post_favorite_id, post_id, added_at)
 values (@post_favorite_id, @post_id, @added_at);
+
+-- name: DeletePostFavorite :exec
+delete from post_favorites where post_favorite_id = @post_favorite_id;

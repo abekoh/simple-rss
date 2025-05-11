@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+const deletePostFavorite = `-- name: DeletePostFavorite :exec
+delete from post_favorites where post_favorite_id = $1
+`
+
+func (q *Queries) DeletePostFavorite(ctx context.Context, postFavoriteID string) error {
+	_, err := q.db.Exec(ctx, deletePostFavorite, postFavoriteID)
+	return err
+}
+
 const insertPost = `-- name: InsertPost :exec
 insert into posts (post_id, feed_id, title, description, author, url, posted_at, status)
 values ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -129,6 +138,22 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 	return i, err
 }
 
+const selectPostFavorite = `-- name: SelectPostFavorite :one
+select post_favorite_id, post_id, added_at, created_at from post_favorites where post_favorite_id = $1
+`
+
+func (q *Queries) SelectPostFavorite(ctx context.Context, postFavoriteID string) (PostFavorite, error) {
+	row := q.db.QueryRow(ctx, selectPostFavorite, postFavoriteID)
+	var i PostFavorite
+	err := row.Scan(
+		&i.PostFavoriteID,
+		&i.PostID,
+		&i.AddedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const selectPostFavoritesByPostIDs = `-- name: SelectPostFavoritesByPostIDs :many
 select post_favorite_id, post_id, added_at, created_at
 from post_favorites
@@ -224,22 +249,24 @@ select count(*) over () as total_count,
        p.post_id, p.feed_id, p.url, p.title, p.description, p.author, p.status, p.posted_at, p.last_fetched_at, p.created_at, p.updated_at
 from posts p
 left join post_favorites pf using (post_id)
-where (cardinality($1::uuid[]) = 0 or p.feed_id = ANY ($1::uuid[]))
+where ((cardinality($1::uuid[]) = 0 or p.feed_id = ANY ($1::uuid[])))
+and ($2::boolean = false or pf.post_favorite_id is not null)
 order by case
-             when $2::text = 'PostedAtAsc' then p.posted_at
+             when $3::text = 'PostedAtAsc' then p.posted_at
              end asc,
          case
-             when $2::text = 'PostedAtDesc' then p.posted_at
+             when $3::text = 'PostedAtDesc' then p.posted_at
              end desc,
          p.posted_at desc
-limit $4 offset $3
+limit $5 offset $4
 `
 
 type SelectPostsParams struct {
-	FeedIds []string
-	Ord     string
-	Off     int32
-	Lim     int32
+	FeedIds           []string
+	OnlyHaveFavorites bool
+	Ord               string
+	Off               int32
+	Lim               int32
 }
 
 type SelectPostsRow struct {
@@ -250,6 +277,7 @@ type SelectPostsRow struct {
 func (q *Queries) SelectPosts(ctx context.Context, arg SelectPostsParams) ([]SelectPostsRow, error) {
 	rows, err := q.db.Query(ctx, selectPosts,
 		arg.FeedIds,
+		arg.OnlyHaveFavorites,
 		arg.Ord,
 		arg.Off,
 		arg.Lim,

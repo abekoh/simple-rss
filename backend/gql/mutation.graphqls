@@ -2,6 +2,7 @@ type Mutation {
   registerFeed(input: RegisterFeedInput!): RegisterFeedPayload!
   deleteFeed(input: DeleteFeedInput!): DeleteFeedPayload!
   addPostFavorite(input: AddPostFavoriteInput!): AddPostFavoritePayload!
+  removePostFavorite(input: RemovePostFavoriteInput!): RemovePostFavoritePayload!
 }
 
 input RegisterFeedInput {
@@ -26,5 +27,13 @@ input AddPostFavoriteInput {
 
 type AddPostFavoritePayload {
   postId: ID!
+  postFavoriteId: ID!
+}
+
+input RemovePostFavoriteInput {
+  postFavoriteId: ID!
+}
+
+type RemovePostFavoritePayload {
   postFavoriteId: ID!
 }

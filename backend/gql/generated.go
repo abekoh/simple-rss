@@ -75,9 +75,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddPostFavorite func(childComplexity int, input AddPostFavoriteInput) int
-		DeleteFeed      func(childComplexity int, input DeleteFeedInput) int
-		RegisterFeed    func(childComplexity int, input RegisterFeedInput) int
+		AddPostFavorite    func(childComplexity int, input AddPostFavoriteInput) int
+		DeleteFeed         func(childComplexity int, input DeleteFeedInput) int
+		RegisterFeed       func(childComplexity int, input RegisterFeedInput) int
+		RemovePostFavorite func(childComplexity int, input RemovePostFavoriteInput) int
 	}
 
 	Post struct {
@@ -130,12 +131,17 @@ type ComplexityRoot struct {
 	RegisterFeedPayload struct {
 		FeedID func(childComplexity int) int
 	}
+
+	RemovePostFavoritePayload struct {
+		PostFavoriteID func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
 	RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedPayload, error)
 	DeleteFeed(ctx context.Context, input DeleteFeedInput) (*DeleteFeedPayload, error)
 	AddPostFavorite(ctx context.Context, input AddPostFavoriteInput) (*AddPostFavoritePayload, error)
+	RemovePostFavorite(ctx context.Context, input RemovePostFavoriteInput) (*RemovePostFavoritePayload, error)
 }
 type PostResolver interface {
 	Summary(ctx context.Context, obj *Post) (*PostSummary, error)
@@ -299,6 +305,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RegisterFeed(childComplexity, args["input"].(RegisterFeedInput)), true
+
+	case "Mutation.removePostFavorite":
+		if e.complexity.Mutation.RemovePostFavorite == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removePostFavorite_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemovePostFavorite(childComplexity, args["input"].(RemovePostFavoriteInput)), true
 
 	case "Post.author":
 		if e.complexity.Post.Author == nil {
@@ -515,6 +533,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.RegisterFeedPayload.FeedID(childComplexity), true
 
+	case "RemovePostFavoritePayload.postFavoriteId":
+		if e.complexity.RemovePostFavoritePayload.PostFavoriteID == nil {
+			break
+		}
+
+		return e.complexity.RemovePostFavoritePayload.PostFavoriteID(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -528,6 +553,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputFeedPostsInput,
 		ec.unmarshalInputPostsInput,
 		ec.unmarshalInputRegisterFeedInput,
+		ec.unmarshalInputRemovePostFavoriteInput,
 	)
 	first := true
 
@@ -712,6 +738,29 @@ func (ec *executionContext) field_Mutation_registerFeed_argsInput(
 	}
 
 	var zeroVal RegisterFeedInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_removePostFavorite_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_removePostFavorite_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_removePostFavorite_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (RemovePostFavoriteInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRemovePostFavoriteInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRemovePostFavoriteInput(ctx, tmp)
+	}
+
+	var zeroVal RemovePostFavoriteInput
 	return zeroVal, nil
 }
 
@@ -1641,6 +1690,65 @@ func (ec *executionContext) fieldContext_Mutation_addPostFavorite(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_addPostFavorite_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removePostFavorite(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removePostFavorite(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemovePostFavorite(rctx, fc.Args["input"].(RemovePostFavoriteInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*RemovePostFavoritePayload)
+	fc.Result = res
+	return ec.marshalNRemovePostFavoritePayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRemovePostFavoritePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removePostFavorite(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "postFavoriteId":
+				return ec.fieldContext_RemovePostFavoritePayload_postFavoriteId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RemovePostFavoritePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removePostFavorite_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3158,6 +3266,50 @@ func (ec *executionContext) _RegisterFeedPayload_feedId(ctx context.Context, fie
 func (ec *executionContext) fieldContext_RegisterFeedPayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RegisterFeedPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemovePostFavoritePayload_postFavoriteId(ctx context.Context, field graphql.CollectedField, obj *RemovePostFavoritePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemovePostFavoritePayload_postFavoriteId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PostFavoriteID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemovePostFavoritePayload_postFavoriteId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemovePostFavoritePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5234,6 +5386,9 @@ func (ec *executionContext) unmarshalInputPostsInput(ctx context.Context, obj an
 	if _, present := asMap["feedIds"]; !present {
 		asMap["feedIds"] = []any{}
 	}
+	if _, present := asMap["onlyHaveFavorites"]; !present {
+		asMap["onlyHaveFavorites"] = false
+	}
 	if _, present := asMap["limit"]; !present {
 		asMap["limit"] = 20
 	}
@@ -5244,7 +5399,7 @@ func (ec *executionContext) unmarshalInputPostsInput(ctx context.Context, obj an
 		asMap["order"] = "PostedAtDesc"
 	}
 
-	fieldsInOrder := [...]string{"feedIds", "limit", "offset", "order"}
+	fieldsInOrder := [...]string{"feedIds", "onlyHaveFavorites", "limit", "offset", "order"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5258,6 +5413,13 @@ func (ec *executionContext) unmarshalInputPostsInput(ctx context.Context, obj an
 				return it, err
 			}
 			it.FeedIds = data
+		case "onlyHaveFavorites":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onlyHaveFavorites"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OnlyHaveFavorites = data
 		case "limit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
 			data, err := ec.unmarshalNInt2int32(ctx, v)
@@ -5306,6 +5468,33 @@ func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context,
 				return it, err
 			}
 			it.URL = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRemovePostFavoriteInput(ctx context.Context, obj any) (RemovePostFavoriteInput, error) {
+	var it RemovePostFavoriteInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"postFavoriteId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "postFavoriteId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postFavoriteId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PostFavoriteID = data
 		}
 	}
 
@@ -5553,6 +5742,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "addPostFavorite":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_addPostFavorite(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removePostFavorite":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removePostFavorite(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6064,6 +6260,45 @@ func (ec *executionContext) _RegisterFeedPayload(ctx context.Context, sel ast.Se
 			out.Values[i] = graphql.MarshalString("RegisterFeedPayload")
 		case "feedId":
 			out.Values[i] = ec._RegisterFeedPayload_feedId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var removePostFavoritePayloadImplementors = []string{"RemovePostFavoritePayload"}
+
+func (ec *executionContext) _RemovePostFavoritePayload(ctx context.Context, sel ast.SelectionSet, obj *RemovePostFavoritePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removePostFavoritePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemovePostFavoritePayload")
+		case "postFavoriteId":
+			out.Values[i] = ec._RemovePostFavoritePayload_postFavoriteId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6729,6 +6964,25 @@ func (ec *executionContext) marshalNRegisterFeedPayload2ᚖgithubᚗcomᚋabekoh
 		return graphql.Null
 	}
 	return ec._RegisterFeedPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRemovePostFavoriteInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRemovePostFavoriteInput(ctx context.Context, v any) (RemovePostFavoriteInput, error) {
+	res, err := ec.unmarshalInputRemovePostFavoriteInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRemovePostFavoritePayload2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRemovePostFavoritePayload(ctx context.Context, sel ast.SelectionSet, v RemovePostFavoritePayload) graphql.Marshaler {
+	return ec._RemovePostFavoritePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRemovePostFavoritePayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRemovePostFavoritePayload(ctx context.Context, sel ast.SelectionSet, v *RemovePostFavoritePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RemovePostFavoritePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
