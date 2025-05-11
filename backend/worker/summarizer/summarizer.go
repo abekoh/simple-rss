@@ -111,7 +111,9 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 			genai.NewPartFromText(`Summarize this page in Japanese. 
 Result must be format in markdown.
 Do not include the title of the page, just the content.
-Max header level is 2.
+Maximum number of lines is about 30.
+Maximum header is up to h2.
+The maximum number of lines is about 30.
 Do not surround the content with any other text.`),
 		}
 		contents := []*genai.Content{
