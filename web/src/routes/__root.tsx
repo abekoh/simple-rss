@@ -157,15 +157,10 @@ export const Route = createRootRoute({
     const isTopSelected = currentMatch?.routeId === "/";
     const isFavoriteSelected = currentMatch?.routeId === "/favorite";
 
-    // サイドバーの内容をコンポーネント化
     const SidebarContent = () => (
       <Stack align="stretch" gap={4} h="100%">
         <Box>
-          <Heading size="md" mb={2}>
-            フィード
-          </Heading>
           <Stack gap={1}>
-            {/* システムフィード */}
             <Link to="/" search={{ page: 1 }}>
               <Box
                 p={2}
@@ -201,7 +196,6 @@ export const Route = createRootRoute({
               </Box>
             </Link>
 
-            {/* 罫線 */}
             <Box
               borderTopWidth="1px"
               borderColor="gray.200"
@@ -209,10 +203,6 @@ export const Route = createRootRoute({
               my={2}
             />
 
-            {/* RSSフィード */}
-            <Text fontSize="sm" color="gray.500" mb={1}>
-              RSSフィード
-            </Text>
             {feeds.map((feed) => (
               <Link
                 key={feed.feedId}
@@ -269,7 +259,6 @@ export const Route = createRootRoute({
             </Flex>
           </Box>
 
-          {/* カラーモード切替 */}
           <Box mt={4}>
             <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
               <ColorModeToggle />
@@ -351,9 +340,6 @@ export const Route = createRootRoute({
                   <Drawer.Content>
                     <Drawer.Header>
                       <Drawer.Title>Simple RSS</Drawer.Title>
-                      <Drawer.CloseTrigger asChild>
-                        <CloseButton size="sm" />
-                      </Drawer.CloseTrigger>
                     </Drawer.Header>
                     <Drawer.Body>
                       <SidebarContent />
