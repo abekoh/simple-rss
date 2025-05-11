@@ -241,25 +241,22 @@ export const Route = createRootRoute({
           <Heading size="md" mb={2}>
             フィードを追加
           </Heading>
-          <Box>
-            <Text mb={2}>フィードURL</Text>
-            <Flex>
-              <Input
-                value={newFeedUrl}
-                onChange={(e) => setNewFeedUrl(e.target.value)}
-                placeholder="https://example.com/feed"
-                mr={2}
-                disabled={registerLoading}
-              />
-              <Button
-                onClick={handleAddFeed}
-                loading={registerLoading}
-                loadingText="追加中"
-              >
-                追加
-              </Button>
-            </Flex>
-          </Box>
+          <Flex>
+            <Input
+              value={newFeedUrl}
+              onChange={(e) => setNewFeedUrl(e.target.value)}
+              placeholder="https://example.com/feed"
+              mr={2}
+              disabled={registerLoading}
+            />
+            <Button
+              onClick={handleAddFeed}
+              loading={registerLoading}
+              loadingText="追加中"
+            >
+              追加
+            </Button>
+          </Flex>
 
           <Box mt={4}>
             <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
