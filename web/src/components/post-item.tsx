@@ -1,5 +1,5 @@
 import { Box, Heading, Text, Code, Link, List, Tag } from "@chakra-ui/react";
-import { Post } from "../generated/graphql";
+import { GetPostsQuery, Post } from "../generated/graphql";
 import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
 
@@ -10,7 +10,11 @@ export const formatDate = (dateString: any | null | undefined) => {
 };
 
 // 記事アイテムコンポーネント
-export const PostItem = ({ post }: { post: Post }) => {
+export const PostItem = ({
+  post,
+}: {
+  post: GetPostsQuery["posts"]["posts"][0];
+}) => {
   return (
     <Box mb={4} p={4} borderWidth="1px" borderRadius="md">
       <Box pb={0}>

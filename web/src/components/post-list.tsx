@@ -1,10 +1,10 @@
 import { Box, Heading, Text, Spinner, Center } from "@chakra-ui/react";
 import { PostItem } from "./post-item";
-import { Post } from "../generated/graphql";
+import { GetPostsQuery, Post } from "../generated/graphql";
 
 interface PostListProps {
   title: string;
-  posts: Post[];
+  posts: GetPostsQuery["posts"]["posts"];
   totalCount: number;
   loading: boolean;
   error?: Error | null;
