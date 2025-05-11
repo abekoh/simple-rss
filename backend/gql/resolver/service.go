@@ -59,5 +59,8 @@ func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 	for url := range urlSet {
 		urls = append(urls, url)
 	}
+	if len(urls) == 0 {
+		return nil, fmt.Errorf("failed to find feed url")
+	}
 	return urls, nil
 }
