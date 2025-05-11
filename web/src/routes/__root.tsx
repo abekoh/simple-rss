@@ -311,7 +311,7 @@ export const Route = createRootRoute({
           >
             <Portal>
               <Drawer.Backdrop />
-              <Drawer.Positioner placement="right">
+              <Drawer.Positioner>
                 <Drawer.Content>
                   <Drawer.Header>
                     <Drawer.Title>Simple RSS</Drawer.Title>
