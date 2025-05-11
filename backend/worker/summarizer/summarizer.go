@@ -114,7 +114,7 @@ Do not include the title of the page, just the content.
 Maximum number of lines is about 30.
 Maximum header is up to h2.
 The maximum number of lines is about 30.
-Do not surround the content with any other text, REPLY ONLY THE MARKDOWN CONTENT.`),
+DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.`),
 		}
 		contents := []*genai.Content{
 			genai.NewContentFromParts(parts, genai.RoleUser),
