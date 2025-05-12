@@ -42,3 +42,7 @@ jobs:
           tags: us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Deploy
+        run: |
+          gcloud run deploy simple-rss-backend --image=us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest --no-cpu-boost --region=us-west1
+          gcloud run services update-traffic simple-rss-backend --to-latest
