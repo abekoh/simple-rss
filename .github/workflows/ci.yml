@@ -31,14 +31,14 @@ jobs:
           go-version: "1.24"
       - name: Build go app
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -C ./backend -o ./app .
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -C ./backend -o ./app .
       - uses: docker/build-push-action@v6
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
           provenance: false
-          platforms: linux/arm64
+          platforms: linux/amd64
           tags: us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
