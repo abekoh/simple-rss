@@ -45,4 +45,4 @@ jobs:
       - name: Deploy
         run: |
           gcloud run deploy simple-rss-backend --image=us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest --no-cpu-boost --region=us-west1
-          gcloud run services update-traffic simple-rss-backend --to-latest
+          gcloud run services update-traffic simple-rss-backend --to-latest --region=us-west1
