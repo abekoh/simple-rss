@@ -21,7 +21,6 @@ jobs:
         id: auth
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
-          token_format: access_token
       - uses: google-github-actions/setup-gcloud@v2
         with:
           version: ">= 521.0.0"
