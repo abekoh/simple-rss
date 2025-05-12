@@ -26,10 +26,10 @@ resource "google_cloud_run_v2_service" "simple-rss-backend" {
   }
 }
 
-resource "google_artifact_registry_repository" "simple-rss-backend-repo" {
-  repository_id = "simple-rss-backend"
+resource "google_artifact_registry_repository" "simple-rss-repo" {
+  repository_id = "simple-rss"
   location      = "us-west1"
-  description   = "repository for simple-rss-backend"
+  description   = "repository for simple-rss"
   format        = "DOCKER"
 }
 
