@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: '>= 521.0.0'
+      - uses: docker/setup-buildx-action@v3
+      - name: Auth google artifact registry
+        run: gcloud auth configure-docker us-west1-docker.pkg.dev
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Build go app
+        run: |
+          mkdir -p ./dist
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./app .
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/arm64
+          tags: us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
