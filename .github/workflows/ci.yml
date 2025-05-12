@@ -37,6 +37,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
+          provenance: false
           platforms: linux/arm64
           tags: us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest
           cache-from: type=gha
