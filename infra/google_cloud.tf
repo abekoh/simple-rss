@@ -21,7 +21,15 @@ resource "google_cloud_run_v2_service" "simple-rss-backend" {
 
   template {
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      image = "us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest"
+      env {
+        name  = "GOOSE_DRIVER"
+        value = "goose"
+      }
+      env {
+        name  = "GOOSE_MIGRATION_DIR"
+        value = "migrations"
+      }
     }
   }
 }
