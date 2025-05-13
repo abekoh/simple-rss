@@ -14,53 +14,6 @@ resource "google_storage_bucket" "terraform-backend" {
   location = "US-WEST1"
 }
 
-resource "google_cloud_run_v2_service" "simple-rss-backend" {
-  name     = "simple-rss-backend"
-  location = "us-west1"
-  ingress  = "INGRESS_TRAFFIC_ALL"
-
-  template {
-    containers {
-      image = "us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest"
-      env {
-        name  = "GOOSE_DRIVER"
-        value = "goose"
-      }
-      env {
-        name  = "GOOSE_MIGRATION_DIR"
-        value = "migrations"
-      }
-      env {
-        name = "DB_URL"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db-url.secret_id
-            version = "latest"
-          }
-        }
-      }
-      env {
-        name = "GOOSE_DBSTRING"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db-url.secret_id
-            version = "latest"
-          }
-        }
-      }
-      env {
-        name = "GEMINI_API_KEY"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.gemini-api-key.secret_id
-            version = "latest"
-          }
-        }
-      }
-    }
-  }
-}
-
 data "google_project" "project" {
 }
 
