@@ -2,7 +2,7 @@ import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 
 // バックエンドのGraphQLエンドポイントURL
 const httpLink = new HttpLink({
-  uri: "http://localhost:8080/query", // バックエンドのURLに合わせて変更する必要があるかもしれません
+  uri: `${import.meta.env.VITE_API_URL}/query`,
 });
 
 // Apollo Clientの設定

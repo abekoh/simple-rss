@@ -220,13 +220,6 @@ resource "google_compute_instance" "backend-instance" {
   allow_stopping_for_update = true
 
   tags = ["http-server", "https-server"]
-
-  lifecycle {
-    replace_triggered_by = [
-      # startup-scriptが変更されたら必ずインスタンスを置き換える
-      metadata.startup-script
-    ]
-  }
 }
 
 resource "google_compute_firewall" "backend-firewall" {
