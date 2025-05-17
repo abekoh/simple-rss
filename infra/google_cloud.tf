@@ -166,5 +166,5 @@ resource "google_compute_firewall" "backend-firewall" {
 
 output "backend_instance_ip" {
   description = "The public IP address of the backend instance"
-  value       = google_compute_instance.backend-instance.network_interface[0].access_config[0].nat_ip
+  value       = google_compute_address.backend-ip.address
 }
