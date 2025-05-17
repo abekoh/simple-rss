@@ -9,7 +9,6 @@ import {
   Box,
   Button,
   ClientOnly,
-  CloseButton,
   Drawer,
   Flex,
   Grid,
@@ -21,7 +20,6 @@ import {
   Skeleton,
   Text,
   Stack,
-  HStack,
   Spinner,
   Center,
   useBreakpointValue,
@@ -292,7 +290,14 @@ export const Route = createRootRoute({
           <GridItem area="header">
             <Flex h="100%" alignItems="center" justifyContent="space-between">
               <Heading size="lg">
-                <Link to="/">Simple RSS</Link>
+                <Link
+                  to="/"
+                  search={{
+                    page: 1,
+                  }}
+                >
+                  Simple RSS
+                </Link>
               </Heading>
               {isMobile && (
                 <IconButton
