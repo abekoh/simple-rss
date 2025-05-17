@@ -6,10 +6,13 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
@@ -25,12 +28,24 @@ import (
 	"github.com/abekoh/simple-rss/backend/worker/postfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
 	"github.com/abekoh/simple-rss/backend/worker/summarizer"
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
+
+type CustomClaims struct {
+	Scope    string `json:"scope"`
+	ClientID string `json:"client_id"`
+}
+
+func (c CustomClaims) Validate(ctx context.Context) error {
+	return nil
+}
 
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
@@ -162,6 +177,23 @@ func main() {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
+	keyFunc := func(ctx context.Context) (interface{}, error) {
+		return []byte("secret"), nil
+	}
+	jwtValidator, err := validator.New(
+		keyFunc,
+		validator.RS256,
+		"https://abekoh.jp.auth0.com/",
+		[]string{"https://reader-api.abekoh.dev/"},
+		validator.WithCustomClaims(func() validator.CustomClaims {
+			return &CustomClaims{}
+		}),
+	)
+	if err != nil {
+		log.Fatalf("failed to set up the validator: %v", err)
+	}
+	jwtMiddleware := jwtmiddleware.New(jwtValidator.ValidateToken)
+	r.Use(jwtMiddleware.CheckJWT)
 
 	gqlSrv := handler.New(gql.NewExecutableSchema(gql.Config{
 		Resolvers: resolver.NewResolver(
@@ -170,6 +202,31 @@ func main() {
 			sum,
 		)},
 	))
+	gqlSrv.AroundOperations(func(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
+		op := graphql.GetOperationContext(ctx)
+		if op.Operation.Operation != ast.Mutation {
+			return next(ctx)
+		}
+		claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+		if !ok {
+			return next(ctx)
+		}
+		customClaims, ok := claims.CustomClaims.(*CustomClaims)
+		if !ok {
+			return next(ctx)
+		}
+		scopes := strings.Split(customClaims.Scope, " ")
+		for _, scope := range scopes {
+			if scope == "write" {
+				return next(ctx)
+			}
+		}
+		graphql.AddError(ctx, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "mutation is not allowed",
+		})
+		return next(ctx)
+	})
 	gqlSrv.AddTransport(transport.Options{})
 	gqlSrv.AddTransport(transport.GET{})
 	gqlSrv.AddTransport(transport.POST{})
