@@ -69,6 +69,7 @@ function FeedDetail() {
 
   // 最初の記事からフィード情報を取得
   const feedTitle = posts.length > 0 ? posts[0].feed.title : "フィード";
+  const feedUrl = posts.length > 0 ? posts[0].feed.url : "";
 
   // フィード削除ハンドラー
   const handleDeleteFeed = () => {
@@ -100,6 +101,7 @@ function FeedDetail() {
       itemsPerPage={itemsPerPage}
       showDeleteButton={true}
       onDeleteClick={handleDeleteFeed}
+      feedUrl={feedUrl}
     />
   );
 }

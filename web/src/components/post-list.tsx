@@ -28,11 +28,13 @@ interface PostListProps {
   currentPage: number;
   itemsPerPage?: number;
   showDeleteButton?: boolean;
+  feedUrl?: string;
   onDeleteClick?: () => void;
 }
 
 export const PostList = ({
   title,
+  feedUrl,
   posts,
   totalCount,
   loading,
@@ -46,46 +48,56 @@ export const PostList = ({
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   return (
     <Box>
-      <Flex alignItems="center" mb={4}>
-        <Heading size="md">{title}</Heading>
-        {showDeleteButton && (
-          <Dialog.Root lazyMount>
-            <Dialog.Trigger asChild>
-              <IconButton
-                aria-label="フィードを削除"
-                colorScheme="red"
-                variant="ghost"
-                size="sm"
-                ml={2}
-              >
-                <LuTrash />
-              </IconButton>
-            </Dialog.Trigger>
-            <Portal>
-              <Dialog.Backdrop />
-              <Dialog.Positioner>
-                <Dialog.Content>
-                  <Dialog.Header>
-                    <Dialog.Title>フィードを削除</Dialog.Title>
-                  </Dialog.Header>
-                  <Dialog.Body>
-                    このフィードを削除してもよろしいですか？この操作は取り消せません。
-                  </Dialog.Body>
-                  <Dialog.Footer>
-                    <Dialog.ActionTrigger asChild>
-                      <Button variant="outline">キャンセル</Button>
-                    </Dialog.ActionTrigger>
-                    <Button colorScheme="red" onClick={onDeleteClick}>
-                      削除
-                    </Button>
-                  </Dialog.Footer>
-                </Dialog.Content>
-              </Dialog.Positioner>
-            </Portal>
-          </Dialog.Root>
+      <Stack gap={0}>
+        <Flex alignItems="center">
+          <Heading size="md">{title}</Heading>
+          {showDeleteButton && (
+            <Dialog.Root lazyMount>
+              <Dialog.Trigger asChild>
+                <IconButton
+                  aria-label="フィードを削除"
+                  colorScheme="red"
+                  variant="ghost"
+                  size="sm"
+                  ml={2}
+                >
+                  <LuTrash />
+                </IconButton>
+              </Dialog.Trigger>
+              <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                  <Dialog.Content>
+                    <Dialog.Header>
+                      <Dialog.Title>フィードを削除</Dialog.Title>
+                    </Dialog.Header>
+                    <Dialog.Body>
+                      このフィードを削除してもよろしいですか？この操作は取り消せません。
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                      <Dialog.ActionTrigger asChild>
+                        <Button variant="outline">キャンセル</Button>
+                      </Dialog.ActionTrigger>
+                      <Button colorScheme="red" onClick={onDeleteClick}>
+                        削除
+                      </Button>
+                    </Dialog.Footer>
+                  </Dialog.Content>
+                </Dialog.Positioner>
+              </Portal>
+            </Dialog.Root>
+          )}
+        </Flex>
+        {feedUrl && (
+          <Text color="gray.500" fontSize="xs">
+            <Link to={feedUrl} target="_blank" rel="noopener noreferrer">
+              {feedUrl}
+            </Link>
+          </Text>
         )}
-      </Flex>
-      <Text mb={4} color="gray.500">
+      </Stack>
+
+      <Text my={4} color="gray.500">
         {totalCount}件の記事
       </Text>
 
