@@ -32,6 +32,12 @@ resource "google_project_iam_member" "deploy-member" {
   member  = "serviceAccount:${google_service_account.deploy-account.email}"
 }
 
+resource "google_project_iam_member" "deploy-member-compute-admin" {
+  project = "abekoh-simple-rss"
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.deploy-account.email}"
+}
+
 data "google_project" "project" {
 }
 

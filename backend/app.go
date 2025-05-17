@@ -55,6 +55,7 @@ var embedMigrations embed.FS
 
 func main() {
 	cnf := config.Load()
+
 	routerCtx := context.Background()
 
 	// migration
