@@ -77,6 +77,13 @@ function FeedDetail() {
           feedId,
         },
       },
+      update: (cache) => {
+        const cacheId = cache.identify({
+          __typename: "Feed",
+          feedId,
+        });
+        cache.evict({ id: cacheId });
+      },
     });
   };
 
