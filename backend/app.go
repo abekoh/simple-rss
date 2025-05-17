@@ -216,12 +216,20 @@ func main() {
 		if op.Operation.Operation != ast.Mutation {
 			return next(ctx)
 		}
+		setErr := func(ctx context.Context) {
+			graphql.AddError(ctx, &gqlerror.Error{
+				Path:    graphql.GetPath(ctx),
+				Message: "mutation is not allowed for this user",
+			})
+		}
 		claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
 		if !ok {
+			setErr(ctx)
 			return next(ctx)
 		}
 		customClaims, ok := claims.CustomClaims.(*CustomClaims)
 		if !ok {
+			setErr(ctx)
 			return next(ctx)
 		}
 		scopes := strings.Split(customClaims.Scope, " ")
@@ -230,10 +238,7 @@ func main() {
 				return next(ctx)
 			}
 		}
-		graphql.AddError(ctx, &gqlerror.Error{
-			Path:    graphql.GetPath(ctx),
-			Message: "mutation is not allowed",
-		})
+		setErr(ctx)
 		return next(ctx)
 	})
 	gqlSrv.AddTransport(transport.Options{})
