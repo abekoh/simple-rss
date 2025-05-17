@@ -14,11 +14,11 @@ export const initializeApolloClient = ({ token }: { token?: string }) => {
     cache: new InMemoryCache(),
     defaultOptions: {
       watchQuery: {
-        fetchPolicy: "network-only",
+        fetchPolicy: "cache-and-network",
         errorPolicy: "all",
       },
       query: {
-        fetchPolicy: "network-only",
+        fetchPolicy: "cache-first",
         errorPolicy: "all",
       },
       mutate: {
@@ -26,4 +26,15 @@ export const initializeApolloClient = ({ token }: { token?: string }) => {
       },
     },
   });
+};
+
+export const setToken = (client: ApolloClient<any>, token: string) => {
+  client.setLink(
+    new HttpLink({
+      uri: `${import.meta.env.VITE_API_URL}/query`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  );
 };
