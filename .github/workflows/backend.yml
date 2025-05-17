@@ -66,5 +66,5 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Deploy
         run: |
-          gcloud run deploy simple-rss-backend --image=us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest --no-cpu-boost --region=us-west1 --allow-unauthenticated
-          gcloud run services update-traffic simple-rss-backend --to-latest --region=us-west1
+          # Compute Engineインスタンスを再起動して最新のイメージを取得
+          gcloud compute instances reset simple-rss-backend --zone=us-west1-c
