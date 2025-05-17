@@ -10,6 +10,7 @@ import {
   IconButton,
   Dialog,
   Portal,
+  Stack,
 } from "@chakra-ui/react";
 import { LuTrash } from "react-icons/lu";
 import { useState } from "react";
@@ -46,7 +47,7 @@ export const PostList = ({
   return (
     <Box>
       <Flex alignItems="center" mb={4}>
-        <Heading size="lg">{title}</Heading>
+        <Heading size="md">{title}</Heading>
         {showDeleteButton && (
           <Dialog.Root lazyMount>
             <Dialog.Trigger asChild>
@@ -100,9 +101,11 @@ export const PostList = ({
         <Text>記事がありません</Text>
       ) : (
         <>
-          {posts.map((post) => (
-            <PostItem key={post.postId} post={post} />
-          ))}
+          <Stack gap={4}>
+            {posts.map((post) => (
+              <PostItem key={post.postId} post={post} />
+            ))}
+          </Stack>
 
           {totalPages > 1 && (
             <Box mt={8} mb={4}>
