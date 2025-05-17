@@ -158,10 +158,6 @@ const FavoriteButton = ({
           postId: post.postId,
         });
 
-        console.log(data);
-        console.log(post);
-        console.log(cacheId);
-
         // キャッシュを更新
         cache.modify({
           id: cacheId,

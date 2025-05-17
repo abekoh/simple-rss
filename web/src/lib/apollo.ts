@@ -9,9 +9,27 @@ export const initializeApolloClient = ({ token }: { token?: string }) => {
     },
   });
 
+  // キャッシュの設定
+  const cache = new InMemoryCache({
+    typePolicies: {
+      Post: {
+        // postIdをキーフィールドとして設定
+        keyFields: ["postId"],
+      },
+      Feed: {
+        // feedIdをキーフィールドとして設定
+        keyFields: ["feedId"],
+      },
+      PostFavorite: {
+        // postFavoriteIdをキーフィールドとして設定
+        keyFields: ["postFavoriteId"],
+      },
+    },
+  });
+
   return new ApolloClient({
     link: httpLink,
-    cache: new InMemoryCache(),
+    cache,
     defaultOptions: {
       watchQuery: {
         fetchPolicy: "cache-and-network",
