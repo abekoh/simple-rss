@@ -219,7 +219,7 @@ resource "google_compute_instance" "backend-instance" {
 
   allow_stopping_for_update = true
 
-  tags = ["http-server", "https-server"]
+  tags = ["https-server"]
 }
 
 resource "google_compute_firewall" "backend-firewall" {
@@ -228,7 +228,7 @@ resource "google_compute_firewall" "backend-firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080", "80", "443"]
+    ports    = ["443"]
   }
 
   source_ranges = ["0.0.0.0/0"]
