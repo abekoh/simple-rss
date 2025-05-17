@@ -67,6 +67,12 @@ resource "google_secret_manager_secret_version" "gemini-api-key" {
   secret_data = var.GEMINI_API_KEY
 }
 
+# SSL証明書用のストレージバケット
+resource "google_storage_bucket" "ssl-certificates" {
+  name     = "abekoh-simple-rss-ssl-certificates"
+  location = "US-WEST1"
+}
+
 resource "google_service_account" "backend-account" {
   account_id   = "simple-rss-backend"
   display_name = "Service Account for backend instance"
@@ -81,6 +87,13 @@ resource "google_project_iam_member" "backend-artifact-registry-reader" {
 resource "google_project_iam_member" "backend-secret-manager-accessor" {
   project = "abekoh-simple-rss"
   role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.backend-account.email}"
+}
+
+# バックエンドインスタンスにストレージバケットへのアクセス権を付与
+resource "google_project_iam_member" "backend-storage-object-viewer" {
+  project = "abekoh-simple-rss"
+  role    = "roles/storage.objectViewer"
   member  = "serviceAccount:${google_service_account.backend-account.email}"
 }
 
@@ -118,17 +131,31 @@ resource "google_compute_instance" "backend-instance" {
       #!/bin/bash
       set -e
       
+      # 基本パッケージのインストール
       apt-get update
       apt-get install -y apt-transport-https ca-certificates gnupg curl
       
+      # Dockerのインストール
       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
       echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
       apt-get update
       apt-get install -y docker-ce docker-ce-cli containerd.io
       
+      # Nginxのインストール
+      apt-get install -y nginx
+      
+      # 証明書用のディレクトリを作成
+      mkdir -p /etc/nginx/ssl
+      
+      # Google Cloud Storageから証明書をダウンロード
+      gsutil cp gs://abekoh-simple-rss-ssl-certificates/reader-api.abekoh.dev.crt /etc/nginx/ssl/
+      gsutil cp gs://abekoh-simple-rss-ssl-certificates/reader-api.abekoh.dev.key /etc/nginx/ssl/
+      
+      # 環境変数の取得
       DB_URL=$(gcloud secrets versions access latest --secret=db-url)
       GEMINI_API_KEY=$(gcloud secrets versions access latest --secret=gemini-api-key)
-
+      
+      # バックエンドコンテナの起動
       gcloud auth configure-docker us-west1-docker.pkg.dev --quiet
       docker run --rm -d \
         --name simple-rss-backend \
@@ -140,6 +167,48 @@ resource "google_compute_instance" "backend-instance" {
         -e DB_URL="$DB_URL" \
         -e GEMINI_API_KEY="$GEMINI_API_KEY" \
         us-west1-docker.pkg.dev/abekoh-simple-rss/simple-rss/backend:latest
+      
+      # Nginxの設定
+      cat > /etc/nginx/sites-available/simple-rss <<EOF
+      server {
+          listen 80;
+          server_name reader-api.abekoh.dev;
+          
+          location / {
+              return 301 https://\$host\$request_uri;
+          }
+      }
+      
+      server {
+          listen 443 ssl;
+          server_name reader-api.abekoh.dev;
+          
+          ssl_certificate /etc/nginx/ssl/reader-api.abekoh.dev.crt;
+          ssl_certificate_key /etc/nginx/ssl/reader-api.abekoh.dev.key;
+          
+          ssl_protocols TLSv1.2 TLSv1.3;
+          ssl_prefer_server_ciphers on;
+          ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384';
+          
+          location / {
+              proxy_pass http://localhost:8080;
+              proxy_set_header Host \$host;
+              proxy_set_header X-Real-IP \$remote_addr;
+              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$scheme;
+          }
+      }
+      EOF
+      
+      # シンボリックリンクの作成
+      ln -sf /etc/nginx/sites-available/simple-rss /etc/nginx/sites-enabled/
+      rm -f /etc/nginx/sites-enabled/default
+      
+      # Nginxの設定テスト
+      nginx -t
+      
+      # Nginxの再起動
+      systemctl restart nginx
     EOT
   }
 
@@ -150,7 +219,7 @@ resource "google_compute_instance" "backend-instance" {
 
   allow_stopping_for_update = true
 
-  tags = ["http-server"]
+  tags = ["http-server", "https-server"]
 }
 
 resource "google_compute_firewall" "backend-firewall" {
@@ -159,7 +228,7 @@ resource "google_compute_firewall" "backend-firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["8080", "80", "443"]
   }
 
   source_ranges = ["0.0.0.0/0"]
