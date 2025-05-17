@@ -180,6 +180,7 @@ func main() {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
+
 	const issuerURLStr = "https://abekoh.jp.auth0.com/"
 	issuerURL, err := url.Parse(issuerURLStr)
 	if issuerURL == nil {
