@@ -3,8 +3,6 @@ import {
   Link,
   Outlet,
   useMatches,
-  useMatchRoute,
-  useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
@@ -293,7 +291,9 @@ export const Route = createRootRoute({
           {/* ヘッダー */}
           <GridItem area="header">
             <Flex h="100%" alignItems="center" justifyContent="space-between">
-              <Heading size="lg">Simple RSS</Heading>
+              <Heading size="lg">
+                <Link to="/">Simple RSS</Link>
+              </Heading>
               {isMobile && (
                 <IconButton
                   variant="ghost"
