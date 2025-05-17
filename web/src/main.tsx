@@ -1,16 +1,17 @@
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { ThemeProvider } from "next-themes";
 import React, { useRef } from "react";
 import ReactDOM from "react-dom/client";
+
 import { Toaster } from "./components/ui/toaster";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import { initializeApolloClient, setToken } from "./lib/apollo";
+import { routeTree } from "./routeTree.gen";
 
 const router = createRouter({ routeTree });
 

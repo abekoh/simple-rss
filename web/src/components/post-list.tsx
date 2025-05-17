@@ -12,11 +12,11 @@ import {
   Portal,
   Stack,
 } from "@chakra-ui/react";
-import { LuTrash } from "react-icons/lu";
-import { useState } from "react";
-import { PostItem } from "./post-item";
-import { GetPostsQuery, Post } from "../generated/graphql";
 import { Link } from "@tanstack/react-router";
+import { LuTrash } from "react-icons/lu";
+
+import { PostItem } from "./post-item";
+import { GetPostsQuery } from "../generated/graphql";
 
 interface PostListProps {
   title: string;

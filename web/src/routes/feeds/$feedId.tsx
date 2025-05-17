@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+
+import { PostList } from "../../components/post-list";
+import { toaster } from "../../components/ui/toaster";
 import {
   useGetPostsQuery,
   PostsInputOrder,
   useDeleteFeedMutation,
 } from "../../generated/graphql";
-import { PostList } from "../../components/post-list";
-import { toaster } from "../../components/ui/toaster";
 
 // 検索パラメータの型定義
 interface FeedDetailSearch {

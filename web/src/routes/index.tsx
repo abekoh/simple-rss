@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useGetPostsQuery, PostsInputOrder } from "../generated/graphql";
+
 import { PostList } from "../components/post-list";
+import { useGetPostsQuery, PostsInputOrder } from "../generated/graphql";
 
 // 検索パラメータの型定義
 interface IndexSearch {

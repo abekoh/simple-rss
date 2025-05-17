@@ -6,20 +6,19 @@ import {
   Link,
   List,
   Tag,
-  Stack,
   IconButton,
   Card,
 } from "@chakra-ui/react";
+import dayjs from "dayjs";
+import { MdOutlineStar, MdOutlineStarBorder } from "react-icons/md";
+import ReactMarkdown from "react-markdown";
+
+import { toaster } from "../components/ui/toaster";
 import {
   GetPostsQuery,
   useAddPostFavoriteMutation,
   useRemovePostFavoriteMutation,
 } from "../generated/graphql";
-import dayjs from "dayjs";
-import ReactMarkdown from "react-markdown";
-import { MdOutlineStar, MdOutlineStarBorder } from "react-icons/md";
-
-import { toaster } from "../components/ui/toaster";
 
 // 日付をフォーマットする関数
 export const formatDate = (dateString: any | null | undefined) => {
