@@ -149,6 +149,8 @@ resource "google_compute_instance" "backend-instance" {
   }
 
   allow_stopping_for_update = true
+
+  tags = ["http-server"]
 }
 
 resource "google_compute_firewall" "backend-firewall" {
