@@ -192,6 +192,7 @@ resource "google_compute_instance" "backend-instance" {
       # バックエンドコンテナの起動
       gcloud auth configure-docker us-west1-docker.pkg.dev --quiet
       docker run --rm -d \
+        --pull always \
         --name simple-rss-backend \
         -p 8080:8080 \
         -e PORT="8080" \
