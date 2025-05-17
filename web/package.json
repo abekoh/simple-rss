@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
+    "@auth0/auth0-react": "^2.3.0",
     "@chakra-ui/react": "^3.17.0",
     "@emotion/react": "^11.14.0",
     "@tanstack/react-router": "^1.120.3",

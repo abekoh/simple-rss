@@ -28,6 +28,7 @@ import {
   Center,
   useBreakpointValue,
   Container,
+  StackSeparator,
 } from "@chakra-ui/react";
 
 // レイアウトに関する定数
@@ -51,6 +52,7 @@ import {
   useRegisterFeedMutation,
 } from "../generated/graphql";
 import { toaster } from "../components/ui/toaster";
+import { useAuth0 } from "@auth0/auth0-react";
 
 // フィードアイテムコンポーネント
 const FeedItem = ({
@@ -82,6 +84,14 @@ export const Route = createRootRoute({
     const matches = useMatches();
     const [newFeedUrl, setNewFeedUrl] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const {
+      user,
+      isAuthenticated,
+      isLoading: isAuth0Loading,
+      loginWithRedirect,
+      logout,
+    } = useAuth0();
 
     const currentMatch = useMemo(() => {
       return matches.find((match) => match.id !== "__root__");
@@ -135,7 +145,7 @@ export const Route = createRootRoute({
     };
 
     // データ取得中の表示
-    if (feedsLoading && !feedsData) {
+    if (isAuth0Loading || (feedsLoading && !feedsData)) {
       return (
         <Center h="100vh">
           <Spinner size="xl" />
@@ -158,7 +168,7 @@ export const Route = createRootRoute({
     const isFavoriteSelected = currentMatch?.routeId === "/favorite";
 
     const SidebarContent = () => (
-      <Stack align="stretch" gap={4} h="100%">
+      <Stack align="stretch" gap={4} h="100%" separator={<StackSeparator />}>
         <Box>
           <Stack gap={1}>
             <Link to="/" search={{ page: 1 }}>
@@ -197,14 +207,11 @@ export const Route = createRootRoute({
                 </Text>
               </Box>
             </Link>
+          </Stack>
+        </Box>
 
-            <Box
-              borderTopWidth="1px"
-              borderColor="gray.200"
-              _dark={{ borderColor: "gray.700" }}
-              my={2}
-            />
-
+        {feeds.length > 0 && (
+          <Box>
             {feeds.map((feed) => (
               <Link
                 key={feed.feedId}
@@ -224,24 +231,14 @@ export const Route = createRootRoute({
                 />
               </Link>
             ))}
-            {feedsLoading && (
-              <Center py={2}>
-                <Spinner size="sm" />
-              </Center>
-            )}
-          </Stack>
-        </Box>
+          </Box>
+        )}
 
-        <Box
-          borderTopWidth="1px"
-          borderColor="gray.200"
-          _dark={{ borderColor: "gray.700" }}
-          pt={4}
-        >
+        <Box>
           <Heading size="md" mb={2}>
             フィードを追加
           </Heading>
-          <Flex>
+          <Flex mb={4}>
             <Input
               value={newFeedUrl}
               onChange={(e) => setNewFeedUrl(e.target.value)}
@@ -257,6 +254,14 @@ export const Route = createRootRoute({
               追加
             </Button>
           </Flex>
+          {isAuthenticated ? (
+            <Stack gap={1} alignItems="flex-start">
+              <Text>ログイン中({user?.email})</Text>
+              <Button onClick={() => logout()}>ログアウト</Button>
+            </Stack>
+          ) : (
+            <Button onClick={() => loginWithRedirect()}>ログイン</Button>
+          )}
 
           <Box mt={4}>
             <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>

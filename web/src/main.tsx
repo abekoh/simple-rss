@@ -1,5 +1,6 @@
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { ApolloProvider } from "@apollo/client";
+import { Auth0Provider } from "@auth0/auth0-react";
 import { ThemeProvider } from "next-themes";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -28,8 +29,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ApolloProvider client={apolloClient}>
       <ChakraProvider value={defaultSystem}>
         <ThemeProvider attribute="class" disableTransitionOnChange>
-          <RouterProvider router={router} />
-          <Toaster />
+          <Auth0Provider
+            domain="abekoh.jp.auth0.com"
+            clientId="EDFWOm1bAdIFu92nTu14yv8K7gqmrECX"
+            authorizationParams={{
+              redirect_uri: window.location.origin,
+            }}
+          >
+            <RouterProvider router={router} />
+            <Toaster />
+          </Auth0Provider>
         </ThemeProvider>
       </ChakraProvider>
     </ApolloProvider>
