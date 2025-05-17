@@ -1,16 +1,16 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 
-// バックエンドのGraphQLエンドポイントURL
-const httpLink = new HttpLink({
-  uri: `${import.meta.env.VITE_API_URL}/query`,
-});
-
 export const initializeApolloClient = ({ token }: { token?: string }) => {
-  return new ApolloClient({
-    link: httpLink,
+  // バックエンドのGraphQLエンドポイントURL
+  const httpLink = new HttpLink({
+    uri: `${import.meta.env.VITE_API_URL}/query`,
     headers: {
       Authorization: token ? `Bearer ${token}` : "",
     },
+  });
+
+  return new ApolloClient({
+    link: httpLink,
     cache: new InMemoryCache(),
     defaultOptions: {
       watchQuery: {
