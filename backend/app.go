@@ -216,9 +216,9 @@ func main() {
 		if op.Operation.Operation != ast.Mutation {
 			return next(ctx)
 		}
-		setErr := func(ctx context.Context) {
-			graphql.AddError(ctx, &gqlerror.Error{
-				Path:    graphql.GetPath(ctx),
+		setErr := func(c context.Context) {
+			graphql.AddError(c, &gqlerror.Error{
+				Path:    graphql.GetPath(c),
 				Message: "mutation is not allowed for this user",
 			})
 		}
