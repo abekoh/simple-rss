@@ -23,6 +23,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.24"
+          check-latest: true
+          cache-dependency-path: |
+            backend/go.sum
       - name: Setup
         working-directory: backend
         run: go mod download
@@ -51,6 +54,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.24"
+          check-latest: true
+          cache-dependency-path: |
+            backend/go.sum
       - name: Build go app
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -C ./backend -o ./app .
