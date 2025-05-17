@@ -6,6 +6,7 @@ tool (
 	github.com/99designs/gqlgen
 	github.com/pressly/goose/v3/cmd/goose
 	github.com/sqlc-dev/sqlc/cmd/sqlc
+	golang.org/x/tools/cmd/goimports
 )
 
 require (
