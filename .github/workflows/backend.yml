@@ -47,6 +47,9 @@ jobs:
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+          service_account_email: "simple-rss-deploy@abekoh-simple-rss.iam.gserviceaccount.com"
+          create_credentials_file: true
+          export_environment_variables: true
       - uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: abekoh-simple-rss
@@ -74,5 +77,11 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Deploy
         run: |
+          # 認証情報を確認
+          gcloud auth list
+
+          # サービスアカウントの権限を確認
+          gcloud projects get-iam-policy abekoh-simple-rss --flatten="bindings[].members" --format="table(bindings.role,bindings.members)" --filter="bindings.members:simple-rss-deploy@abekoh-simple-rss.iam.gserviceaccount.com"
+
           # Compute Engineインスタンスを再起動して最新のイメージを取得
-          gcloud compute instances reset simple-rss-backend --zone=us-west1-c
+          gcloud compute instances reset simple-rss-backend --zone=us-west1-c --project=abekoh-simple-rss
