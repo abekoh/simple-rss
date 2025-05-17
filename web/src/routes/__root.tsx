@@ -256,7 +256,7 @@ export const Route = createRootRoute({
           </Flex>
           {isAuthenticated ? (
             <Stack gap={1} alignItems="flex-start">
-              <Text>ログイン中({user?.email})</Text>
+              <Text>ログイン中{user?.email ? `(${user.email})` : ""}</Text>
               <Button onClick={() => logout()}>ログアウト</Button>
             </Stack>
           ) : (
