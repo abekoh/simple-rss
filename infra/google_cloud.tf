@@ -131,18 +131,46 @@ resource "google_compute_instance" "backend-instance" {
       #!/bin/bash
       set -e
       
+      # 各ソフトウェアがインストール済みかチェックする関数
+      function is_installed() {
+        if command -v $1 &> /dev/null; then
+          return 0  # インストール済み
+        else
+          return 1  # 未インストール
+        fi
+      }
+      
       # 基本パッケージのインストール
       apt-get update
-      apt-get install -y apt-transport-https ca-certificates gnupg curl
+      
+      # 必要なパッケージのみインストール
+      for pkg in apt-transport-https ca-certificates gnupg curl; do
+        if ! dpkg -l | grep -q "^ii  $pkg "; then
+          echo "Installing $pkg..."
+          apt-get install -y $pkg
+        else
+          echo "$pkg is already installed, skipping..."
+        fi
+      done
       
       # Dockerのインストール
-      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-      echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-      apt-get update
-      apt-get install -y docker-ce docker-ce-cli containerd.io
+      if ! is_installed docker; then
+        echo "Installing Docker..."
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-get update
+        apt-get install -y docker-ce docker-ce-cli containerd.io
+      else
+        echo "Docker is already installed, skipping..."
+      fi
       
       # Nginxのインストール
-      apt-get install -y nginx
+      if ! is_installed nginx; then
+        echo "Installing Nginx..."
+        apt-get install -y nginx
+      else
+        echo "Nginx is already installed, skipping..."
+      fi
       
       # 証明書用のディレクトリを作成
       mkdir -p /etc/nginx/ssl
