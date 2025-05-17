@@ -28,7 +28,7 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version-file: ".tool-versions"
+          node-version: 22
           cache: "pnpm"
           cache-dependency-path: "web/pnpm-lock.yaml"
       - name: Install dependencies
