@@ -291,7 +291,7 @@ export const Route = createRootRoute({
           gap={0}
         >
           {/* ヘッダー */}
-          <GridItem area="header" px={4}>
+          <GridItem area="header">
             <Flex h="100%" alignItems="center" justifyContent="space-between">
               <Heading size="lg">Simple RSS</Heading>
               {isMobile && (
@@ -309,7 +309,6 @@ export const Route = createRootRoute({
           {/* メインコンテンツ */}
           <GridItem
             area="main"
-            p={6}
             overflowY="auto"
             style={{
               scrollbarWidth: "none",
@@ -342,9 +341,6 @@ export const Route = createRootRoute({
                 <Drawer.Backdrop />
                 <Drawer.Positioner>
                   <Drawer.Content>
-                    <Drawer.Header>
-                      <Drawer.Title>Simple RSS</Drawer.Title>
-                    </Drawer.Header>
                     <Drawer.Body>
                       <SidebarContent />
                     </Drawer.Body>
