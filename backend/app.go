@@ -9,8 +9,10 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -29,6 +31,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
 	"github.com/abekoh/simple-rss/backend/worker/summarizer"
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/jwks"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -39,8 +42,8 @@ import (
 )
 
 type CustomClaims struct {
-	Scope    string `json:"scope"`
-	ClientID string `json:"client_id"`
+	Scope string `json:"scope,omitempty"`
+	Azp   string `json:"azp,omitempty"`
 }
 
 func (c CustomClaims) Validate(ctx context.Context) error {
@@ -177,13 +180,16 @@ func main() {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
-	keyFunc := func(ctx context.Context) (interface{}, error) {
-		return []byte("secret"), nil
+	const issuerURLStr = "https://abekoh.jp.auth0.com/"
+	issuerURL, err := url.Parse(issuerURLStr)
+	if issuerURL == nil {
+		log.Fatalf("failed to parse issuer url: %v", err)
 	}
+	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
 	jwtValidator, err := validator.New(
-		keyFunc,
+		provider.KeyFunc,
 		validator.RS256,
-		"https://abekoh.jp.auth0.com/",
+		issuerURLStr,
 		[]string{"https://reader-api.abekoh.dev/"},
 		validator.WithCustomClaims(func() validator.CustomClaims {
 			return &CustomClaims{}
@@ -192,7 +198,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to set up the validator: %v", err)
 	}
-	jwtMiddleware := jwtmiddleware.New(jwtValidator.ValidateToken)
+	jwtMiddleware := jwtmiddleware.New(
+		jwtValidator.ValidateToken,
+		jwtmiddleware.WithCredentialsOptional(true),
+	)
 	r.Use(jwtMiddleware.CheckJWT)
 
 	gqlSrv := handler.New(gql.NewExecutableSchema(gql.Config{
