@@ -19,6 +19,15 @@ resource "google_artifact_registry_repository" "simple-rss-repo" {
   location      = "us-west1"
   description   = "repository for simple-rss"
   format        = "DOCKER"
+
+  cleanup_policy_dry_run = false
+  cleanup_policies {
+    id     = "delete-untagged"
+    action = "DELETE"
+    condition {
+      tag_state = "UNTAGGED"
+    }
+  }
 }
 
 resource "google_service_account" "deploy-account" {
