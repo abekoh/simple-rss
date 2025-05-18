@@ -102,6 +102,7 @@ func newLoaderOne[K comparable, V any](
 	}, dataloader.WithCache[K, V](dataloader.NewCache[K, V]()))
 }
 
+//lint:ignore U1000 for future use
 func newLoaderMany[K comparable, V any](
 	fetch func(ctx context.Context, ids []K) ([]V, error),
 	getKey func(datum *V) K,
