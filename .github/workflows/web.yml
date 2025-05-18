@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  check-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
