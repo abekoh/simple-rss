@@ -83,11 +83,4 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Deploy
         run: |
-          # 認証情報を確認
-          gcloud auth list
-
-          # Compute Engineインスタンスの情報を取得（権限確認のため）
-          gcloud compute instances describe simple-rss-backend --zone=us-west1-c --project=abekoh-simple-rss || echo "インスタンス情報の取得に失敗しましたが、再起動を試みます"
-
-          # Compute Engineインスタンスを再起動して最新のイメージを取得
           gcloud compute instances reset simple-rss-backend --zone=us-west1-c --project=abekoh-simple-rss --quiet
