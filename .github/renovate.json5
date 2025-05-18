@@ -1,0 +1,13 @@
+{
+  extends: ["config:base"],
+  packageRules: [
+    {
+      automerge: true,
+      matchUpdateTypes: ["minor", "patch"],
+    },
+  ],
+  major: {
+    automerge: false,
+  },
+  rangeStrategy: "pin",
+}
