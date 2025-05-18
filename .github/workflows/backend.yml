@@ -28,6 +28,9 @@ jobs:
       - name: Setup
         working-directory: backend
         run: go mod download
+      - uses: dominikh/staticcheck-action@v1
+        with:
+          working-directory: backend
       - name: Test go app
         working-directory: backend
         run: |
