@@ -65,6 +65,10 @@ func main() {
 		os.Exit(1)
 	}
 	sqlDB, err := sql.Open("pgx", cnf.DBURL)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
 	if err := goose.Up(sqlDB, "migrations"); err != nil {
 		slog.Error(err.Error())
 		os.Exit(1)
