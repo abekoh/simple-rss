@@ -8,9 +8,6 @@ on:
       - "web/**"
       - ".github/workflows/web.yml"
   pull_request:
-    paths:
-      - "web/**"
-      - ".github/workflows/web.yml"
   workflow_dispatch:
 
 concurrency:
@@ -18,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  check-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

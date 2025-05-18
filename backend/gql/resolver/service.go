@@ -15,14 +15,12 @@ func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url: %w", err)
 	}
-	(&http.Request{
+	req := &http.Request{
 		Method: "GET",
 		URL:    parsedURL,
-	}).WithContext(ctx)
-	res, err := http.DefaultClient.Do(&http.Request{
-		Method: "GET",
-		URL:    parsedURL,
-	})
+	}
+	req.WithContext(ctx)
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch top page: %w", err)
 	}

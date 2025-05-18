@@ -8,9 +8,6 @@ on:
       - "backend/**"
       - ".github/workflows/backend.yml"
   pull_request:
-    paths:
-      - "backend/**"
-      - ".github/workflows/backend.yml"
   workflow_dispatch:
 
 concurrency:
@@ -18,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  check-backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,15 +28,24 @@ jobs:
       - name: Setup
         working-directory: backend
         run: go mod download
+      - name: Format
+        working-directory: backend
+        run: |
+          go tool golang.org/x/tools/cmd/goimports -w .
+          git diff --exit-code
+      - name: Go vet
+        working-directory: backend
+        run: go vet ./...
+      - uses: dominikh/staticcheck-action@v1
+        with:
+          working-directory: backend
       - name: Test go app
         working-directory: backend
-        run: |
-          go test -v ./...
+        run: go test -v ./...
       - name: Build go app
         working-directory: backend
-        run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./app .
-  deploy:
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./app .
+  deploy-backend:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     steps:
