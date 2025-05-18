@@ -19,7 +19,7 @@ func detectFeedURLs(ctx context.Context, url string) ([]string, error) {
 		Method: "GET",
 		URL:    parsedURL,
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch top page: %w", err)
