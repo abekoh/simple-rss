@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 ALTER TABLE feeds
-    ADD COLUMN idx int;
+    ADD COLUMN idx int UNIQUE;
 
 WITH feeds_with_row_num AS (
     SELECT
