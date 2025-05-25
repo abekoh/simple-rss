@@ -15,8 +15,8 @@ import {
   Field,
 } from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
-import { LuTrash, LuPencil } from "react-icons/lu";
 import { useState } from "react";
+import { LuTrash, LuPencil } from "react-icons/lu";
 
 import { PostItem } from "./post-item";
 import { GetPostsQuery } from "../generated/graphql";

@@ -1,7 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { LuPencilLine } from "react-icons/lu";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { PostList } from "../../components/post-list";
 import { toaster } from "../../components/ui/toaster";
