@@ -312,13 +312,7 @@ const RootComponent = () => {
         </GridItem>
 
         {/* メインコンテンツ */}
-        <GridItem
-          area="main"
-          overflowY="auto"
-          style={{
-            scrollbarWidth: "none",
-          }}
-        >
+        <GridItem area="main" overflowY="auto" scrollbarWidth="none">
           <Outlet />
           <TanStackRouterDevtools />
         </GridItem>
@@ -329,8 +323,10 @@ const RootComponent = () => {
             area="sidebar"
             borderLeft="1px"
             borderColor="gray.200"
+            overflowY="auto"
             _dark={{ borderColor: "gray.700" }}
             p={4}
+            scrollbarWidth="none"
           >
             <SidebarContent />
           </GridItem>
