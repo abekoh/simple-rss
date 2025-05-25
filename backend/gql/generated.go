@@ -220,7 +220,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Feed.FeedID(childComplexity), true
 
-	case "Feed.Idx":
+	case "Feed.idx":
 		if e.complexity.Feed.Idx == nil {
 			break
 		}
@@ -1406,8 +1406,8 @@ func (ec *executionContext) fieldContext_Feed_lastFetchedAt(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Feed_Idx(ctx context.Context, field graphql.CollectedField, obj *Feed) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Feed_Idx(ctx, field)
+func (ec *executionContext) _Feed_idx(ctx context.Context, field graphql.CollectedField, obj *Feed) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Feed_idx(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1437,7 +1437,7 @@ func (ec *executionContext) _Feed_Idx(ctx context.Context, field graphql.Collect
 	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Feed_Idx(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Feed_idx(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Feed",
 		Field:      field,
@@ -2560,8 +2560,8 @@ func (ec *executionContext) fieldContext_Post_feed(_ context.Context, field grap
 				return ec.fieldContext_Feed_registeredAt(ctx, field)
 			case "lastFetchedAt":
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
-			case "Idx":
-				return ec.fieldContext_Feed_Idx(ctx, field)
+			case "idx":
+				return ec.fieldContext_Feed_idx(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
 		},
@@ -3303,8 +3303,8 @@ func (ec *executionContext) fieldContext_Query_feeds(_ context.Context, field gr
 				return ec.fieldContext_Feed_registeredAt(ctx, field)
 			case "lastFetchedAt":
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
-			case "Idx":
-				return ec.fieldContext_Feed_Idx(ctx, field)
+			case "idx":
+				return ec.fieldContext_Feed_idx(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
 		},
@@ -6055,8 +6055,8 @@ func (ec *executionContext) _Feed(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "lastFetchedAt":
 			out.Values[i] = ec._Feed_lastFetchedAt(ctx, field, obj)
-		case "Idx":
-			out.Values[i] = ec._Feed_Idx(ctx, field, obj)
+		case "idx":
+			out.Values[i] = ec._Feed_idx(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

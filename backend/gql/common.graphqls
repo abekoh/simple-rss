@@ -35,7 +35,7 @@ type Feed {
   description: String
   registeredAt: Time!
   lastFetchedAt: Time
-  Idx: Int!
+  idx: Int!
 }
 
 input FeedPostsInput {
