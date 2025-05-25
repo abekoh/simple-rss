@@ -35,7 +35,6 @@ type PostListProps = {
   feedUrl?: string;
   onDeleteClick?: () => void;
   onEditClick?: (newTitle: string) => void;
-  onEditDialogOpen?: () => void;
 };
 
 export const PostList = ({
@@ -52,9 +51,8 @@ export const PostList = ({
   showEditButton = false,
   onDeleteClick,
   onEditClick,
-  onEditDialogOpen,
 }: PostListProps) => {
-  const [editTitle, setEditTitle] = useState("");
+  const [editTitle, setEditTitle] = useState(title);
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   return (
     <Box>
@@ -71,7 +69,6 @@ export const PostList = ({
                   ml={2}
                   onClick={() => {
                     setEditTitle(typeof title === "string" ? title : "");
-                    onEditDialogOpen?.();
                   }}
                 >
                   <LuPencilLine />

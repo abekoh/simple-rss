@@ -11,7 +11,6 @@ import {
   useDeleteFeedMutation,
 } from "../../generated/graphql";
 import { RENAME_FEED_TITLE } from "../../lib/graphql";
-import { Dialog, Button, Input, Field, IconButton } from "@chakra-ui/react";
 
 // 検索パラメータの型定義
 interface FeedDetailSearch {
@@ -33,7 +32,6 @@ function FeedDetail() {
   const { page } = Route.useSearch();
   const itemsPerPage = 10;
   const navigate = useNavigate();
-  const [newTitle, setNewTitle] = useState("");
 
   // フィードタイトル変更ミューテーション
   const [renameFeedTitle, { loading: renameLoading }] = useMutation(
@@ -116,7 +114,7 @@ function FeedDetail() {
   };
 
   // フィードタイトル変更ハンドラー
-  const handleRenameFeedTitle = () => {
+  const handleRenameFeedTitle = (newTitle: string) => {
     if (!newTitle.trim()) return;
 
     renameFeedTitle({
@@ -141,11 +139,6 @@ function FeedDetail() {
     });
   };
 
-  // ダイアログを開いたときに現在のタイトルをセット
-  const handleOpenRenameDialog = () => {
-    setNewTitle(feedTitle);
-  };
-
   return (
     <PostList
       title={feedTitle}
@@ -160,7 +153,6 @@ function FeedDetail() {
       showEditButton={true}
       onDeleteClick={handleDeleteFeed}
       onEditClick={handleRenameFeedTitle}
-      onEditDialogOpen={handleOpenRenameDialog}
       feedUrl={feedUrl}
     />
   );
