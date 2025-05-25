@@ -122,6 +122,15 @@ type RemovePostFavoritePayload struct {
 	PostFavoriteID string `json:"postFavoriteId"`
 }
 
+type RenameFeedTitleInput struct {
+	FeedID   string `json:"feedId"`
+	NewTitle string `json:"newTitle"`
+}
+
+type RenameFeedTitlePayload struct {
+	FeedID string `json:"feedId"`
+}
+
 type FeedFetchStatus string
 
 const (

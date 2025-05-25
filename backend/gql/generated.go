@@ -79,6 +79,7 @@ type ComplexityRoot struct {
 		DeleteFeed         func(childComplexity int, input DeleteFeedInput) int
 		RegisterFeed       func(childComplexity int, input RegisterFeedInput) int
 		RemovePostFavorite func(childComplexity int, input RemovePostFavoriteInput) int
+		RenameFeedTitle    func(childComplexity int, input RenameFeedTitleInput) int
 	}
 
 	Post struct {
@@ -135,10 +136,15 @@ type ComplexityRoot struct {
 	RemovePostFavoritePayload struct {
 		PostFavoriteID func(childComplexity int) int
 	}
+
+	RenameFeedTitlePayload struct {
+		FeedID func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
 	RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedPayload, error)
+	RenameFeedTitle(ctx context.Context, input RenameFeedTitleInput) (*RenameFeedTitlePayload, error)
 	DeleteFeed(ctx context.Context, input DeleteFeedInput) (*DeleteFeedPayload, error)
 	AddPostFavorite(ctx context.Context, input AddPostFavoriteInput) (*AddPostFavoritePayload, error)
 	RemovePostFavorite(ctx context.Context, input RemovePostFavoriteInput) (*RemovePostFavoritePayload, error)
@@ -317,6 +323,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RemovePostFavorite(childComplexity, args["input"].(RemovePostFavoriteInput)), true
+
+	case "Mutation.renameFeedTitle":
+		if e.complexity.Mutation.RenameFeedTitle == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_renameFeedTitle_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RenameFeedTitle(childComplexity, args["input"].(RenameFeedTitleInput)), true
 
 	case "Post.author":
 		if e.complexity.Post.Author == nil {
@@ -540,6 +558,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.RemovePostFavoritePayload.PostFavoriteID(childComplexity), true
 
+	case "RenameFeedTitlePayload.feedId":
+		if e.complexity.RenameFeedTitlePayload.FeedID == nil {
+			break
+		}
+
+		return e.complexity.RenameFeedTitlePayload.FeedID(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -554,6 +579,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPostsInput,
 		ec.unmarshalInputRegisterFeedInput,
 		ec.unmarshalInputRemovePostFavoriteInput,
+		ec.unmarshalInputRenameFeedTitleInput,
 	)
 	first := true
 
@@ -761,6 +787,29 @@ func (ec *executionContext) field_Mutation_removePostFavorite_argsInput(
 	}
 
 	var zeroVal RemovePostFavoriteInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_renameFeedTitle_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_renameFeedTitle_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_renameFeedTitle_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (RenameFeedTitleInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRenameFeedTitleInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRenameFeedTitleInput(ctx, tmp)
+	}
+
+	var zeroVal RenameFeedTitleInput
 	return zeroVal, nil
 }
 
@@ -1570,6 +1619,65 @@ func (ec *executionContext) fieldContext_Mutation_registerFeed(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_registerFeed_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_renameFeedTitle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_renameFeedTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RenameFeedTitle(rctx, fc.Args["input"].(RenameFeedTitleInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*RenameFeedTitlePayload)
+	fc.Result = res
+	return ec.marshalNRenameFeedTitlePayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRenameFeedTitlePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_renameFeedTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "feedId":
+				return ec.fieldContext_RenameFeedTitlePayload_feedId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RenameFeedTitlePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_renameFeedTitle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3310,6 +3418,50 @@ func (ec *executionContext) _RemovePostFavoritePayload_postFavoriteId(ctx contex
 func (ec *executionContext) fieldContext_RemovePostFavoritePayload_postFavoriteId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemovePostFavoritePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RenameFeedTitlePayload_feedId(ctx context.Context, field graphql.CollectedField, obj *RenameFeedTitlePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RenameFeedTitlePayload_feedId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FeedID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RenameFeedTitlePayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RenameFeedTitlePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5501,6 +5653,40 @@ func (ec *executionContext) unmarshalInputRemovePostFavoriteInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRenameFeedTitleInput(ctx context.Context, obj any) (RenameFeedTitleInput, error) {
+	var it RenameFeedTitleInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"feedId", "newTitle"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "feedId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("feedId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FeedID = data
+		case "newTitle":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newTitle"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewTitle = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -5728,6 +5914,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "registerFeed":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_registerFeed(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "renameFeedTitle":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_renameFeedTitle(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6299,6 +6492,45 @@ func (ec *executionContext) _RemovePostFavoritePayload(ctx context.Context, sel 
 			out.Values[i] = graphql.MarshalString("RemovePostFavoritePayload")
 		case "postFavoriteId":
 			out.Values[i] = ec._RemovePostFavoritePayload_postFavoriteId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var renameFeedTitlePayloadImplementors = []string{"RenameFeedTitlePayload"}
+
+func (ec *executionContext) _RenameFeedTitlePayload(ctx context.Context, sel ast.SelectionSet, obj *RenameFeedTitlePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, renameFeedTitlePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RenameFeedTitlePayload")
+		case "feedId":
+			out.Values[i] = ec._RenameFeedTitlePayload_feedId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6983,6 +7215,25 @@ func (ec *executionContext) marshalNRemovePostFavoritePayload2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._RemovePostFavoritePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRenameFeedTitleInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRenameFeedTitleInput(ctx context.Context, v any) (RenameFeedTitleInput, error) {
+	res, err := ec.unmarshalInputRenameFeedTitleInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRenameFeedTitlePayload2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRenameFeedTitlePayload(ctx context.Context, sel ast.SelectionSet, v RenameFeedTitlePayload) graphql.Marshaler {
+	return ec._RenameFeedTitlePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRenameFeedTitlePayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRenameFeedTitlePayload(ctx context.Context, sel ast.SelectionSet, v *RenameFeedTitlePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RenameFeedTitlePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {

@@ -70,6 +70,28 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 	}, nil
 }
 
+// RenameFeedTitle is the resolver for the renameFeedTitle field.
+func (r *mutationResolver) RenameFeedTitle(ctx context.Context, input gql.RenameFeedTitleInput) (*gql.RenameFeedTitlePayload, error) {
+	if len([]rune(input.NewTitle)) > 50 {
+		return nil, fmt.Errorf("title must be less than 50 characters")
+	}
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		if err := database.FromContext(ctx).
+			Queries().UpdateFeedTitle(ctx, sqlc.UpdateFeedTitleParams{
+			FeedID:       input.FeedID,
+			TitleEditted: &input.NewTitle,
+		}); err != nil {
+			return fmt.Errorf("failed to update feed title: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("failed in transaction: %w", err)
+	}
+	return &gql.RenameFeedTitlePayload{
+		FeedID: input.FeedID,
+	}, nil
+}
+
 // DeleteFeed is the resolver for the deleteFeed field.
 func (r *mutationResolver) DeleteFeed(ctx context.Context, input gql.DeleteFeedInput) (*gql.DeleteFeedPayload, error) {
 	if err := database.Transaction(ctx, func(c context.Context) error {
