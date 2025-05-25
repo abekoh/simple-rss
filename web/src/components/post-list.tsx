@@ -15,7 +15,7 @@ import {
   Field,
 } from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
-import { LuTrash, LuPencilLine } from "react-icons/lu";
+import { LuTrash, LuPencil } from "react-icons/lu";
 import { useState } from "react";
 
 import { PostItem } from "./post-item";
@@ -66,12 +66,11 @@ export const PostList = ({
                   aria-label="フィードタイトルを変更"
                   variant="ghost"
                   size="sm"
-                  ml={2}
                   onClick={() => {
                     setEditTitle(typeof title === "string" ? title : "");
                   }}
                 >
-                  <LuPencilLine />
+                  <LuPencil />
                 </IconButton>
               </Dialog.Trigger>
               <Portal>
@@ -118,7 +117,6 @@ export const PostList = ({
                   colorScheme="red"
                   variant="ghost"
                   size="sm"
-                  ml={2}
                 >
                   <LuTrash />
                 </IconButton>
