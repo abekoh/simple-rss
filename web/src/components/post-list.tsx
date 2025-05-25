@@ -21,7 +21,7 @@ import { useState } from "react";
 import { PostItem } from "./post-item";
 import { GetPostsQuery } from "../generated/graphql";
 
-interface PostListProps {
+type PostListProps = {
   title: string;
   posts: GetPostsQuery["posts"]["posts"];
   totalCount: number;
@@ -36,7 +36,7 @@ interface PostListProps {
   onDeleteClick?: () => void;
   onEditClick?: (newTitle: string) => void;
   onEditDialogOpen?: () => void;
-}
+};
 
 export const PostList = ({
   title,
