@@ -1,4 +1,4 @@
 [tools]
 node = "22.15.1"
 pnpm = "latest"
-terraform = "1.9.7"
+terraform = "1.12.1"
