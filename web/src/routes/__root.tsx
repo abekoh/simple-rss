@@ -69,9 +69,15 @@ const FeedItem = ({
       borderRadius="md"
       cursor="pointer"
       onClick={onSelect}
-      mb={1}
     >
-      <Text fontWeight={isSelected ? "bold" : "normal"}>{feed.title}</Text>
+      <Text
+        fontWeight={isSelected ? "bold" : "normal"}
+        whiteSpace="nowrap"
+        overflow="hidden"
+        textOverflow="ellipsis"
+      >
+        {feed.title}
+      </Text>
     </Box>
   );
 };
