@@ -20,13 +20,20 @@ SET
 WHERE
     feed_id = @feed_id;
 
--- name: SelectFeed :one
-SELECT
-    *
-FROM
+-- name: UpdateFeedIdx :exec
+UPDATE
     feeds
+SET
+    idx = @idx,
+    updated_at = now()
 WHERE
-    feed_id = @feed_id;
+    -- name: SelectFeed :one
+    SELECT
+        *
+    FROM
+        feeds
+    WHERE
+        feed_id = @feed_id;
 
 -- name: SelectFeedForUpdate :one
 SELECT
@@ -36,6 +43,12 @@ FROM
 WHERE
     feed_id = @feed_id
 FOR UPDATE;
+
+-- name: SelectFeedMaxIdx :one
+SELECT
+    MAX(idx)
+FROM
+    feeds;
 
 -- name: SelectFeeds :many
 SELECT
