@@ -124,6 +124,10 @@ func (r *mutationResolver) RearrangeFeed(ctx context.Context, input gql.Rearrang
 			return nil
 		}
 
+		if feed.Idx < 1 {
+			return fmt.Errorf("invalid index: %d", input.NewIndex)
+		}
+
 		// 3. 最大インデックスを取得して、新しいインデックスが範囲内かチェック
 		maxIdx, err := database.FromContext(c).Queries().SelectFeedMaxIdx(c)
 		if err != nil {
