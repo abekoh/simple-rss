@@ -5,7 +5,7 @@ CREATE SEQUENCE IF NOT EXISTS feeds_idx_seq;
 
 -- カラムの追加とシーケンスの関連付け
 ALTER TABLE feeds
-    ADD COLUMN idx int UNIQUE DEFAULT nextval('feeds_idx_seq');
+    ADD COLUMN idx int DEFAULT nextval('feeds_idx_seq');
 
 -- 既存のレコードに対して値を設定
 WITH feeds_with_row_num AS (
