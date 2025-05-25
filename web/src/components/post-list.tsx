@@ -92,17 +92,17 @@ export const PostList = ({
                       </Field.Root>
                     </Dialog.Body>
                     <Dialog.Footer>
-                      <Dialog.CloseTrigger asChild>
+                      <Dialog.ActionTrigger asChild>
                         <Button variant="outline">キャンセル</Button>
-                      </Dialog.CloseTrigger>
-                      <Dialog.CloseTrigger asChild>
+                      </Dialog.ActionTrigger>
+                      <Dialog.ActionTrigger asChild>
                         <Button
                           colorScheme="blue"
                           onClick={() => onEditClick?.(editTitle)}
                         >
                           変更
                         </Button>
-                      </Dialog.CloseTrigger>
+                      </Dialog.ActionTrigger>
                     </Dialog.Footer>
                   </Dialog.Content>
                 </Dialog.Positioner>
