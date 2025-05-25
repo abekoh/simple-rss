@@ -1,6 +1,6 @@
 -- name: InsertFeed :exec
-INSERT INTO feeds(feed_id, url, title_original, description, registered_at, idx)
-    VALUES (@feed_id, @url, @title_original, @description, @registered_at, @idx);
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
+    VALUES (@feed_id, @url, @title_original, @description, @registered_at);
 
 -- name: UpdateFeedLastFetchedAt :exec
 UPDATE

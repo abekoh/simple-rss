@@ -21,8 +21,8 @@ func (q *Queries) DeleteFeed(ctx context.Context, feedID string) error {
 }
 
 const insertFeed = `-- name: InsertFeed :exec
-INSERT INTO feeds(feed_id, url, title_original, description, registered_at, idx)
-    VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
+    VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertFeedParams struct {
@@ -31,7 +31,6 @@ type InsertFeedParams struct {
 	TitleOriginal string
 	Description   *string
 	RegisteredAt  time.Time
-	Idx           int32
 }
 
 func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
@@ -41,7 +40,6 @@ func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
 		arg.TitleOriginal,
 		arg.Description,
 		arg.RegisteredAt,
-		arg.Idx,
 	)
 	return err
 }
