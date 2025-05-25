@@ -125,9 +125,19 @@ func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
 				}
 				return &item.Authors[0].Name
 			}(),
-			Url:      item.Link,
-			PostedAt: item.PublishedParsed,
-			Status:   sqlc.PostStatusRegistered,
+			Url: item.Link,
+			PostedAt: func() *time.Time {
+				// 投稿日時がない場合は更新日時を使う
+				// 更新日時がない場合はフィードの更新日時を使う
+				if item.PublishedParsed != nil {
+					return item.PublishedParsed
+				}
+				if item.UpdatedParsed != nil {
+					return item.UpdatedParsed
+				}
+				return feedParsed.UpdatedParsed
+			}(),
+			Status: sqlc.PostStatusRegistered,
 		}); err != nil {
 			var pgError *pgconn.PgError
 			// skip if duplicate key error
