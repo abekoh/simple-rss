@@ -1,13 +1,13 @@
 directive @goModel(
-	model: String
-	models: [String!]
+  model: String
+  models: [String!]
 ) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
 
 directive @goField(
-	forceResolver: Boolean
-	name: String
-	omittable: Boolean
-	type: String
+  forceResolver: Boolean
+  name: String
+  omittable: Boolean
+  type: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
 scalar Time
@@ -35,6 +35,7 @@ type Feed {
   description: String
   registeredAt: Time!
   lastFetchedAt: Time
+  Idx: Int!
 }
 
 input FeedPostsInput {

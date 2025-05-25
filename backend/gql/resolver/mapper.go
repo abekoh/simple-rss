@@ -25,6 +25,7 @@ func mapFeed(x sqlc.Feed) *gql.Feed {
 		}(),
 		Description:  x.Description,
 		RegisteredAt: x.RegisteredAt,
+		Idx:          x.Idx,
 	}
 }
 

@@ -34,6 +34,7 @@ type Feed struct {
 	Description   *string    `json:"description,omitempty"`
 	RegisteredAt  time.Time  `json:"registeredAt"`
 	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
+	Idx           int32      `json:"Idx"`
 }
 
 type FeedFetch struct {

@@ -50,6 +50,7 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 					return &feedContent.Description
 				}(),
 				RegisteredAt: clock.Now(ctx),
+				Idx:          0,
 			}); err != nil {
 				return fmt.Errorf("failed to insert feed: %w", err)
 			}

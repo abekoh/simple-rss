@@ -147,6 +147,7 @@ type Feed struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	TitleEditted  *string
+	Idx           int32
 }
 
 type FeedFetch struct {

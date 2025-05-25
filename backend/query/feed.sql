@@ -1,6 +1,6 @@
 -- name: InsertFeed :exec
-INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
-    VALUES (@feed_id, @url, @title_original, @description, @registered_at);
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at, idx)
+    VALUES (@feed_id, @url, @title_original, @description, @registered_at, @idx);
 
 -- name: UpdateFeedLastFetchedAt :exec
 UPDATE
@@ -45,13 +45,13 @@ FROM
 WHERE
     feed_id = ANY (@feed_ids::uuid[]);
 
--- name: SelectFeedsOrderByRegisteredAtAsc :many
+-- name: SelectFeedsOrderByIdxAsc :many
 SELECT
     *
 FROM
     feeds
 ORDER BY
-    registered_at ASC;
+    idx ASC;
 
 -- name: SelectRecentlyNotFetchedFeeds :many
 SELECT

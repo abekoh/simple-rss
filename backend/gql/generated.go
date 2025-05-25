@@ -60,6 +60,7 @@ type ComplexityRoot struct {
 	Feed struct {
 		Description   func(childComplexity int) int
 		FeedID        func(childComplexity int) int
+		Idx           func(childComplexity int) int
 		LastFetchedAt func(childComplexity int) int
 		RegisteredAt  func(childComplexity int) int
 		Title         func(childComplexity int) int
@@ -212,6 +213,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Feed.FeedID(childComplexity), true
+
+	case "Feed.Idx":
+		if e.complexity.Feed.Idx == nil {
+			break
+		}
+
+		return e.complexity.Feed.Idx(childComplexity), true
 
 	case "Feed.lastFetchedAt":
 		if e.complexity.Feed.LastFetchedAt == nil {
@@ -1349,6 +1357,50 @@ func (ec *executionContext) fieldContext_Feed_lastFetchedAt(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Feed_Idx(ctx context.Context, field graphql.CollectedField, obj *Feed) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Feed_Idx(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Idx, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Feed_Idx(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Feed",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FeedFetch_feedFetchId(ctx context.Context, field graphql.CollectedField, obj *FeedFetch) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FeedFetch_feedFetchId(ctx, field)
 	if err != nil {
@@ -2400,6 +2452,8 @@ func (ec *executionContext) fieldContext_Post_feed(_ context.Context, field grap
 				return ec.fieldContext_Feed_registeredAt(ctx, field)
 			case "lastFetchedAt":
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
+			case "Idx":
+				return ec.fieldContext_Feed_Idx(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
 		},
@@ -3141,6 +3195,8 @@ func (ec *executionContext) fieldContext_Query_feeds(_ context.Context, field gr
 				return ec.fieldContext_Feed_registeredAt(ctx, field)
 			case "lastFetchedAt":
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
+			case "Idx":
+				return ec.fieldContext_Feed_Idx(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
 		},
@@ -5813,6 +5869,11 @@ func (ec *executionContext) _Feed(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "lastFetchedAt":
 			out.Values[i] = ec._Feed_lastFetchedAt(ctx, field, obj)
+		case "Idx":
+			out.Values[i] = ec._Feed_Idx(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -16,7 +16,7 @@ import (
 // Feeds is the resolver for the feeds field.
 func (r *queryResolver) Feeds(ctx context.Context) ([]*gql.Feed, error) {
 	queries := database.FromContext(ctx).Queries()
-	feeds, err := queries.SelectFeedsOrderByRegisteredAtAsc(ctx)
+	feeds, err := queries.SelectFeedsOrderByIdxAsc(ctx)
 	if err != nil {
 		return nil, err
 	}
