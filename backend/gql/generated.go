@@ -78,6 +78,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddPostFavorite    func(childComplexity int, input AddPostFavoriteInput) int
 		DeleteFeed         func(childComplexity int, input DeleteFeedInput) int
+		RearrangeFeed      func(childComplexity int, input RearrangeFeedInput) int
 		RegisterFeed       func(childComplexity int, input RegisterFeedInput) int
 		RemovePostFavorite func(childComplexity int, input RemovePostFavoriteInput) int
 		RenameFeedTitle    func(childComplexity int, input RenameFeedTitleInput) int
@@ -130,6 +131,10 @@ type ComplexityRoot struct {
 		Posts func(childComplexity int, input PostsInput) int
 	}
 
+	RearrangeFeedPayload struct {
+		FeedID func(childComplexity int) int
+	}
+
 	RegisterFeedPayload struct {
 		FeedIds func(childComplexity int) int
 	}
@@ -147,6 +152,7 @@ type MutationResolver interface {
 	RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedPayload, error)
 	RenameFeedTitle(ctx context.Context, input RenameFeedTitleInput) (*RenameFeedTitlePayload, error)
 	DeleteFeed(ctx context.Context, input DeleteFeedInput) (*DeleteFeedPayload, error)
+	RearrangeFeed(ctx context.Context, input RearrangeFeedInput) (*RearrangeFeedPayload, error)
 	AddPostFavorite(ctx context.Context, input AddPostFavoriteInput) (*AddPostFavoritePayload, error)
 	RemovePostFavorite(ctx context.Context, input RemovePostFavoriteInput) (*RemovePostFavoritePayload, error)
 }
@@ -307,6 +313,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteFeed(childComplexity, args["input"].(DeleteFeedInput)), true
+
+	case "Mutation.rearrangeFeed":
+		if e.complexity.Mutation.RearrangeFeed == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_rearrangeFeed_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RearrangeFeed(childComplexity, args["input"].(RearrangeFeedInput)), true
 
 	case "Mutation.registerFeed":
 		if e.complexity.Mutation.RegisterFeed == nil {
@@ -552,6 +570,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Posts(childComplexity, args["input"].(PostsInput)), true
 
+	case "RearrangeFeedPayload.feedId":
+		if e.complexity.RearrangeFeedPayload.FeedID == nil {
+			break
+		}
+
+		return e.complexity.RearrangeFeedPayload.FeedID(childComplexity), true
+
 	case "RegisterFeedPayload.feedIds":
 		if e.complexity.RegisterFeedPayload.FeedIds == nil {
 			break
@@ -585,6 +610,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteFeedInput,
 		ec.unmarshalInputFeedPostsInput,
 		ec.unmarshalInputPostsInput,
+		ec.unmarshalInputRearrangeFeedInput,
 		ec.unmarshalInputRegisterFeedInput,
 		ec.unmarshalInputRemovePostFavoriteInput,
 		ec.unmarshalInputRenameFeedTitleInput,
@@ -749,6 +775,29 @@ func (ec *executionContext) field_Mutation_deleteFeed_argsInput(
 	}
 
 	var zeroVal DeleteFeedInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_rearrangeFeed_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_rearrangeFeed_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_rearrangeFeed_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (RearrangeFeedInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRearrangeFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRearrangeFeedInput(ctx, tmp)
+	}
+
+	var zeroVal RearrangeFeedInput
 	return zeroVal, nil
 }
 
@@ -1789,6 +1838,65 @@ func (ec *executionContext) fieldContext_Mutation_deleteFeed(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteFeed_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_rearrangeFeed(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_rearrangeFeed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RearrangeFeed(rctx, fc.Args["input"].(RearrangeFeedInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*RearrangeFeedPayload)
+	fc.Result = res
+	return ec.marshalNRearrangeFeedPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRearrangeFeedPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_rearrangeFeed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "feedId":
+				return ec.fieldContext_RearrangeFeedPayload_feedId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RearrangeFeedPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_rearrangeFeed_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3391,6 +3499,50 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RearrangeFeedPayload_feedId(ctx context.Context, field graphql.CollectedField, obj *RearrangeFeedPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RearrangeFeedPayload_feedId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FeedID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RearrangeFeedPayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RearrangeFeedPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5655,6 +5807,40 @@ func (ec *executionContext) unmarshalInputPostsInput(ctx context.Context, obj an
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRearrangeFeedInput(ctx context.Context, obj any) (RearrangeFeedInput, error) {
+	var it RearrangeFeedInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"feedId", "newIndex"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "feedId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("feedId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FeedID = data
+		case "newIndex":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newIndex"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewIndex = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context, obj any) (RegisterFeedInput, error) {
 	var it RegisterFeedInput
 	asMap := map[string]any{}
@@ -5989,6 +6175,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteFeed":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteFeed(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rearrangeFeed":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_rearrangeFeed(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6478,6 +6671,45 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var rearrangeFeedPayloadImplementors = []string{"RearrangeFeedPayload"}
+
+func (ec *executionContext) _RearrangeFeedPayload(ctx context.Context, sel ast.SelectionSet, obj *RearrangeFeedPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rearrangeFeedPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RearrangeFeedPayload")
+		case "feedId":
+			out.Values[i] = ec._RearrangeFeedPayload_feedId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7238,6 +7470,25 @@ func (ec *executionContext) marshalNPostsPayload2ᚖgithubᚗcomᚋabekohᚋsimp
 		return graphql.Null
 	}
 	return ec._PostsPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRearrangeFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRearrangeFeedInput(ctx context.Context, v any) (RearrangeFeedInput, error) {
+	res, err := ec.unmarshalInputRearrangeFeedInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRearrangeFeedPayload2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRearrangeFeedPayload(ctx context.Context, sel ast.SelectionSet, v RearrangeFeedPayload) graphql.Marshaler {
+	return ec._RearrangeFeedPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRearrangeFeedPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRearrangeFeedPayload(ctx context.Context, sel ast.SelectionSet, v *RearrangeFeedPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RearrangeFeedPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRegisterFeedInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐRegisterFeedInput(ctx context.Context, v any) (RegisterFeedInput, error) {

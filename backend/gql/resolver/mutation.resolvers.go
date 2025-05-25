@@ -110,6 +110,11 @@ func (r *mutationResolver) DeleteFeed(ctx context.Context, input gql.DeleteFeedI
 	}, nil
 }
 
+// RearrangeFeed is the resolver for the rearrangeFeed field.
+func (r *mutationResolver) RearrangeFeed(ctx context.Context, input gql.RearrangeFeedInput) (*gql.RearrangeFeedPayload, error) {
+	panic(fmt.Errorf("not implemented: RearrangeFeed - rearrangeFeed"))
+}
+
 // AddPostFavorite is the resolver for the addPostFavorite field.
 func (r *mutationResolver) AddPostFavorite(ctx context.Context, input gql.AddPostFavoriteInput) (*gql.AddPostFavoritePayload, error) {
 	postFavoriteID := uid.NewUUID(ctx)

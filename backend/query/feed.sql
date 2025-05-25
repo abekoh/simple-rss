@@ -27,13 +27,31 @@ SET
     idx = @idx,
     updated_at = now()
 WHERE
-    -- name: SelectFeed :one
-    SELECT
-        *
-    FROM
-        feeds
-    WHERE
-        feed_id = @feed_id;
+    feed_id = @feed_id;
+
+-- name: UpdateFeedIdxesDecrement :exec
+UPDATE
+    feeds
+SET
+    idx = idx - 1
+WHERE
+    idx BETWEEN @idx_from AND @idx_to;
+
+-- name: UpdateFeedIdxesIncrement :exec
+UPDATE
+    feeds
+SET
+    idx = idx + 1
+WHERE
+    idx BETWEEN @idx_from AND @idx_to;
+
+-- name: SelectFeed :one
+SELECT
+    *
+FROM
+    feeds
+WHERE
+    feed_id = @feed_id;
 
 -- name: SelectFeedForUpdate :one
 SELECT

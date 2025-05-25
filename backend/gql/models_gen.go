@@ -107,6 +107,15 @@ type PostsPayload struct {
 type Query struct {
 }
 
+type RearrangeFeedInput struct {
+	FeedID   string `json:"feedId"`
+	NewIndex int32  `json:"newIndex"`
+}
+
+type RearrangeFeedPayload struct {
+	FeedID string `json:"feedId"`
+}
+
 type RegisterFeedInput struct {
 	URL string `json:"url"`
 }

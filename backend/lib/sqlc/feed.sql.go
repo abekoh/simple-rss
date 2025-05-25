@@ -123,6 +123,20 @@ func (q *Queries) SelectFeedForUpdate(ctx context.Context, feedID string) (Feed,
 	return i, err
 }
 
+const selectFeedMaxIdx = `-- name: SelectFeedMaxIdx :one
+SELECT
+    MAX(idx)
+FROM
+    feeds
+`
+
+func (q *Queries) SelectFeedMaxIdx(ctx context.Context) (interface{}, error) {
+	row := q.db.QueryRow(ctx, selectFeedMaxIdx)
+	var max interface{}
+	err := row.Scan(&max)
+	return max, err
+}
+
 const selectFeeds = `-- name: SelectFeeds :many
 SELECT
     feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx
@@ -244,6 +258,64 @@ func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetched
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateFeedIdx = `-- name: UpdateFeedIdx :exec
+UPDATE
+    feeds
+SET
+    idx = $1,
+    updated_at = now()
+WHERE
+    feed_id = $2
+`
+
+type UpdateFeedIdxParams struct {
+	Idx    int32
+	FeedID string
+}
+
+func (q *Queries) UpdateFeedIdx(ctx context.Context, arg UpdateFeedIdxParams) error {
+	_, err := q.db.Exec(ctx, updateFeedIdx, arg.Idx, arg.FeedID)
+	return err
+}
+
+const updateFeedIdxesDecrement = `-- name: UpdateFeedIdxesDecrement :exec
+UPDATE
+    feeds
+SET
+    idx = idx - 1
+WHERE
+    idx BETWEEN $1 AND $2
+`
+
+type UpdateFeedIdxesDecrementParams struct {
+	IdxFrom int32
+	IdxTo   int32
+}
+
+func (q *Queries) UpdateFeedIdxesDecrement(ctx context.Context, arg UpdateFeedIdxesDecrementParams) error {
+	_, err := q.db.Exec(ctx, updateFeedIdxesDecrement, arg.IdxFrom, arg.IdxTo)
+	return err
+}
+
+const updateFeedIdxesIncrement = `-- name: UpdateFeedIdxesIncrement :exec
+UPDATE
+    feeds
+SET
+    idx = idx + 1
+WHERE
+    idx BETWEEN $1 AND $2
+`
+
+type UpdateFeedIdxesIncrementParams struct {
+	IdxFrom int32
+	IdxTo   int32
+}
+
+func (q *Queries) UpdateFeedIdxesIncrement(ctx context.Context, arg UpdateFeedIdxesIncrementParams) error {
+	_, err := q.db.Exec(ctx, updateFeedIdxesIncrement, arg.IdxFrom, arg.IdxTo)
+	return err
 }
 
 const updateFeedLastFetchedAt = `-- name: UpdateFeedLastFetchedAt :exec
