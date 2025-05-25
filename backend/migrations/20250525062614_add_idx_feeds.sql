@@ -10,8 +10,9 @@ ALTER TABLE feeds
 -- 既存のレコードに対して値を設定
 WITH feeds_with_row_num AS (
     SELECT
-        id,
-        ROW_NUMBER() OVER (ORDER BY registered_at DESC) AS row_num
+        feed_id,
+        ROW_NUMBER() OVER (ORDER BY registered_at ASC,
+            feed_id ASC) AS row_num
     FROM
         feeds)
 UPDATE
@@ -22,7 +23,7 @@ SET
 FROM
     feeds_with_row_num
 WHERE
-    feeds.id = feeds_with_row_num.id;
+    feeds.feed_id = feeds_with_row_num.feed_id;
 
 -- シーケンスの現在値を更新（既存の最大値の次の値に設定）
 SELECT
