@@ -1,71 +1,97 @@
 -- name: InsertPost :exec
-insert into posts (post_id, feed_id, title, description, author, url, posted_at, status)
-values (@post_id, @feed_id, @title, @description, @author, @url, @posted_at, @status);
+INSERT INTO posts(post_id, feed_id, title, description, author, url, posted_at, status)
+    VALUES (@post_id, @feed_id, @title, @description, @author, @url, @posted_at, @status);
 
 -- name: UpdatePost :exec
-update posts
-set title           = @title,
-    description     = @description,
-    author          = @author,
-    url             = @url,
-    posted_at       = @posted_at,
+UPDATE
+    posts
+SET
+    title = @title,
+    description = @description,
+    author = @author,
+    url = @url,
+    posted_at = @posted_at,
     last_fetched_at = @last_fetched_at,
-    status          = @status,
-    updated_at      = now()
-where post_id = @post_id;
+    status = @status,
+    updated_at = now()
+WHERE
+    post_id = @post_id;
 
 -- name: SelectPost :one
-select *
-from posts
-where post_id = @post_id;
+SELECT
+    *
+FROM
+    posts
+WHERE
+    post_id = @post_id;
 
 -- name: SelectPostForUpdate :one
-select *
-from posts
-where post_id = @post_id
-    for update;
+SELECT
+    *
+FROM
+    posts
+WHERE
+    post_id = @post_id
+FOR UPDATE;
 
 -- name: SelectPosts :many
-select count(*) over () as total_count,
-       sqlc.embed(p)
-from posts p
-left join post_favorites pf using (post_id)
-where ((cardinality(@feed_ids::uuid[]) = 0 or p.feed_id = ANY (@feed_ids::uuid[])))
-and (@only_have_favorites::boolean = false or pf.post_favorite_id is not null)
-order by case
-             when @ord::text = 'PostedAtAsc' then p.posted_at
-             end asc nulls last,
-         case
-             when @ord::text = 'PostedAtDesc' then p.posted_at
-             end desc nulls last,
-         p.posted_at desc nulls last
-limit @lim offset @off
-;
+SELECT
+    count(*) OVER () AS total_count,
+    sqlc.embed(p)
+FROM
+    posts p
+    LEFT JOIN post_favorites pf USING (post_id)
+WHERE ((cardinality(@feed_ids::uuid[]) = 0
+        OR p.feed_id = ANY (@feed_ids::uuid[])))
+AND (@only_have_favorites::boolean = FALSE
+    OR pf.post_favorite_id IS NOT NULL)
+ORDER BY
+    CASE WHEN @ord::text = 'PostedAtAsc' THEN
+        p.posted_at
+    END ASC nulls LAST,
+    CASE WHEN @ord::text = 'PostedAtDesc' THEN
+        p.posted_at
+    END DESC nulls LAST,
+    p.posted_at DESC nulls LAST
+LIMIT @lim offset @off;
 
 -- name: InsertPostFetch :exec
-insert into post_fetches (post_fetch_id, post_id, status, message, fetched_at)
-values (@post_fetch_id, @post_id, @status, @message, @fetched_at);
+INSERT INTO post_fetches(post_fetch_id, post_id, status, message, fetched_at)
+    VALUES (@post_fetch_id, @post_id, @status, @message, @fetched_at);
 
 -- name: InsertPostSummary :exec
-insert into post_summaries (post_summary_id, post_id, summarize_method, summary, summarized_at)
-values (@post_summary_id, @post_id, @summarize_method, @summary, @summarized_at);
+INSERT INTO post_summaries(post_summary_id, post_id, summarize_method, summary, summarized_at)
+    VALUES (@post_summary_id, @post_id, @summarize_method, @summary, @summarized_at);
 
 -- name: SelectPostSummariesByPostIDs :many
-select *
-from post_summaries
-where post_id = ANY (@post_ids::uuid[]);
+SELECT
+    *
+FROM
+    post_summaries
+WHERE
+    post_id = ANY (@post_ids::uuid[]);
 
 -- name: SelectPostFavoritesByPostIDs :many
-select *
-from post_favorites
-where post_id = ANY (@post_ids::uuid[]);
+SELECT
+    *
+FROM
+    post_favorites
+WHERE
+    post_id = ANY (@post_ids::uuid[]);
 
 -- name: SelectPostFavorite :one
-select * from post_favorites where post_favorite_id = @post_favorite_id;
+SELECT
+    *
+FROM
+    post_favorites
+WHERE
+    post_favorite_id = @post_favorite_id;
 
 -- name: InsertPostFavorite :exec
-insert into post_favorites (post_favorite_id, post_id, added_at)
-values (@post_favorite_id, @post_id, @added_at);
+INSERT INTO post_favorites(post_favorite_id, post_id, added_at)
+    VALUES (@post_favorite_id, @post_id, @added_at);
 
 -- name: DeletePostFavorite :exec
-delete from post_favorites where post_favorite_id = @post_favorite_id;
+DELETE FROM post_favorites
+WHERE post_favorite_id = @post_favorite_id;
+

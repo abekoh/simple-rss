@@ -140,12 +140,13 @@ func (ns NullPostStatus) Value() (driver.Value, error) {
 type Feed struct {
 	FeedID        string
 	Url           string
-	Title         string
+	TitleOriginal string
 	Description   *string
 	RegisteredAt  time.Time
 	LastFetchedAt *time.Time
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	TitleEditted  *string
 }
 
 type FeedFetch struct {

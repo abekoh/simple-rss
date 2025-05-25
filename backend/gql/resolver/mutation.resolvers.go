@@ -40,9 +40,9 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 			newFeedID := uid.NewUUID(ctx)
 			newFeedIDs = append(newFeedIDs, newFeedID)
 			if err := database.FromContext(ctx).Queries().InsertFeed(ctx, sqlc.InsertFeedParams{
-				FeedID: newFeedID,
-				Url:    feedURL,
-				Title:  feedContent.Title,
+				FeedID:        newFeedID,
+				Url:           feedURL,
+				TitleOriginal: feedContent.Title,
 				Description: func() *string {
 					if feedContent.Description == "" {
 						return nil

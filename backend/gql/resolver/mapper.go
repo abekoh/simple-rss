@@ -15,9 +15,14 @@ func mapSlice[T, U any](xs []T, f func(x T) U) []U {
 
 func mapFeed(x sqlc.Feed) *gql.Feed {
 	return &gql.Feed{
-		FeedID:       x.FeedID,
-		URL:          x.Url,
-		Title:        x.Title,
+		FeedID: x.FeedID,
+		URL:    x.Url,
+		Title: func() string {
+			if x.TitleEditted != nil {
+				return *x.TitleEditted
+			}
+			return x.TitleOriginal
+		}(),
 		Description:  x.Description,
 		RegisteredAt: x.RegisteredAt,
 	}

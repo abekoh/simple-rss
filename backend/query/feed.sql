@@ -1,43 +1,74 @@
 -- name: InsertFeed :exec
-insert into feeds (feed_id, url, title, description, registered_at)
-values (@feed_id, @url, @title, @description, @registered_at);
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
+    VALUES (@feed_id, @url, @title_original, @description, @registered_at);
 
 -- name: UpdateFeedLastFetchedAt :exec
-update feeds
-set last_fetched_at = @last_fetched_at::timestamp with time zone,
-    updated_at      = now();
+UPDATE
+    feeds
+SET
+    last_fetched_at = @last_fetched_at::timestamp with time zone,
+    updated_at = now()
+WHERE
+    feed_id = @feed_id;
+
+-- name: UpdateFeedTitle :exec
+UPDATE
+    feeds
+SET
+    title_editted = @title_editted,
+    updated_at = now()
+WHERE
+    feed_id = @feed_id;
 
 -- name: SelectFeed :one
-select *
-from feeds
-where feed_id = @feed_id;
+SELECT
+    *
+FROM
+    feeds
+WHERE
+    feed_id = @feed_id;
 
 -- name: SelectFeedForUpdate :one
-select *
-from feeds
-where feed_id = @feed_id for update;
+SELECT
+    *
+FROM
+    feeds
+WHERE
+    feed_id = @feed_id
+FOR UPDATE;
 
 -- name: SelectFeeds :many
-select *
-from feeds
-where feed_id = ANY (@feed_ids::uuid[]);
+SELECT
+    *
+FROM
+    feeds
+WHERE
+    feed_id = ANY (@feed_ids::uuid[]);
 
 -- name: SelectFeedsOrderByRegisteredAtAsc :many
-select *
-from feeds
-order by registered_at asc;
+SELECT
+    *
+FROM
+    feeds
+ORDER BY
+    registered_at ASC;
 
 -- name: SelectRecentlyNotFetchedFeeds :many
-select *
-from feeds
-where last_fetched_at is null or last_fetched_at < @last_fetched_at_threshold::timestamp with time zone
-order by last_fetched_at asc;
+SELECT
+    *
+FROM
+    feeds
+WHERE
+    last_fetched_at IS NULL
+    OR last_fetched_at < @last_fetched_at_threshold::timestamp with time zone
+ORDER BY
+    last_fetched_at ASC;
 
 -- name: DeleteFeed :exec
-delete
-from feeds
-where feed_id = @feed_id;
+DELETE FROM feeds
+WHERE feed_id = @feed_id;
 
 -- name: InsertFeedFetch :exec
-insert into feed_fetches (feed_fetch_id, feed_id, status, message, fetched_at)
-values (@feed_fetch_id, @feed_id, @status, @message, @fetched_at);
+INSERT INTO feed_fetches(feed_fetch_id, feed_id, status, message, fetched_at)
+    VALUES (@feed_fetch_id, @feed_id, @status, @message, @fetched_at);
+

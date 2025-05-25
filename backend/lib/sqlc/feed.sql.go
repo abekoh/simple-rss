@@ -11,9 +11,8 @@ import (
 )
 
 const deleteFeed = `-- name: DeleteFeed :exec
-delete
-from feeds
-where feed_id = $1
+DELETE FROM feeds
+WHERE feed_id = $1
 `
 
 func (q *Queries) DeleteFeed(ctx context.Context, feedID string) error {
@@ -22,23 +21,23 @@ func (q *Queries) DeleteFeed(ctx context.Context, feedID string) error {
 }
 
 const insertFeed = `-- name: InsertFeed :exec
-insert into feeds (feed_id, url, title, description, registered_at)
-values ($1, $2, $3, $4, $5)
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
+    VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertFeedParams struct {
-	FeedID       string
-	Url          string
-	Title        string
-	Description  *string
-	RegisteredAt time.Time
+	FeedID        string
+	Url           string
+	TitleOriginal string
+	Description   *string
+	RegisteredAt  time.Time
 }
 
 func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
 	_, err := q.db.Exec(ctx, insertFeed,
 		arg.FeedID,
 		arg.Url,
-		arg.Title,
+		arg.TitleOriginal,
 		arg.Description,
 		arg.RegisteredAt,
 	)
@@ -46,8 +45,8 @@ func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
 }
 
 const insertFeedFetch = `-- name: InsertFeedFetch :exec
-insert into feed_fetches (feed_fetch_id, feed_id, status, message, fetched_at)
-values ($1, $2, $3, $4, $5)
+INSERT INTO feed_fetches(feed_fetch_id, feed_id, status, message, fetched_at)
+    VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertFeedFetchParams struct {
@@ -70,9 +69,12 @@ func (q *Queries) InsertFeedFetch(ctx context.Context, arg InsertFeedFetchParams
 }
 
 const selectFeed = `-- name: SelectFeed :one
-select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
-from feeds
-where feed_id = $1
+SELECT
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted
+FROM
+    feeds
+WHERE
+    feed_id = $1
 `
 
 func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
@@ -81,20 +83,25 @@ func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
 	err := row.Scan(
 		&i.FeedID,
 		&i.Url,
-		&i.Title,
+		&i.TitleOriginal,
 		&i.Description,
 		&i.RegisteredAt,
 		&i.LastFetchedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TitleEditted,
 	)
 	return i, err
 }
 
 const selectFeedForUpdate = `-- name: SelectFeedForUpdate :one
-select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
-from feeds
-where feed_id = $1 for update
+SELECT
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted
+FROM
+    feeds
+WHERE
+    feed_id = $1
+FOR UPDATE
 `
 
 func (q *Queries) SelectFeedForUpdate(ctx context.Context, feedID string) (Feed, error) {
@@ -103,20 +110,24 @@ func (q *Queries) SelectFeedForUpdate(ctx context.Context, feedID string) (Feed,
 	err := row.Scan(
 		&i.FeedID,
 		&i.Url,
-		&i.Title,
+		&i.TitleOriginal,
 		&i.Description,
 		&i.RegisteredAt,
 		&i.LastFetchedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TitleEditted,
 	)
 	return i, err
 }
 
 const selectFeeds = `-- name: SelectFeeds :many
-select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
-from feeds
-where feed_id = ANY ($1::uuid[])
+SELECT
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted
+FROM
+    feeds
+WHERE
+    feed_id = ANY ($1::uuid[])
 `
 
 func (q *Queries) SelectFeeds(ctx context.Context, feedIds []string) ([]Feed, error) {
@@ -131,12 +142,13 @@ func (q *Queries) SelectFeeds(ctx context.Context, feedIds []string) ([]Feed, er
 		if err := rows.Scan(
 			&i.FeedID,
 			&i.Url,
-			&i.Title,
+			&i.TitleOriginal,
 			&i.Description,
 			&i.RegisteredAt,
 			&i.LastFetchedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.TitleEditted,
 		); err != nil {
 			return nil, err
 		}
@@ -149,9 +161,12 @@ func (q *Queries) SelectFeeds(ctx context.Context, feedIds []string) ([]Feed, er
 }
 
 const selectFeedsOrderByRegisteredAtAsc = `-- name: SelectFeedsOrderByRegisteredAtAsc :many
-select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
-from feeds
-order by registered_at asc
+SELECT
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted
+FROM
+    feeds
+ORDER BY
+    registered_at ASC
 `
 
 func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed, error) {
@@ -166,12 +181,13 @@ func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed
 		if err := rows.Scan(
 			&i.FeedID,
 			&i.Url,
-			&i.Title,
+			&i.TitleOriginal,
 			&i.Description,
 			&i.RegisteredAt,
 			&i.LastFetchedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.TitleEditted,
 		); err != nil {
 			return nil, err
 		}
@@ -184,10 +200,15 @@ func (q *Queries) SelectFeedsOrderByRegisteredAtAsc(ctx context.Context) ([]Feed
 }
 
 const selectRecentlyNotFetchedFeeds = `-- name: SelectRecentlyNotFetchedFeeds :many
-select feed_id, url, title, description, registered_at, last_fetched_at, created_at, updated_at
-from feeds
-where last_fetched_at is null or last_fetched_at < $1::timestamp with time zone
-order by last_fetched_at asc
+SELECT
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted
+FROM
+    feeds
+WHERE
+    last_fetched_at IS NULL
+    OR last_fetched_at < $1::timestamp with time zone
+ORDER BY
+    last_fetched_at ASC
 `
 
 func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetchedAtThreshold time.Time) ([]Feed, error) {
@@ -202,12 +223,13 @@ func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetched
 		if err := rows.Scan(
 			&i.FeedID,
 			&i.Url,
-			&i.Title,
+			&i.TitleOriginal,
 			&i.Description,
 			&i.RegisteredAt,
 			&i.LastFetchedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.TitleEditted,
 		); err != nil {
 			return nil, err
 		}
@@ -220,12 +242,41 @@ func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetched
 }
 
 const updateFeedLastFetchedAt = `-- name: UpdateFeedLastFetchedAt :exec
-update feeds
-set last_fetched_at = $1::timestamp with time zone,
-    updated_at      = now()
+UPDATE
+    feeds
+SET
+    last_fetched_at = $1::timestamp with time zone,
+    updated_at = now()
+WHERE
+    feed_id = $2
 `
 
-func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, lastFetchedAt time.Time) error {
-	_, err := q.db.Exec(ctx, updateFeedLastFetchedAt, lastFetchedAt)
+type UpdateFeedLastFetchedAtParams struct {
+	LastFetchedAt time.Time
+	FeedID        string
+}
+
+func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, arg UpdateFeedLastFetchedAtParams) error {
+	_, err := q.db.Exec(ctx, updateFeedLastFetchedAt, arg.LastFetchedAt, arg.FeedID)
+	return err
+}
+
+const updateFeedTitle = `-- name: UpdateFeedTitle :exec
+UPDATE
+    feeds
+SET
+    title_editted = $1,
+    updated_at = now()
+WHERE
+    feed_id = $2
+`
+
+type UpdateFeedTitleParams struct {
+	TitleEditted *string
+	FeedID       string
+}
+
+func (q *Queries) UpdateFeedTitle(ctx context.Context, arg UpdateFeedTitleParams) error {
+	_, err := q.db.Exec(ctx, updateFeedTitle, arg.TitleEditted, arg.FeedID)
 	return err
 }

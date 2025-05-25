@@ -11,7 +11,8 @@ import (
 )
 
 const deletePostFavorite = `-- name: DeletePostFavorite :exec
-delete from post_favorites where post_favorite_id = $1
+DELETE FROM post_favorites
+WHERE post_favorite_id = $1
 `
 
 func (q *Queries) DeletePostFavorite(ctx context.Context, postFavoriteID string) error {
@@ -20,8 +21,8 @@ func (q *Queries) DeletePostFavorite(ctx context.Context, postFavoriteID string)
 }
 
 const insertPost = `-- name: InsertPost :exec
-insert into posts (post_id, feed_id, title, description, author, url, posted_at, status)
-values ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO posts(post_id, feed_id, title, description, author, url, posted_at, status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 `
 
 type InsertPostParams struct {
@@ -50,8 +51,8 @@ func (q *Queries) InsertPost(ctx context.Context, arg InsertPostParams) error {
 }
 
 const insertPostFavorite = `-- name: InsertPostFavorite :exec
-insert into post_favorites (post_favorite_id, post_id, added_at)
-values ($1, $2, $3)
+INSERT INTO post_favorites(post_favorite_id, post_id, added_at)
+    VALUES ($1, $2, $3)
 `
 
 type InsertPostFavoriteParams struct {
@@ -66,8 +67,8 @@ func (q *Queries) InsertPostFavorite(ctx context.Context, arg InsertPostFavorite
 }
 
 const insertPostFetch = `-- name: InsertPostFetch :exec
-insert into post_fetches (post_fetch_id, post_id, status, message, fetched_at)
-values ($1, $2, $3, $4, $5)
+INSERT INTO post_fetches(post_fetch_id, post_id, status, message, fetched_at)
+    VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertPostFetchParams struct {
@@ -90,8 +91,8 @@ func (q *Queries) InsertPostFetch(ctx context.Context, arg InsertPostFetchParams
 }
 
 const insertPostSummary = `-- name: InsertPostSummary :exec
-insert into post_summaries (post_summary_id, post_id, summarize_method, summary, summarized_at)
-values ($1, $2, $3, $4, $5)
+INSERT INTO post_summaries(post_summary_id, post_id, summarize_method, summary, summarized_at)
+    VALUES ($1, $2, $3, $4, $5)
 `
 
 type InsertPostSummaryParams struct {
@@ -114,9 +115,12 @@ func (q *Queries) InsertPostSummary(ctx context.Context, arg InsertPostSummaryPa
 }
 
 const selectPost = `-- name: SelectPost :one
-select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
-from posts
-where post_id = $1
+SELECT
+    post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
+FROM
+    posts
+WHERE
+    post_id = $1
 `
 
 func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
@@ -139,7 +143,12 @@ func (q *Queries) SelectPost(ctx context.Context, postID string) (Post, error) {
 }
 
 const selectPostFavorite = `-- name: SelectPostFavorite :one
-select post_favorite_id, post_id, added_at, created_at from post_favorites where post_favorite_id = $1
+SELECT
+    post_favorite_id, post_id, added_at, created_at
+FROM
+    post_favorites
+WHERE
+    post_favorite_id = $1
 `
 
 func (q *Queries) SelectPostFavorite(ctx context.Context, postFavoriteID string) (PostFavorite, error) {
@@ -155,9 +164,12 @@ func (q *Queries) SelectPostFavorite(ctx context.Context, postFavoriteID string)
 }
 
 const selectPostFavoritesByPostIDs = `-- name: SelectPostFavoritesByPostIDs :many
-select post_favorite_id, post_id, added_at, created_at
-from post_favorites
-where post_id = ANY ($1::uuid[])
+SELECT
+    post_favorite_id, post_id, added_at, created_at
+FROM
+    post_favorites
+WHERE
+    post_id = ANY ($1::uuid[])
 `
 
 func (q *Queries) SelectPostFavoritesByPostIDs(ctx context.Context, postIds []string) ([]PostFavorite, error) {
@@ -186,10 +198,13 @@ func (q *Queries) SelectPostFavoritesByPostIDs(ctx context.Context, postIds []st
 }
 
 const selectPostForUpdate = `-- name: SelectPostForUpdate :one
-select post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
-from posts
-where post_id = $1
-    for update
+SELECT
+    post_id, feed_id, url, title, description, author, status, posted_at, last_fetched_at, created_at, updated_at
+FROM
+    posts
+WHERE
+    post_id = $1
+FOR UPDATE
 `
 
 func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post, error) {
@@ -212,9 +227,12 @@ func (q *Queries) SelectPostForUpdate(ctx context.Context, postID string) (Post,
 }
 
 const selectPostSummariesByPostIDs = `-- name: SelectPostSummariesByPostIDs :many
-select post_summary_id, post_id, summarize_method, summary, summarized_at, created_at
-from post_summaries
-where post_id = ANY ($1::uuid[])
+SELECT
+    post_summary_id, post_id, summarize_method, summary, summarized_at, created_at
+FROM
+    post_summaries
+WHERE
+    post_id = ANY ($1::uuid[])
 `
 
 func (q *Queries) SelectPostSummariesByPostIDs(ctx context.Context, postIds []string) ([]PostSummary, error) {
@@ -245,20 +263,25 @@ func (q *Queries) SelectPostSummariesByPostIDs(ctx context.Context, postIds []st
 }
 
 const selectPosts = `-- name: SelectPosts :many
-select count(*) over () as total_count,
-       p.post_id, p.feed_id, p.url, p.title, p.description, p.author, p.status, p.posted_at, p.last_fetched_at, p.created_at, p.updated_at
-from posts p
-left join post_favorites pf using (post_id)
-where ((cardinality($1::uuid[]) = 0 or p.feed_id = ANY ($1::uuid[])))
-and ($2::boolean = false or pf.post_favorite_id is not null)
-order by case
-             when $3::text = 'PostedAtAsc' then p.posted_at
-             end asc nulls last,
-         case
-             when $3::text = 'PostedAtDesc' then p.posted_at
-             end desc nulls last,
-         p.posted_at desc nulls last
-limit $5 offset $4
+SELECT
+    count(*) OVER () AS total_count,
+    p.post_id, p.feed_id, p.url, p.title, p.description, p.author, p.status, p.posted_at, p.last_fetched_at, p.created_at, p.updated_at
+FROM
+    posts p
+    LEFT JOIN post_favorites pf USING (post_id)
+WHERE ((cardinality($1::uuid[]) = 0
+        OR p.feed_id = ANY ($1::uuid[])))
+AND ($2::boolean = FALSE
+    OR pf.post_favorite_id IS NOT NULL)
+ORDER BY
+    CASE WHEN $3::text = 'PostedAtAsc' THEN
+        p.posted_at
+    END ASC nulls LAST,
+    CASE WHEN $3::text = 'PostedAtDesc' THEN
+        p.posted_at
+    END DESC nulls LAST,
+    p.posted_at DESC nulls LAST
+LIMIT $5 offset $4
 `
 
 type SelectPostsParams struct {
@@ -314,16 +337,19 @@ func (q *Queries) SelectPosts(ctx context.Context, arg SelectPostsParams) ([]Sel
 }
 
 const updatePost = `-- name: UpdatePost :exec
-update posts
-set title           = $1,
-    description     = $2,
-    author          = $3,
-    url             = $4,
-    posted_at       = $5,
+UPDATE
+    posts
+SET
+    title = $1,
+    description = $2,
+    author = $3,
+    url = $4,
+    posted_at = $5,
     last_fetched_at = $6,
-    status          = $7,
-    updated_at      = now()
-where post_id = $8
+    status = $7,
+    updated_at = now()
+WHERE
+    post_id = $8
 `
 
 type UpdatePostParams struct {
