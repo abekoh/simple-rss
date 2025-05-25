@@ -125,16 +125,16 @@ func (q *Queries) SelectFeedForUpdate(ctx context.Context, feedID string) (Feed,
 
 const selectFeedMaxIdx = `-- name: SelectFeedMaxIdx :one
 SELECT
-    MAX(idx)
+    MAX(idx)::int
 FROM
     feeds
 `
 
-func (q *Queries) SelectFeedMaxIdx(ctx context.Context) (interface{}, error) {
+func (q *Queries) SelectFeedMaxIdx(ctx context.Context) (int32, error) {
 	row := q.db.QueryRow(ctx, selectFeedMaxIdx)
-	var max interface{}
-	err := row.Scan(&max)
-	return max, err
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const selectFeeds = `-- name: SelectFeeds :many

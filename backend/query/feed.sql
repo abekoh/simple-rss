@@ -64,7 +64,7 @@ FOR UPDATE;
 
 -- name: SelectFeedMaxIdx :one
 SELECT
-    MAX(idx)
+    MAX(idx)::int
 FROM
     feeds;
 

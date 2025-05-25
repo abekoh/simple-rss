@@ -112,7 +112,66 @@ func (r *mutationResolver) DeleteFeed(ctx context.Context, input gql.DeleteFeedI
 
 // RearrangeFeed is the resolver for the rearrangeFeed field.
 func (r *mutationResolver) RearrangeFeed(ctx context.Context, input gql.RearrangeFeedInput) (*gql.RearrangeFeedPayload, error) {
-	panic(fmt.Errorf("not implemented: RearrangeFeed - rearrangeFeed"))
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		// 1. 対象のフィードを取得（FOR UPDATE）
+		feed, err := database.FromContext(c).Queries().SelectFeedForUpdate(c, input.FeedID)
+		if err != nil {
+			return fmt.Errorf("failed to select feed: %w", err)
+		}
+
+		// 2. 現在のインデックスと新しいインデックスが同じ場合は何もしない
+		if feed.Idx == int32(input.NewIndex) {
+			return nil
+		}
+
+		// 3. 最大インデックスを取得して、新しいインデックスが範囲内かチェック
+		maxIdx, err := database.FromContext(c).Queries().SelectFeedMaxIdx(c)
+		if err != nil {
+			return fmt.Errorf("failed to get max index: %w", err)
+		}
+
+		// 新しいインデックスが最大値を超えていないかチェック
+		if int32(input.NewIndex) > maxIdx {
+			return fmt.Errorf("new index exceeds maximum index: %d", maxIdx)
+		}
+
+		// 4. インデックスの移動方向に応じて、影響を受けるフィードのインデックスを調整
+		if feed.Idx > int32(input.NewIndex) {
+			// 現在位置より前に移動する場合（例：5→3）
+			// 新しい位置から現在位置の前までのインデックスをインクリメント
+			if err := database.FromContext(c).Queries().UpdateFeedIdxesIncrement(c, sqlc.UpdateFeedIdxesIncrementParams{
+				IdxFrom: int32(input.NewIndex),
+				IdxTo:   feed.Idx - 1,
+			}); err != nil {
+				return fmt.Errorf("failed to increment indexes: %w", err)
+			}
+		} else {
+			// 現在位置より後ろに移動する場合（例：3→5）
+			// 現在位置の次から新しい位置までのインデックスをデクリメント
+			if err := database.FromContext(c).Queries().UpdateFeedIdxesDecrement(c, sqlc.UpdateFeedIdxesDecrementParams{
+				IdxFrom: feed.Idx + 1,
+				IdxTo:   int32(input.NewIndex),
+			}); err != nil {
+				return fmt.Errorf("failed to decrement indexes: %w", err)
+			}
+		}
+
+		// 5. 対象のフィードのインデックスを更新
+		if err := database.FromContext(c).Queries().UpdateFeedIdx(c, sqlc.UpdateFeedIdxParams{
+			FeedID: input.FeedID,
+			Idx:    int32(input.NewIndex),
+		}); err != nil {
+			return fmt.Errorf("failed to update feed index: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("failed in transaction: %w", err)
+	}
+
+	return &gql.RearrangeFeedPayload{
+		FeedID: input.FeedID,
+	}, nil
 }
 
 // AddPostFavorite is the resolver for the addPostFavorite field.
