@@ -155,6 +155,9 @@ func main() {
 		for {
 			ppResult := <-postFetcherResultCh
 			slog.Info("post fetcher result", "post_id", ppResult.PostID)
+			if !cnf.EnableSummarize {
+				continue
+			}
 			summarizerRequestCh <- summarizer.Request{
 				PostID: ppResult.PostID,
 			}
