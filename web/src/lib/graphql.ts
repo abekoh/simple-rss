@@ -85,3 +85,12 @@ export const REMOVE_POST_FAVORITE = gql`
     }
   }
 `;
+
+// フィードのタイトルを変更するミューテーション
+export const RENAME_FEED_TITLE = gql`
+  mutation RenameFeedTitle($input: RenameFeedTitleInput!) {
+    renameFeedTitle(input: $input) {
+      feedId
+    }
+  }
+`;

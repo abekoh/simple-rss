@@ -11,9 +11,12 @@ import {
   Dialog,
   Portal,
   Stack,
+  Input,
+  Field,
 } from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
-import { LuTrash } from "react-icons/lu";
+import { LuTrash, LuPencilLine } from "react-icons/lu";
+import { useState } from "react";
 
 import { PostItem } from "./post-item";
 import { GetPostsQuery } from "../generated/graphql";
@@ -28,8 +31,11 @@ interface PostListProps {
   currentPage: number;
   itemsPerPage?: number;
   showDeleteButton?: boolean;
+  showEditButton?: boolean;
   feedUrl?: string;
   onDeleteClick?: () => void;
+  onEditClick?: (newTitle: string) => void;
+  onEditDialogOpen?: () => void;
 }
 
 export const PostList = ({
@@ -43,14 +49,70 @@ export const PostList = ({
   currentPage,
   itemsPerPage = 10,
   showDeleteButton = false,
+  showEditButton = false,
   onDeleteClick,
+  onEditClick,
+  onEditDialogOpen,
 }: PostListProps) => {
+  const [editTitle, setEditTitle] = useState("");
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   return (
     <Box>
       <Stack gap={0}>
         <Flex alignItems="center">
           <Heading size="md">{title}</Heading>
+          {showEditButton && (
+            <Dialog.Root lazyMount>
+              <Dialog.Trigger asChild>
+                <IconButton
+                  aria-label="フィードタイトルを変更"
+                  variant="ghost"
+                  size="sm"
+                  ml={2}
+                  onClick={() => {
+                    setEditTitle(typeof title === "string" ? title : "");
+                    onEditDialogOpen?.();
+                  }}
+                >
+                  <LuPencilLine />
+                </IconButton>
+              </Dialog.Trigger>
+              <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                  <Dialog.Content>
+                    <Dialog.Header>
+                      <Dialog.Title>フィードタイトルの変更</Dialog.Title>
+                      <Dialog.CloseTrigger />
+                    </Dialog.Header>
+                    <Dialog.Body>
+                      <Field.Root>
+                        <Field.Label>新しいタイトル</Field.Label>
+                        <Input
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="新しいタイトルを入力"
+                        />
+                      </Field.Root>
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                      <Dialog.CloseTrigger asChild>
+                        <Button variant="outline">キャンセル</Button>
+                      </Dialog.CloseTrigger>
+                      <Dialog.CloseTrigger asChild>
+                        <Button
+                          colorScheme="blue"
+                          onClick={() => onEditClick?.(editTitle)}
+                        >
+                          変更
+                        </Button>
+                      </Dialog.CloseTrigger>
+                    </Dialog.Footer>
+                  </Dialog.Content>
+                </Dialog.Positioner>
+              </Portal>
+            </Dialog.Root>
+          )}
           {showDeleteButton && (
             <Dialog.Root lazyMount>
               <Dialog.Trigger asChild>

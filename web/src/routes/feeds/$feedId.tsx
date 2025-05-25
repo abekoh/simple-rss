@@ -1,4 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { LuPencilLine } from "react-icons/lu";
 
 import { PostList } from "../../components/post-list";
 import { toaster } from "../../components/ui/toaster";
@@ -7,6 +10,8 @@ import {
   PostsInputOrder,
   useDeleteFeedMutation,
 } from "../../generated/graphql";
+import { RENAME_FEED_TITLE } from "../../lib/graphql";
+import { Dialog, Button, Input, Field, IconButton } from "@chakra-ui/react";
 
 // 検索パラメータの型定義
 interface FeedDetailSearch {
@@ -28,6 +33,27 @@ function FeedDetail() {
   const { page } = Route.useSearch();
   const itemsPerPage = 10;
   const navigate = useNavigate();
+  const [newTitle, setNewTitle] = useState("");
+
+  // フィードタイトル変更ミューテーション
+  const [renameFeedTitle, { loading: renameLoading }] = useMutation(
+    RENAME_FEED_TITLE,
+    {
+      onCompleted: () => {
+        toaster.create({
+          title: "フィードタイトルを変更しました",
+          type: "success",
+        });
+      },
+      onError: (error) => {
+        toaster.create({
+          title: "フィードタイトルの変更に失敗しました",
+          description: error.message,
+          type: "error",
+        });
+      },
+    }
+  );
 
   // フィード削除ミューテーション
   const [deleteFeed, { loading: deleteLoading }] = useDeleteFeedMutation({
@@ -89,18 +115,52 @@ function FeedDetail() {
     });
   };
 
+  // フィードタイトル変更ハンドラー
+  const handleRenameFeedTitle = () => {
+    if (!newTitle.trim()) return;
+
+    renameFeedTitle({
+      variables: {
+        input: {
+          feedId,
+          newTitle: newTitle.trim(),
+        },
+      },
+      update: (cache) => {
+        // キャッシュを更新
+        cache.modify({
+          id: cache.identify({
+            __typename: "Feed",
+            feedId,
+          }),
+          fields: {
+            title: () => newTitle.trim(),
+          },
+        });
+      },
+    });
+  };
+
+  // ダイアログを開いたときに現在のタイトルをセット
+  const handleOpenRenameDialog = () => {
+    setNewTitle(feedTitle);
+  };
+
   return (
     <PostList
       title={feedTitle}
       posts={posts}
       totalCount={totalCount}
-      loading={postsLoading || deleteLoading}
+      loading={postsLoading || deleteLoading || renameLoading}
       error={postsError}
       baseUrl={`/feeds/${feedId}`}
       currentPage={page}
       itemsPerPage={itemsPerPage}
       showDeleteButton={true}
+      showEditButton={true}
       onDeleteClick={handleDeleteFeed}
+      onEditClick={handleRenameFeedTitle}
+      onEditDialogOpen={handleOpenRenameDialog}
       feedUrl={feedUrl}
     />
   );
