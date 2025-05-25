@@ -34,11 +34,11 @@ where ((cardinality(@feed_ids::uuid[]) = 0 or p.feed_id = ANY (@feed_ids::uuid[]
 and (@only_have_favorites::boolean = false or pf.post_favorite_id is not null)
 order by case
              when @ord::text = 'PostedAtAsc' then p.posted_at
-             end asc,
+             end asc nulls last,
          case
              when @ord::text = 'PostedAtDesc' then p.posted_at
-             end desc,
-         p.posted_at desc
+             end desc nulls last,
+         p.posted_at desc nulls last
 limit @lim offset @off
 ;
 

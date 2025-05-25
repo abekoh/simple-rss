@@ -253,11 +253,11 @@ where ((cardinality($1::uuid[]) = 0 or p.feed_id = ANY ($1::uuid[])))
 and ($2::boolean = false or pf.post_favorite_id is not null)
 order by case
              when $3::text = 'PostedAtAsc' then p.posted_at
-             end asc,
+             end asc nulls last,
          case
              when $3::text = 'PostedAtDesc' then p.posted_at
-             end desc,
-         p.posted_at desc
+             end desc nulls last,
+         p.posted_at desc nulls last
 limit $5 offset $4
 `
 
