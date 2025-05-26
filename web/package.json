@@ -32,7 +32,7 @@
     "@graphql-codegen/cli": "5.0.6",
     "@graphql-codegen/typescript": "4.1.6",
     "@graphql-codegen/typescript-operations": "4.6.1",
-    "@graphql-codegen/typescript-react-apollo": "4.3.2",
+    "@graphql-codegen/typescript-react-apollo": "4.3.3",
     "@tanstack/router-plugin": "1.120.10",
     "@types/react": "19.1.5",
     "@types/react-dom": "19.1.5",
