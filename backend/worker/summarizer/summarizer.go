@@ -119,7 +119,8 @@ DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.
 					summarized = fmt.Sprintf(`## 元記事
 %s
 ## Comments from Hacker News
-%s`, sum, commentsSum)
+%s
+%s`, sum, commentsUrl, commentsSum)
 				}
 			}
 		default:
