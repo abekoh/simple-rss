@@ -104,15 +104,21 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 			if post.Description != nil {
 				commentsUrl, err := getCommentLinkFromHNRSS(*post.Description)
 				if err == nil {
-					commentsSum, err := s.summarize(ctx, commentsUrl)
+					commentsSum, err := s.summarize(ctx, commentsUrl, func(option *summarizeOption) {
+						option.prompt = `Summarize comments this page in Japanese. 
+Result must be format in markdown. Use unordered list aggressively.
+Do not include the title of the page, just the content.
+Maximum number of lines is about 30.
+The maximum number of lines is about 30.
+DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.`
+					})
 					if err != nil {
 						return fmt.Errorf("failed to summarize comments: %w", err)
 					}
 					summarized = fmt.Sprintf(`## 元記事
 %s
 ## Comments from Hacker News
-%s
-`, sum, commentsSum)
+%s`, sum, commentsSum)
 				}
 			}
 		default:
