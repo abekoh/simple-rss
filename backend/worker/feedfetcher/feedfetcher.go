@@ -119,15 +119,25 @@ func (ff FeedFetcher) handleRequest(ctx context.Context, req Request) {
 
 		postID := uid.NewUUID(ctx)
 
-		var postedAt *time.Time
 		// 投稿日時がない場合は更新日時を使う
 		// 更新日時がない場合はフィードの更新日時を使う
+		var postedAt *time.Time
 		if item.PublishedParsed != nil {
 			postedAt = item.PublishedParsed
 		} else if item.UpdatedParsed != nil {
 			postedAt = item.UpdatedParsed
 		} else {
 			postedAt = feedParsed.UpdatedParsed
+		}
+
+		// 投稿日時がない場合はスキップする
+		if postedAt == nil {
+			break
+		}
+		// 投稿日時が現在時刻の2時間後以降の場合はスキップする
+		now := clock.Now(ctx)
+		if postedAt.After(now.Add(2 * time.Hour)) {
+			break
 		}
 
 		if err := database.FromContext(ctx).Queries().InsertPost(ctx, sqlc.InsertPostParams{
