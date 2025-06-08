@@ -10,8 +10,6 @@ cloud.google.com/go/compute/metadata v0.6.0 h1:A6hENjEsCDtC1k8byVsgwvVcioamEHvZ4
 cloud.google.com/go/compute/metadata v0.6.0/go.mod h1:FjyFAW1MW0C203CEOMDTu3Dk1FlqW3Rga40jzHL4hfg=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
-github.com/99designs/gqlgen v0.17.73 h1:A3Ki+rHWqKbAOlg5fxiZBnz6OjW3nwupDHEG15gEsrg=
-github.com/99designs/gqlgen v0.17.73/go.mod h1:2RyGWjy2k7W9jxrs8MOQthXGkD3L3oGr0jXW3Pu8lGg=
 github.com/99designs/gqlgen v0.17.74 h1:1FuVtkXxOc87xpKio3f6sohREmec+Jvy86PcYOuwgWo=
 github.com/99designs/gqlgen v0.17.74/go.mod h1:a+iR6mfRLNRp++kDpooFHiPWYiWX3Yu1BIilQRHgh10=
 github.com/Azure/azure-sdk-for-go/sdk/azcore v1.11.1 h1:E+OJmp2tPvt1W+amx48v1eqbjDYsgN+RzP4q16yV5eM=
@@ -489,14 +487,6 @@ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8T
 golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 google.golang.org/appengine v1.1.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9YwlJXL52JkM=
 google.golang.org/appengine v1.4.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
-google.golang.org/genai v1.6.0 h1:aG0J3QF/Ad2GsjHvY8LjRp9hiDl4hvLJN98YwkLDqFE=
-google.golang.org/genai v1.6.0/go.mod h1:TyfOKRz/QyCaj6f/ZDt505x+YreXnY40l2I6k8TvgqY=
-google.golang.org/genai v1.7.0 h1:DMOaygzMDUapj280sXBDvkaoY8kvSCJqsdH0iHbQBKA=
-google.golang.org/genai v1.7.0/go.mod h1:TyfOKRz/QyCaj6f/ZDt505x+YreXnY40l2I6k8TvgqY=
-google.golang.org/genai v1.8.0 h1:unX2CNWSiKDO2MSTKK3RstXg/vHp9hr42LIcL6f3Cik=
-google.golang.org/genai v1.8.0/go.mod h1:TyfOKRz/QyCaj6f/ZDt505x+YreXnY40l2I6k8TvgqY=
-google.golang.org/genai v1.9.0 h1:pdLxlAZnIWY/2mUozQ7nKZvspDCjHCiOxB0Uy9C1hvk=
-google.golang.org/genai v1.9.0/go.mod h1:TyfOKRz/QyCaj6f/ZDt505x+YreXnY40l2I6k8TvgqY=
 google.golang.org/genai v1.10.0 h1:ETP0Yksn5KUSEn5+ihMOnP3IqjZ+7Z4i0LjJslEXatI=
 google.golang.org/genai v1.10.0/go.mod h1:TyfOKRz/QyCaj6f/ZDt505x+YreXnY40l2I6k8TvgqY=
 google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=

@@ -70,7 +70,7 @@ func (q *Queries) InsertFeedFetch(ctx context.Context, arg InsertFeedFetchParams
 
 const selectFeed = `-- name: SelectFeed :one
 SELECT
-    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx, tags
 FROM
     feeds
 WHERE
@@ -91,13 +91,14 @@ func (q *Queries) SelectFeed(ctx context.Context, feedID string) (Feed, error) {
 		&i.UpdatedAt,
 		&i.TitleEditted,
 		&i.Idx,
+		&i.Tags,
 	)
 	return i, err
 }
 
 const selectFeedForUpdate = `-- name: SelectFeedForUpdate :one
 SELECT
-    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx, tags
 FROM
     feeds
 WHERE
@@ -119,6 +120,7 @@ func (q *Queries) SelectFeedForUpdate(ctx context.Context, feedID string) (Feed,
 		&i.UpdatedAt,
 		&i.TitleEditted,
 		&i.Idx,
+		&i.Tags,
 	)
 	return i, err
 }
@@ -139,7 +141,7 @@ func (q *Queries) SelectFeedMaxIdx(ctx context.Context) (int32, error) {
 
 const selectFeeds = `-- name: SelectFeeds :many
 SELECT
-    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx, tags
 FROM
     feeds
 WHERE
@@ -166,6 +168,7 @@ func (q *Queries) SelectFeeds(ctx context.Context, feedIds []string) ([]Feed, er
 			&i.UpdatedAt,
 			&i.TitleEditted,
 			&i.Idx,
+			&i.Tags,
 		); err != nil {
 			return nil, err
 		}
@@ -179,7 +182,7 @@ func (q *Queries) SelectFeeds(ctx context.Context, feedIds []string) ([]Feed, er
 
 const selectFeedsOrderByIdxAsc = `-- name: SelectFeedsOrderByIdxAsc :many
 SELECT
-    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx, tags
 FROM
     feeds
 ORDER BY
@@ -206,6 +209,7 @@ func (q *Queries) SelectFeedsOrderByIdxAsc(ctx context.Context) ([]Feed, error) 
 			&i.UpdatedAt,
 			&i.TitleEditted,
 			&i.Idx,
+			&i.Tags,
 		); err != nil {
 			return nil, err
 		}
@@ -219,7 +223,7 @@ func (q *Queries) SelectFeedsOrderByIdxAsc(ctx context.Context) ([]Feed, error) 
 
 const selectRecentlyNotFetchedFeeds = `-- name: SelectRecentlyNotFetchedFeeds :many
 SELECT
-    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx
+    feed_id, url, title_original, description, registered_at, last_fetched_at, created_at, updated_at, title_editted, idx, tags
 FROM
     feeds
 WHERE
@@ -249,6 +253,7 @@ func (q *Queries) SelectRecentlyNotFetchedFeeds(ctx context.Context, lastFetched
 			&i.UpdatedAt,
 			&i.TitleEditted,
 			&i.Idx,
+			&i.Tags,
 		); err != nil {
 			return nil, err
 		}
