@@ -105,7 +105,7 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 				commentsUrl, err := getCommentLinkFromHNRSS(*post.Description)
 				if err == nil {
 					commentsSum, err := s.summarize(ctx, commentsUrl, func(option *summarizeOption) {
-						option.prompt = `Summarize comments this page in Japanese. 
+						option.prompt = `Summarize comments in this page in Japanese. 
 Result must be format in markdown. Use unordered list aggressively.
 Do not include the title of the page, just the content.
 Maximum number of lines is about 30.
