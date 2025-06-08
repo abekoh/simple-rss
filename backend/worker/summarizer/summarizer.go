@@ -25,11 +25,12 @@ type (
 )
 
 type Summarizer struct {
-	inCh         <-chan Request
-	outCh        chan<- Result
-	errCh        chan<- error
-	httpClient   *http.Client
-	geminiClient *genai.Client
+	inCh           <-chan Request
+	outCh          chan<- Result
+	errCh          chan<- error
+	httpClient     *http.Client
+	geminiClient   *genai.Client
+	summarizeModel string
 }
 
 func NewSummarizer(
@@ -53,6 +54,7 @@ func NewSummarizer(
 		httpClient:   httpClient,
 		geminiClient: geminiClient,
 	}
+	s.summarizeModel = "gemini-2.0-flash-lite"
 	go s.loop(ctx)
 	return &s, nil
 }
@@ -83,58 +85,23 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 		if post.Status == sqlc.PostStatusSummarized {
 			return nil
 		}
-		fetched, err := s.httpClient.Get(post.Url)
-		if err != nil {
-			return fmt.Errorf("failed to fetch: %w", err)
-		}
-		if fetched.StatusCode != http.StatusOK {
-			return fmt.Errorf("failed to fetch: %w", err)
-		}
-		defer fetched.Body.Close()
-		body, err := io.ReadAll(fetched.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read body: %w", err)
-		}
 
-		contentType := fetched.Header.Get("Content-Type")
-		if len(contentType) == 0 {
-			contentType = "text/html"
-		}
+		//feed, err := database.FromContext(ctx).Queries().SelectFeed(ctx, post.FeedID)
+		//if err != nil {
+		//	return fmt.Errorf("failed to get feed: %w", err)
+		//}
 
-		parts := []*genai.Part{
-			{
-				InlineData: &genai.Blob{
-					MIMEType: contentType,
-					Data:     body,
-				},
-			},
-			genai.NewPartFromText(`Summarize this page in Japanese. 
-Result must be format in markdown.
-Do not include the title of the page, just the content.
-Maximum number of lines is about 30.
-Maximum header is up to h2.
-The maximum number of lines is about 30.
-DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.`),
-		}
-		contents := []*genai.Content{
-			genai.NewContentFromParts(parts, genai.RoleUser),
-		}
 		summarizedAt := clock.Now(ctx)
-		const summarizeModel = "gemini-2.0-flash-lite"
-		geminiRes, err := s.geminiClient.Models.GenerateContent(
-			ctx,
-			summarizeModel,
-			contents,
-			nil,
-		)
+		summarized, err := s.summarizeHTML(ctx, post.Url)
 		if err != nil {
-			return fmt.Errorf("failed to generate content: %w", err)
+			return fmt.Errorf("failed to summarize: %w", err)
 		}
+
 		if err := database.FromContext(ctx).Queries().InsertPostSummary(ctx, sqlc.InsertPostSummaryParams{
 			PostSummaryID:   postSummaryID,
 			PostID:          post.PostID,
-			SummarizeMethod: summarizeModel,
-			Summary:         geminiRes.Text(),
+			SummarizeMethod: s.summarizeModel,
+			Summary:         summarized,
 			SummarizedAt:    summarizedAt,
 		}); err != nil {
 			return fmt.Errorf("failed to update post: %w", err)
@@ -159,4 +126,53 @@ DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.
 		PostID:        req.PostID,
 		PostSummaryID: postSummaryID,
 	}, nil
+}
+
+func (s Summarizer) summarizeHTML(ctx context.Context, url string) (string, error) {
+	fetched, err := s.httpClient.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch: %w", err)
+	}
+	if fetched.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to fetch: %w", err)
+	}
+	defer fetched.Body.Close()
+	body, err := io.ReadAll(fetched.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read body: %w", err)
+	}
+
+	contentType := fetched.Header.Get("Content-Type")
+	if len(contentType) == 0 {
+		contentType = "text/html"
+	}
+
+	parts := []*genai.Part{
+		{
+			InlineData: &genai.Blob{
+				MIMEType: contentType,
+				Data:     body,
+			},
+		},
+		genai.NewPartFromText(`Summarize this page in Japanese. 
+Result must be format in markdown.
+Do not include the title of the page, just the content.
+Maximum number of lines is about 30.
+Maximum header is up to h2.
+The maximum number of lines is about 30.
+DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.`),
+	}
+	contents := []*genai.Content{
+		genai.NewContentFromParts(parts, genai.RoleUser),
+	}
+	geminiRes, err := s.geminiClient.Models.GenerateContent(
+		ctx,
+		s.summarizeModel,
+		contents,
+		nil,
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate content: %w", err)
+	}
+	return geminiRes.Text(), nil
 }
