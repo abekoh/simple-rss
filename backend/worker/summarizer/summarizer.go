@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
+	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
 	"github.com/abekoh/simple-rss/backend/lib/config"
 	"github.com/abekoh/simple-rss/backend/lib/database"
@@ -86,16 +89,41 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 			return nil
 		}
 
-		//feed, err := database.FromContext(ctx).Queries().SelectFeed(ctx, post.FeedID)
-		//if err != nil {
-		//	return fmt.Errorf("failed to get feed: %w", err)
-		//}
+		feed, err := database.FromContext(ctx).Queries().SelectFeed(ctx, post.FeedID)
+		if err != nil {
+			return fmt.Errorf("failed to get feed: %w", err)
+		}
+
+		var summarized string
+		switch {
+		case slices.Contains(feed.Tags, "hnrss"):
+			sum, err := s.summarize(ctx, post.Url)
+			if err != nil {
+				return fmt.Errorf("failed to summarize: %w", err)
+			}
+			if post.Description != nil {
+				commentsUrl, err := getCommentLinkFromHNRSS(*post.Description)
+				if err == nil {
+					commentsSum, err := s.summarize(ctx, commentsUrl)
+					if err != nil {
+						return fmt.Errorf("failed to summarize comments: %w", err)
+					}
+					summarized = fmt.Sprintf(`## 元記事
+%s
+## Comments from Hacker News
+%s
+`, sum, commentsSum)
+				}
+			}
+		default:
+			sum, err := s.summarize(ctx, post.Url)
+			if err != nil {
+				return fmt.Errorf("failed to summarize: %w", err)
+			}
+			summarized = sum
+		}
 
 		summarizedAt := clock.Now(ctx)
-		summarized, err := s.summarizeHTML(ctx, post.Url)
-		if err != nil {
-			return fmt.Errorf("failed to summarize: %w", err)
-		}
 
 		if err := database.FromContext(ctx).Queries().InsertPostSummary(ctx, sqlc.InsertPostSummaryParams{
 			PostSummaryID:   postSummaryID,
@@ -128,7 +156,28 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 	}, nil
 }
 
-func (s Summarizer) summarizeHTML(ctx context.Context, url string) (string, error) {
+type summarizeOption struct {
+	prompt string
+}
+
+func newSummarizeOption() summarizeOption {
+	return summarizeOption{
+		prompt: `Summarize this page in Japanese. 
+Result must be format in markdown.
+Do not include the title of the page, just the content.
+Maximum number of lines is about 30.
+Maximum header is up to h2.
+The maximum number of lines is about 30.
+DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.`,
+	}
+}
+
+func (s Summarizer) summarize(ctx context.Context, url string, opts ...func(option *summarizeOption)) (string, error) {
+	o := newSummarizeOption()
+	for _, opt := range opts {
+		opt(&o)
+	}
+
 	fetched, err := s.httpClient.Get(url)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch: %w", err)
@@ -154,13 +203,7 @@ func (s Summarizer) summarizeHTML(ctx context.Context, url string) (string, erro
 				Data:     body,
 			},
 		},
-		genai.NewPartFromText(`Summarize this page in Japanese. 
-Result must be format in markdown.
-Do not include the title of the page, just the content.
-Maximum number of lines is about 30.
-Maximum header is up to h2.
-The maximum number of lines is about 30.
-DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.`),
+		genai.NewPartFromText(o.prompt),
 	}
 	contents := []*genai.Content{
 		genai.NewContentFromParts(parts, genai.RoleUser),
@@ -175,4 +218,16 @@ DO NOT SURROUND THE CONTENT WITH ` + "```" + `, REPLY ONLY THE MARKDOWN CONTENT.
 		return "", fmt.Errorf("failed to generate content: %w", err)
 	}
 	return geminiRes.Text(), nil
+}
+
+func getCommentLinkFromHNRSS(desc string) (string, error) {
+	parsedHTML, err := goquery.NewDocumentFromReader(strings.NewReader(desc))
+	if err != nil {
+		return "", fmt.Errorf("failed to parse HTML: %w", err)
+	}
+	link, ok := parsedHTML.Find("a").Last().Attr("href")
+	if !ok {
+		return "", fmt.Errorf("failed to get comment link")
+	}
+	return link, nil
 }
