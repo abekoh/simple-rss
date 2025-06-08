@@ -101,6 +101,7 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 			if err != nil {
 				return fmt.Errorf("failed to summarize: %w", err)
 			}
+			summarized = sum
 			if post.Description != nil {
 				commentsUrl, err := getCommentLinkFromHNRSS(*post.Description)
 				if err == nil {
