@@ -22,7 +22,7 @@ require (
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/pressly/goose/v3 v3.24.3
 	github.com/samber/lo v1.51.0
-	github.com/vektah/gqlparser/v2 v2.5.28
+	github.com/vektah/gqlparser/v2 v2.5.29
 	google.golang.org/genai v1.13.0
 )
 
