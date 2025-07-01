@@ -14,7 +14,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/auth0/go-jwt-middleware/v2 v2.3.0
 	github.com/go-chi/chi/v5 v5.2.2
-	github.com/go-chi/cors v1.2.1
+	github.com/go-chi/cors v1.2.2
 	github.com/google/uuid v1.6.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
 	github.com/jackc/pgx/v5 v5.7.5
