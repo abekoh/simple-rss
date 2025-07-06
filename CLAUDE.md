@@ -33,6 +33,8 @@ This is a full-stack RSS reader application with the following architecture:
 
 ### Backend (Go)
 ```bash
+# Run database
+docker compose up -d
 # Run the application
 cd backend && go run .
 
