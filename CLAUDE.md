@@ -49,20 +49,20 @@ cd backend && goose up
 ### Frontend (React)
 ```bash
 # Install dependencies
-cd web && npm install
+cd web && pnpm i
 
 # Development server
-cd web && npm run dev
+cd web && pnpm dev
 
 # Build for production
-cd web && npm run build
+cd web && pnpm build
 
 # Lint and fix code
-cd web && npm run lint
-cd web && npm run lint:fix
+cd web && pnpm lint
+cd web && pnpm lint:fix
 
-# Generate GraphQL types
-cd web && npm run codegen
+# Generate GraphQL type
+cd web && pnpm codegen
 ```
 
 ### Docker Development
