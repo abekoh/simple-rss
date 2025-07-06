@@ -85,19 +85,6 @@ jobs:
         working-directory: e2e
         run: npx playwright install --with-deps
 
-      # Setup database for backend
-      - name: Setup database
-        working-directory: backend
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/simple_rss_test?sslmode=disable
-        run: |
-          go tool github.com/pressly/goose/v3/cmd/goose up
-          
-      # Seed test data
-      - name: Seed test data
-        run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d simple_rss_test -f backend/scripts/seed-test-data.sql
-
       # Build frontend
       - name: Build frontend
         working-directory: web
@@ -125,6 +112,11 @@ jobs:
       - name: Wait for backend
         run: |
           timeout 30 bash -c 'until curl -f http://localhost:8080/healthz; do sleep 1; done' || exit 1
+
+      # Seed test data
+      - name: Seed test data
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d simple_rss_test -f backend/scripts/seed-test-data.sql
 
       # Start frontend in background
       - name: Start frontend server
