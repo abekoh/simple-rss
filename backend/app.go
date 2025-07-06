@@ -173,8 +173,12 @@ func main() {
 	}()
 
 	r := chi.NewRouter()
+	allowedOrigins := strings.Split(cnf.CORSAllowedOrigins, ",")
+	for i, origin := range allowedOrigins {
+		allowedOrigins[i] = strings.TrimSpace(origin)
+	}
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://reader.abekoh.dev", "http://localhost:5173"},
+		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -189,29 +193,32 @@ func main() {
 		})
 	})
 
-	const issuerURLStr = "https://abekoh.jp.auth0.com/"
-	issuerURL, err := url.Parse(issuerURLStr)
-	if issuerURL == nil {
-		log.Fatalf("failed to parse issuer url: %v", err)
+	// Setup JWT middleware only if auth is not disabled
+	if !cnf.DisableAuth {
+		const issuerURLStr = "https://abekoh.jp.auth0.com/"
+		issuerURL, err := url.Parse(issuerURLStr)
+		if issuerURL == nil {
+			log.Fatalf("failed to parse issuer url: %v", err)
+		}
+		provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
+		jwtValidator, err := validator.New(
+			provider.KeyFunc,
+			validator.RS256,
+			issuerURLStr,
+			[]string{"https://reader-api.abekoh.dev/"},
+			validator.WithCustomClaims(func() validator.CustomClaims {
+				return &CustomClaims{}
+			}),
+		)
+		if err != nil {
+			log.Fatalf("failed to set up the validator: %v", err)
+		}
+		jwtMiddleware := jwtmiddleware.New(
+			jwtValidator.ValidateToken,
+			jwtmiddleware.WithCredentialsOptional(true),
+		)
+		r.Use(jwtMiddleware.CheckJWT)
 	}
-	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
-	jwtValidator, err := validator.New(
-		provider.KeyFunc,
-		validator.RS256,
-		issuerURLStr,
-		[]string{"https://reader-api.abekoh.dev/"},
-		validator.WithCustomClaims(func() validator.CustomClaims {
-			return &CustomClaims{}
-		}),
-	)
-	if err != nil {
-		log.Fatalf("failed to set up the validator: %v", err)
-	}
-	jwtMiddleware := jwtmiddleware.New(
-		jwtValidator.ValidateToken,
-		jwtmiddleware.WithCredentialsOptional(true),
-	)
-	r.Use(jwtMiddleware.CheckJWT)
 
 	gqlSrv := handler.New(gql.NewExecutableSchema(gql.Config{
 		Resolvers: resolver.NewResolver(
@@ -220,36 +227,39 @@ func main() {
 			sum,
 		)},
 	))
-	gqlSrv.AroundOperations(func(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
-		op := graphql.GetOperationContext(ctx)
-		if op.Operation.Operation != ast.Mutation {
-			return next(ctx)
-		}
-		setErr := func(c context.Context) {
-			graphql.AddError(c, &gqlerror.Error{
-				Path:    graphql.GetPath(c),
-				Message: "mutation is not allowed for this user",
-			})
-		}
-		claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-		if !ok {
-			setErr(ctx)
-			return next(ctx)
-		}
-		customClaims, ok := claims.CustomClaims.(*CustomClaims)
-		if !ok {
-			setErr(ctx)
-			return next(ctx)
-		}
-		scopes := strings.Split(customClaims.Scope, " ")
-		for _, scope := range scopes {
-			if scope == "write" {
+	// Add auth check for mutations only if auth is enabled
+	if !cnf.DisableAuth {
+		gqlSrv.AroundOperations(func(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
+			op := graphql.GetOperationContext(ctx)
+			if op.Operation.Operation != ast.Mutation {
 				return next(ctx)
 			}
-		}
-		setErr(ctx)
-		return next(ctx)
-	})
+			setErr := func(c context.Context) {
+				graphql.AddError(c, &gqlerror.Error{
+					Path:    graphql.GetPath(c),
+					Message: "mutation is not allowed for this user",
+				})
+			}
+			claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+			if !ok {
+				setErr(ctx)
+				return next(ctx)
+			}
+			customClaims, ok := claims.CustomClaims.(*CustomClaims)
+			if !ok {
+				setErr(ctx)
+				return next(ctx)
+			}
+			scopes := strings.Split(customClaims.Scope, " ")
+			for _, scope := range scopes {
+				if scope == "write" {
+					return next(ctx)
+				}
+			}
+			setErr(ctx)
+			return next(ctx)
+		})
+	}
 	gqlSrv.AddTransport(transport.Options{})
 	gqlSrv.AddTransport(transport.GET{})
 	gqlSrv.AddTransport(transport.POST{})
@@ -259,7 +269,15 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
+	// health check
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	})
+
 	// graphql
+	r.Post("/graphql", gqlSrv.ServeHTTP)
 	r.Post("/query", gqlSrv.ServeHTTP)
 	r.Get("/query", playground.Handler("GraphQL playground", "/query"))
 

@@ -10,6 +10,11 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
+    // Configure for CI environment
+    ...(process.env.CI && {
+      video: 'retain-on-failure',
+      screenshot: 'only-on-failure',
+    }),
   },
 
   projects: [

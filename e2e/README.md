@@ -99,6 +99,20 @@ Before running tests, ensure:
 2. The frontend development server can be started
 3. All necessary environment variables are set
 
+### For CI/GitHub Actions
+
+The E2E tests are automatically run in GitHub Actions when changes are made to:
+- `web/**` (frontend code)
+- `backend/**` (backend code)  
+- `e2e/**` (E2E test code)
+- `.github/workflows/e2e.yml` (workflow file)
+
+The CI environment:
+- Uses PostgreSQL for the database
+- Disables authentication for testing
+- Seeds test data automatically
+- Runs tests on multiple browsers
+
 ## Notes
 
 - Tests are designed to work with the current application structure

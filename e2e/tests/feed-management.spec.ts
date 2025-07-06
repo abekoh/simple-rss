@@ -49,7 +49,7 @@ test.describe('Feed Management', () => {
     // Fill in a URL
     await feedInput.fill('https://example.com/rss.xml');
     
-    // Click add button
+    // Click add button (Note: In CI this will fail without auth, but we test the UI behavior)
     await addButton.click();
     
     // Just verify the button still exists after click (loading state might be very quick)

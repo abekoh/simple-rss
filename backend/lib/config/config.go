@@ -7,10 +7,12 @@ import (
 )
 
 type Config struct {
-	Port            string `envconfig:"PORT"`
-	DBURL           string `envconfig:"DB_URL"`
-	EnableSummarize bool   `envconfig:"ENABLE_SUMMARIZE" default:"true"`
-	GeminiAPIKey    string `envconfig:"GEMINI_API_KEY"`
+	Port                 string `envconfig:"PORT"`
+	DBURL                string `envconfig:"DB_URL"`
+	EnableSummarize      bool   `envconfig:"ENABLE_SUMMARIZE" default:"true"`
+	GeminiAPIKey         string `envconfig:"GEMINI_API_KEY"`
+	CORSAllowedOrigins   string `envconfig:"CORS_ALLOWED_ORIGINS" default:"https://reader.abekoh.dev"`
+	DisableAuth          bool   `envconfig:"DISABLE_AUTH" default:"false"`
 }
 
 func Load() *Config {
