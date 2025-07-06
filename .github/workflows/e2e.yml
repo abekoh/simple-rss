@@ -116,7 +116,7 @@ jobs:
       # Seed test data
       - name: Seed test data
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d simple_rss_test -f backend/scripts/seed-test-data.sql
+          PGPASSWORD=admin psql -h localhost -U admin -d app -f backend/scripts/seed-test-data.sql
 
       # Start frontend in background
       - name: Start frontend server
