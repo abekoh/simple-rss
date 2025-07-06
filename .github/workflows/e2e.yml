@@ -83,7 +83,7 @@ jobs:
       # Install Playwright browsers
       - name: Install Playwright browsers
         working-directory: e2e
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium --with-deps
 
       # Build frontend
       - name: Build frontend
