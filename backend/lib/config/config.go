@@ -11,7 +11,7 @@ type Config struct {
 	DBURL              string `envconfig:"DB_URL"`
 	EnableSummarize    bool   `envconfig:"ENABLE_SUMMARIZE" default:"true"`
 	GeminiAPIKey       string `envconfig:"GEMINI_API_KEY"`
-	CORSAllowedOrigins string `envconfig:"CORS_ALLOWED_ORIGINS" default:"https://reader.abekoh.dev"`
+	CORSAllowedOrigins string `envconfig:"CORS_ALLOWED_ORIGINS" default:"https://reader.abekoh.dev,http://localhost:5174"`
 	DisableAuth        bool   `envconfig:"DISABLE_AUTH" default:"false"`
 }
 
