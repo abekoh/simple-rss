@@ -103,3 +103,7 @@ The backend uses environment variables for configuration (see `backend/lib/confi
 - Mutations require "write" scope in JWT claims
 - CORS configured for specific domains
 
+## Before you commit...
+
+- If you edit backend codes, you must run format command.
+
