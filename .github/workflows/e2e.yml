@@ -115,6 +115,8 @@ jobs:
       # Run E2E tests
       - name: Run E2E tests
         working-directory: e2e
+        env:
+          VITE_API_URL: http://localhost:8080
         run: pnpm test
 
       # Upload test results
