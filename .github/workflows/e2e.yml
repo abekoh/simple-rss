@@ -105,7 +105,7 @@ jobs:
       # Wait for backend to be ready
       - name: Wait for backend
         run: |
-          timeout 30 bash -c 'until curl -f http://localhost:8080/healthz; do sleep 1; done' || exit 1
+          timeout 30 bash -c 'until curl -f http://localhost:8080/health; do sleep 1; done' || exit 1
 
       # Seed test data
       - name: Seed test data
