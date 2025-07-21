@@ -142,6 +142,3 @@ jobs:
           if [ -f backend/backend.pid ]; then
             kill $(cat backend/backend.pid) || true
           fi
-          if [ -f web/web.pid ]; then
-            kill $(cat web/web.pid) || true
-          fi
