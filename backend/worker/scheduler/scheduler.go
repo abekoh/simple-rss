@@ -38,10 +38,10 @@ func NewScheduler(
 func (s Scheduler) loop(ctx context.Context) {
 	s.fetchFeeds(ctx)
 	s.cleanupOldPosts(ctx)
-	
+
 	fetchFeedsTick := time.NewTicker(time.Minute * 5)
 	cleanupTick := time.NewTicker(time.Hour)
-	
+
 	for {
 		select {
 		case <-ctx.Done():

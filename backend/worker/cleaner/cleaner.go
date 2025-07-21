@@ -20,16 +20,16 @@ func NewCleaner(errCh chan<- error) *Cleaner {
 
 func (c *Cleaner) CleanupOldPosts(ctx context.Context) {
 	slog.Info("cleanup old posts")
-	
+
 	// Delete posts older than 1 month
 	threshold := time.Now().AddDate(0, -1, 0)
-	
+
 	deletedCount, err := database.FromContext(ctx).Queries().DeleteOldNonFavoritePosts(ctx, threshold)
 	if err != nil {
 		slog.Error("failed to cleanup old posts", "error", err)
 		c.errCh <- err
 		return
 	}
-	
+
 	slog.Info("cleanup completed", "deleted_posts", deletedCount)
 }
