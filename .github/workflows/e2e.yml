@@ -99,7 +99,7 @@ jobs:
           GEMINI_API_KEY: test-api-key
           ENABLE_SUMMARIZE: false
         run: |
-          go run .
+          go run . &
           echo $! > backend.pid
 
       # Wait for backend to be ready
