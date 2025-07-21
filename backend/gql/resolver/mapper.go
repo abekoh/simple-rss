@@ -23,9 +23,11 @@ func mapFeed(x sqlc.Feed) *gql.Feed {
 			}
 			return x.TitleOriginal
 		}(),
-		Description:  x.Description,
-		RegisteredAt: x.RegisteredAt,
-		Idx:          x.Idx,
+		Description:   x.Description,
+		RegisteredAt:  x.RegisteredAt,
+		LastFetchedAt: x.LastFetchedAt,
+		Idx:           x.Idx,
+		Tags:          x.Tags,
 	}
 }
 

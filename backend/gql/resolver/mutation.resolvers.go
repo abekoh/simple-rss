@@ -7,7 +7,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"regexp"
 
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
@@ -17,21 +16,6 @@ import (
 	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
 	"github.com/mmcdole/gofeed"
 )
-
-// validateTags validates that tags only contain alphanumeric characters and hyphens, and are max 20 chars
-func validateTags(tags []string) error {
-	tagPattern := regexp.MustCompile(`^[a-zA-Z0-9-]+$`)
-
-	for _, tag := range tags {
-		if len(tag) > 20 {
-			return fmt.Errorf("tag '%s' exceeds maximum length of 20 characters", tag)
-		}
-		if !tagPattern.MatchString(tag) {
-			return fmt.Errorf("tag '%s' contains invalid characters. Only alphanumeric characters and hyphens are allowed", tag)
-		}
-	}
-	return nil
-}
 
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
@@ -109,6 +93,32 @@ func (r *mutationResolver) RenameFeedTitle(ctx context.Context, input gql.Rename
 		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
 	return &gql.RenameFeedTitlePayload{
+		FeedID: input.FeedID,
+	}, nil
+}
+
+// ReplaceFeedTags is the resolver for the replaceFeedTags field.
+func (r *mutationResolver) ReplaceFeedTags(ctx context.Context, input gql.ReplaceFeedTagsInput) (*gql.ReplaceFeedTagsPayload, error) {
+	if err := validateTags(input.Tags); err != nil {
+		return nil, err
+	}
+
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		if _, err := database.FromContext(ctx).Queries().SelectFeed(ctx, input.FeedID); err != nil {
+			return fmt.Errorf("failed to select feed: %w", err)
+		}
+		if err := database.FromContext(ctx).Queries().UpdateFeedTags(ctx, sqlc.UpdateFeedTagsParams{
+			FeedID: input.FeedID,
+			Tags:   input.Tags,
+		}); err != nil {
+			return fmt.Errorf("failed to update feed tags: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("failed in transaction: %w", err)
+	}
+
+	return &gql.ReplaceFeedTagsPayload{
 		FeedID: input.FeedID,
 	}, nil
 }

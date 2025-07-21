@@ -36,6 +36,7 @@ type Feed {
   registeredAt: Time!
   lastFetchedAt: Time
   idx: Int!
+  tags: [String!]!
 }
 
 input FeedPostsInput {

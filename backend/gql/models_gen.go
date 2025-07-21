@@ -35,6 +35,7 @@ type Feed struct {
 	RegisteredAt  time.Time  `json:"registeredAt"`
 	LastFetchedAt *time.Time `json:"lastFetchedAt,omitempty"`
 	Idx           int32      `json:"idx"`
+	Tags          []string   `json:"tags"`
 }
 
 type FeedFetch struct {
@@ -139,6 +140,15 @@ type RenameFeedTitleInput struct {
 }
 
 type RenameFeedTitlePayload struct {
+	FeedID string `json:"feedId"`
+}
+
+type ReplaceFeedTagsInput struct {
+	FeedID string   `json:"feedId"`
+	Tags   []string `json:"tags"`
+}
+
+type ReplaceFeedTagsPayload struct {
 	FeedID string `json:"feedId"`
 }
 

@@ -345,6 +345,26 @@ func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, arg UpdateFeedLas
 	return err
 }
 
+const updateFeedTags = `-- name: UpdateFeedTags :exec
+UPDATE
+    feeds
+SET
+    tags = $1,
+    updated_at = now()
+WHERE
+    feed_id = $2
+`
+
+type UpdateFeedTagsParams struct {
+	Tags   []string
+	FeedID string
+}
+
+func (q *Queries) UpdateFeedTags(ctx context.Context, arg UpdateFeedTagsParams) error {
+	_, err := q.db.Exec(ctx, updateFeedTags, arg.Tags, arg.FeedID)
+	return err
+}
+
 const updateFeedTitle = `-- name: UpdateFeedTitle :exec
 UPDATE
     feeds

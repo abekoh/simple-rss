@@ -1,6 +1,7 @@
 type Mutation {
   registerFeed(input: RegisterFeedInput!): RegisterFeedPayload!
   renameFeedTitle(input: RenameFeedTitleInput!): RenameFeedTitlePayload!
+  replaceFeedTags(input: ReplaceFeedTagsInput!): ReplaceFeedTagsPayload!
   deleteFeed(input: DeleteFeedInput!): DeleteFeedPayload!
   rearrangeFeed(input: RearrangeFeedInput!): RearrangeFeedPayload!
   addPostFavorite(input: AddPostFavoriteInput!): AddPostFavoritePayload!
@@ -24,6 +25,15 @@ input RenameFeedTitleInput {
 }
 
 type RenameFeedTitlePayload {
+  feedId: ID!
+}
+
+input ReplaceFeedTagsInput {
+  feedId: ID!
+  tags: [String!]!
+}
+
+type ReplaceFeedTagsPayload {
   feedId: ID!
 }
 

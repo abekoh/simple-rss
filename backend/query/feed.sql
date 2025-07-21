@@ -20,6 +20,15 @@ SET
 WHERE
     feed_id = @feed_id;
 
+-- name: UpdateFeedTags :exec
+UPDATE
+    feeds
+SET
+    tags = @tags,
+    updated_at = now()
+WHERE
+    feed_id = @feed_id;
+
 -- name: UpdateFeedIdx :exec
 UPDATE
     feeds
