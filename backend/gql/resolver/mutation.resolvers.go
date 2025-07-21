@@ -7,6 +7,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/clock"
@@ -17,8 +18,27 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
+// validateTags validates that tags only contain alphanumeric characters and hyphens, and are max 20 chars
+func validateTags(tags []string) error {
+	tagPattern := regexp.MustCompile(`^[a-zA-Z0-9-]+$`)
+
+	for _, tag := range tags {
+		if len(tag) > 20 {
+			return fmt.Errorf("tag '%s' exceeds maximum length of 20 characters", tag)
+		}
+		if !tagPattern.MatchString(tag) {
+			return fmt.Errorf("tag '%s' contains invalid characters. Only alphanumeric characters and hyphens are allowed", tag)
+		}
+	}
+	return nil
+}
+
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
+	if err := validateTags(input.Tags); err != nil {
+		return nil, err
+	}
+
 	feedURLs, err := detectFeedURLs(ctx, input.URL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find feed url: %w", err)
@@ -50,6 +70,7 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 					return &feedContent.Description
 				}(),
 				RegisteredAt: clock.Now(ctx),
+				Tags:         input.Tags,
 			}); err != nil {
 				return fmt.Errorf("failed to insert feed: %w", err)
 			}
