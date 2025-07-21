@@ -11,6 +11,7 @@ type Mutation {
 
 input RegisterFeedInput {
   url: String!
+  tags: [String!]!
 }
 
 type RegisterFeedPayload {
