@@ -54,8 +54,10 @@ export type Feed = {
   __typename?: "Feed";
   description?: Maybe<Scalars["String"]["output"]>;
   feedId: Scalars["ID"]["output"];
+  idx: Scalars["Int"]["output"];
   lastFetchedAt?: Maybe<Scalars["Time"]["output"]>;
   registeredAt: Scalars["Time"]["output"];
+  tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   url: Scalars["String"]["output"];
 };
@@ -84,9 +86,11 @@ export type Mutation = {
   __typename?: "Mutation";
   addPostFavorite: AddPostFavoritePayload;
   deleteFeed: DeleteFeedPayload;
+  rearrangeFeed: RearrangeFeedPayload;
   registerFeed: RegisterFeedPayload;
   removePostFavorite: RemovePostFavoritePayload;
   renameFeedTitle: RenameFeedTitlePayload;
+  replaceFeedTags: ReplaceFeedTagsPayload;
 };
 
 export type MutationAddPostFavoriteArgs = {
@@ -95,6 +99,10 @@ export type MutationAddPostFavoriteArgs = {
 
 export type MutationDeleteFeedArgs = {
   input: DeleteFeedInput;
+};
+
+export type MutationRearrangeFeedArgs = {
+  input: RearrangeFeedInput;
 };
 
 export type MutationRegisterFeedArgs = {
@@ -107,6 +115,10 @@ export type MutationRemovePostFavoriteArgs = {
 
 export type MutationRenameFeedTitleArgs = {
   input: RenameFeedTitleInput;
+};
+
+export type MutationReplaceFeedTagsArgs = {
+  input: ReplaceFeedTagsInput;
 };
 
 export type Post = {
@@ -190,7 +202,18 @@ export type QueryPostsArgs = {
   input: PostsInput;
 };
 
+export type RearrangeFeedInput = {
+  feedId: Scalars["ID"]["input"];
+  newIndex: Scalars["Int"]["input"];
+};
+
+export type RearrangeFeedPayload = {
+  __typename?: "RearrangeFeedPayload";
+  feedId: Scalars["ID"]["output"];
+};
+
 export type RegisterFeedInput = {
+  tags: Array<Scalars["String"]["input"]>;
   url: Scalars["String"]["input"];
 };
 
@@ -218,6 +241,16 @@ export type RenameFeedTitlePayload = {
   feedId: Scalars["ID"]["output"];
 };
 
+export type ReplaceFeedTagsInput = {
+  feedId: Scalars["ID"]["input"];
+  tags: Array<Scalars["String"]["input"]>;
+};
+
+export type ReplaceFeedTagsPayload = {
+  __typename?: "ReplaceFeedTagsPayload";
+  feedId: Scalars["ID"]["output"];
+};
+
 export type GetFeedsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetFeedsQuery = {
@@ -230,6 +263,7 @@ export type GetFeedsQuery = {
     description?: string | null;
     registeredAt: any;
     lastFetchedAt?: any | null;
+    tags: Array<string>;
   }>;
 };
 
@@ -265,6 +299,7 @@ export type GetPostsQuery = {
         title: string;
         url: string;
         registeredAt: any;
+        tags: Array<string>;
       };
       favorite?: {
         __typename?: "PostFavorite";
@@ -318,6 +353,15 @@ export type RemovePostFavoriteMutation = {
   };
 };
 
+export type RenameFeedTitleMutationVariables = Exact<{
+  input: RenameFeedTitleInput;
+}>;
+
+export type RenameFeedTitleMutation = {
+  __typename?: "Mutation";
+  renameFeedTitle: { __typename?: "RenameFeedTitlePayload"; feedId: string };
+};
+
 export const GetFeedsDocument = gql`
   query GetFeeds {
     feeds {
@@ -327,6 +371,7 @@ export const GetFeedsDocument = gql`
       description
       registeredAt
       lastFetchedAt
+      tags
     }
   }
 `;
@@ -416,6 +461,7 @@ export const GetPostsDocument = gql`
           title
           url
           registeredAt
+          tags
         }
         favorite {
           postFavoriteId
@@ -689,4 +735,54 @@ export type RemovePostFavoriteMutationResult =
 export type RemovePostFavoriteMutationOptions = Apollo.BaseMutationOptions<
   RemovePostFavoriteMutation,
   RemovePostFavoriteMutationVariables
+>;
+export const RenameFeedTitleDocument = gql`
+  mutation RenameFeedTitle($input: RenameFeedTitleInput!) {
+    renameFeedTitle(input: $input) {
+      feedId
+    }
+  }
+`;
+export type RenameFeedTitleMutationFn = Apollo.MutationFunction<
+  RenameFeedTitleMutation,
+  RenameFeedTitleMutationVariables
+>;
+
+/**
+ * __useRenameFeedTitleMutation__
+ *
+ * To run a mutation, you first call `useRenameFeedTitleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRenameFeedTitleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [renameFeedTitleMutation, { data, loading, error }] = useRenameFeedTitleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRenameFeedTitleMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RenameFeedTitleMutation,
+    RenameFeedTitleMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RenameFeedTitleMutation,
+    RenameFeedTitleMutationVariables
+  >(RenameFeedTitleDocument, options);
+}
+export type RenameFeedTitleMutationHookResult = ReturnType<
+  typeof useRenameFeedTitleMutation
+>;
+export type RenameFeedTitleMutationResult =
+  Apollo.MutationResult<RenameFeedTitleMutation>;
+export type RenameFeedTitleMutationOptions = Apollo.BaseMutationOptions<
+  RenameFeedTitleMutation,
+  RenameFeedTitleMutationVariables
 >;

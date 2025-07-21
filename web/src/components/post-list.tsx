@@ -13,6 +13,7 @@ import {
   Stack,
   Input,
   Field,
+  Tag,
 } from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -33,6 +34,7 @@ type PostListProps = {
   showDeleteButton?: boolean;
   showEditButton?: boolean;
   feedUrl?: string;
+  feedTags?: string[];
   onDeleteClick?: () => void;
   onEditClick?: (newTitle: string) => void;
 };
@@ -40,6 +42,7 @@ type PostListProps = {
 export const PostList = ({
   title,
   feedUrl,
+  feedTags,
   posts,
   totalCount,
   loading,
@@ -151,6 +154,15 @@ export const PostList = ({
               {feedUrl}
             </Link>
           </Text>
+        )}
+        {feedTags && feedTags.length > 0 && (
+          <HStack gap={1} flexWrap="wrap" mt={1}>
+            {feedTags.map((tag, index) => (
+              <Tag key={index} size="sm" colorScheme="blue" variant="subtle">
+                {tag}
+              </Tag>
+            ))}
+          </HStack>
         )}
       </Stack>
 

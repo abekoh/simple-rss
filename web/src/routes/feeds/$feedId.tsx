@@ -92,6 +92,7 @@ function FeedDetail() {
   // 最初の記事からフィード情報を取得
   const feedTitle = posts.length > 0 ? posts[0].feed.title : "フィード";
   const feedUrl = posts.length > 0 ? posts[0].feed.url : "";
+  const feedTags = posts.length > 0 ? posts[0].feed.tags : [];
 
   // フィード削除ハンドラー
   const handleDeleteFeed = () => {
@@ -152,6 +153,7 @@ function FeedDetail() {
       onDeleteClick={handleDeleteFeed}
       onEditClick={handleRenameFeedTitle}
       feedUrl={feedUrl}
+      feedTags={feedTags}
     />
   );
 }
