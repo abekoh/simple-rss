@@ -192,94 +192,93 @@ export const PostList = ({
             </Link>
           </Text>
         )}
-        {(feedTags && feedTags.length > 0) ||
-          (showTagEditButton && (
-            <HStack gap={1} alignItems="center" flexWrap="wrap" mt={1}>
-              {feedTags && feedTags.length > 0 && (
-                <>
-                  {feedTags.map((tag, index) => (
-                    <Tag.Root
-                      key={index}
-                      size="sm"
-                      colorScheme="blue"
-                      variant="subtle"
-                    >
-                      <Tag.Label>{tag}</Tag.Label>
-                    </Tag.Root>
-                  ))}
-                </>
-              )}
-              {showTagEditButton && (
-                <Dialog.Root lazyMount>
-                  <Dialog.Trigger asChild>
-                    <IconButton
-                      aria-label="タグを編集"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditTags(feedTags?.join(", ") || "");
-                      }}
-                    >
-                      <LuTags />
-                    </IconButton>
-                  </Dialog.Trigger>
-                  <Portal>
-                    <Dialog.Backdrop />
-                    <Dialog.Positioner>
-                      <Dialog.Content>
-                        <Dialog.Header>
-                          <Dialog.Title>タグの編集</Dialog.Title>
-                          <Dialog.CloseTrigger />
-                        </Dialog.Header>
-                        <Dialog.Body>
-                          <Field.Root invalid={!!tagValidationError}>
-                            <Field.Label>タグ (カンマ区切り)</Field.Label>
-                            <Input
-                              value={editTags}
-                              onChange={(e) => {
-                                setEditTags(e.target.value);
-                                setTagValidationError("");
-                              }}
-                              placeholder="news, tech, ai"
-                            />
-                            <Field.HelperText>
-                              英数字とハイフンのみ、各タグ最大20文字
-                            </Field.HelperText>
-                            {tagValidationError && (
-                              <Field.ErrorText>
-                                {tagValidationError}
-                              </Field.ErrorText>
-                            )}
-                          </Field.Root>
-                        </Dialog.Body>
-                        <Dialog.Footer>
-                          <Dialog.ActionTrigger asChild>
-                            <Button variant="outline">キャンセル</Button>
-                          </Dialog.ActionTrigger>
-                          <Dialog.ActionTrigger asChild>
-                            <Button
-                              colorScheme="blue"
-                              onClick={() => {
-                                const validation = validateTags(editTags);
-                                if (!validation.isValid) {
-                                  setTagValidationError(validation.error);
-                                  return;
-                                }
-                                onTagsEdit?.(validation.tags);
-                                setTagValidationError("");
-                              }}
-                            >
-                              更新
-                            </Button>
-                          </Dialog.ActionTrigger>
-                        </Dialog.Footer>
-                      </Dialog.Content>
-                    </Dialog.Positioner>
-                  </Portal>
-                </Dialog.Root>
-              )}
-            </HStack>
-          ))}
+        {((feedTags && feedTags.length > 0) || showTagEditButton) && (
+          <HStack gap={1} alignItems="center" flexWrap="wrap" mt={1}>
+            {feedTags && feedTags.length > 0 && (
+              <>
+                {feedTags.map((tag, index) => (
+                  <Tag.Root
+                    key={index}
+                    size="sm"
+                    colorScheme="blue"
+                    variant="subtle"
+                  >
+                    <Tag.Label>{tag}</Tag.Label>
+                  </Tag.Root>
+                ))}
+              </>
+            )}
+            {showTagEditButton && (
+              <Dialog.Root lazyMount>
+                <Dialog.Trigger asChild>
+                  <IconButton
+                    aria-label="タグを編集"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setEditTags(feedTags?.join(", ") || "");
+                    }}
+                  >
+                    <LuTags />
+                  </IconButton>
+                </Dialog.Trigger>
+                <Portal>
+                  <Dialog.Backdrop />
+                  <Dialog.Positioner>
+                    <Dialog.Content>
+                      <Dialog.Header>
+                        <Dialog.Title>タグの編集</Dialog.Title>
+                        <Dialog.CloseTrigger />
+                      </Dialog.Header>
+                      <Dialog.Body>
+                        <Field.Root invalid={!!tagValidationError}>
+                          <Field.Label>タグ (カンマ区切り)</Field.Label>
+                          <Input
+                            value={editTags}
+                            onChange={(e) => {
+                              setEditTags(e.target.value);
+                              setTagValidationError("");
+                            }}
+                            placeholder="news, tech, ai"
+                          />
+                          <Field.HelperText>
+                            英数字とハイフンのみ、各タグ最大20文字
+                          </Field.HelperText>
+                          {tagValidationError && (
+                            <Field.ErrorText>
+                              {tagValidationError}
+                            </Field.ErrorText>
+                          )}
+                        </Field.Root>
+                      </Dialog.Body>
+                      <Dialog.Footer>
+                        <Dialog.ActionTrigger asChild>
+                          <Button variant="outline">キャンセル</Button>
+                        </Dialog.ActionTrigger>
+                        <Dialog.ActionTrigger asChild>
+                          <Button
+                            colorScheme="blue"
+                            onClick={() => {
+                              const validation = validateTags(editTags);
+                              if (!validation.isValid) {
+                                setTagValidationError(validation.error);
+                                return;
+                              }
+                              onTagsEdit?.(validation.tags);
+                              setTagValidationError("");
+                            }}
+                          >
+                            更新
+                          </Button>
+                        </Dialog.ActionTrigger>
+                      </Dialog.Footer>
+                    </Dialog.Content>
+                  </Dialog.Positioner>
+                </Portal>
+              </Dialog.Root>
+            )}
+          </HStack>
+        )}
       </Stack>
 
       <Text my={4} color="gray.500">
