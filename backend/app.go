@@ -26,6 +26,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/config"
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/dataloader"
+	"github.com/abekoh/simple-rss/backend/worker/cleaner"
 	"github.com/abekoh/simple-rss/backend/worker/feedfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/postfetcher"
 	"github.com/abekoh/simple-rss/backend/worker/scheduler"
@@ -124,6 +125,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	cleaner := cleaner.NewCleaner(errCh)
+
 	// error handler
 	go func() {
 		for {
@@ -147,6 +150,7 @@ func main() {
 		routerCtx,
 		feedFetcher,
 		postFetcher,
+		cleaner,
 		errCh,
 	)
 
