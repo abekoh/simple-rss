@@ -8,7 +8,7 @@ import {
   PostsInputOrder,
   useDeleteFeedMutation,
 } from "../../generated/graphql";
-import { RENAME_FEED_TITLE } from "../../lib/graphql";
+import { RENAME_FEED_TITLE, REPLACE_FEED_TAGS } from "../../lib/graphql";
 
 // 検索パラメータの型定義
 interface FeedDetailSearch {
@@ -44,6 +44,26 @@ function FeedDetail() {
       onError: (error) => {
         toaster.create({
           title: "フィードタイトルの変更に失敗しました",
+          description: error.message,
+          type: "error",
+        });
+      },
+    }
+  );
+
+  // フィードタグ置き換えミューテーション
+  const [replaceFeedTags, { loading: replaceTagsLoading }] = useMutation(
+    REPLACE_FEED_TAGS,
+    {
+      onCompleted: () => {
+        toaster.create({
+          title: "タグを更新しました",
+          type: "success",
+        });
+      },
+      onError: (error) => {
+        toaster.create({
+          title: "タグの更新に失敗しました",
           description: error.message,
           type: "error",
         });
@@ -138,20 +158,48 @@ function FeedDetail() {
     });
   };
 
+  // フィードタグ変更ハンドラー
+  const handleReplaceFeedTags = (newTags: string[]) => {
+    replaceFeedTags({
+      variables: {
+        input: {
+          feedId,
+          tags: newTags,
+        },
+      },
+      update: (cache) => {
+        // キャッシュを更新
+        cache.modify({
+          id: cache.identify({
+            __typename: "Feed",
+            feedId,
+          }),
+          fields: {
+            tags: () => newTags,
+          },
+        });
+      },
+    });
+  };
+
   return (
     <PostList
       title={feedTitle}
       posts={posts}
       totalCount={totalCount}
-      loading={postsLoading || deleteLoading || renameLoading}
+      loading={
+        postsLoading || deleteLoading || renameLoading || replaceTagsLoading
+      }
       error={postsError}
       baseUrl={`/feeds/${feedId}`}
       currentPage={page}
       itemsPerPage={itemsPerPage}
       showDeleteButton={true}
       showEditButton={true}
+      showTagEditButton={true}
       onDeleteClick={handleDeleteFeed}
       onEditClick={handleRenameFeedTitle}
+      onTagsEdit={handleReplaceFeedTags}
       feedUrl={feedUrl}
       feedTags={feedTags}
     />

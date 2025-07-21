@@ -96,3 +96,12 @@ export const RENAME_FEED_TITLE = gql`
     }
   }
 `;
+
+// フィードのタグを置き換えるミューテーション
+export const REPLACE_FEED_TAGS = gql`
+  mutation ReplaceFeedTags($input: ReplaceFeedTagsInput!) {
+    replaceFeedTags(input: $input) {
+      feedId
+    }
+  }
+`;

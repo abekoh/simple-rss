@@ -362,6 +362,15 @@ export type RenameFeedTitleMutation = {
   renameFeedTitle: { __typename?: "RenameFeedTitlePayload"; feedId: string };
 };
 
+export type ReplaceFeedTagsMutationVariables = Exact<{
+  input: ReplaceFeedTagsInput;
+}>;
+
+export type ReplaceFeedTagsMutation = {
+  __typename?: "Mutation";
+  replaceFeedTags: { __typename?: "ReplaceFeedTagsPayload"; feedId: string };
+};
+
 export const GetFeedsDocument = gql`
   query GetFeeds {
     feeds {
@@ -785,4 +794,54 @@ export type RenameFeedTitleMutationResult =
 export type RenameFeedTitleMutationOptions = Apollo.BaseMutationOptions<
   RenameFeedTitleMutation,
   RenameFeedTitleMutationVariables
+>;
+export const ReplaceFeedTagsDocument = gql`
+  mutation ReplaceFeedTags($input: ReplaceFeedTagsInput!) {
+    replaceFeedTags(input: $input) {
+      feedId
+    }
+  }
+`;
+export type ReplaceFeedTagsMutationFn = Apollo.MutationFunction<
+  ReplaceFeedTagsMutation,
+  ReplaceFeedTagsMutationVariables
+>;
+
+/**
+ * __useReplaceFeedTagsMutation__
+ *
+ * To run a mutation, you first call `useReplaceFeedTagsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReplaceFeedTagsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [replaceFeedTagsMutation, { data, loading, error }] = useReplaceFeedTagsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useReplaceFeedTagsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ReplaceFeedTagsMutation,
+    ReplaceFeedTagsMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ReplaceFeedTagsMutation,
+    ReplaceFeedTagsMutationVariables
+  >(ReplaceFeedTagsDocument, options);
+}
+export type ReplaceFeedTagsMutationHookResult = ReturnType<
+  typeof useReplaceFeedTagsMutation
+>;
+export type ReplaceFeedTagsMutationResult =
+  Apollo.MutationResult<ReplaceFeedTagsMutation>;
+export type ReplaceFeedTagsMutationOptions = Apollo.BaseMutationOptions<
+  ReplaceFeedTagsMutation,
+  ReplaceFeedTagsMutationVariables
 >;
