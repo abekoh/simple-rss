@@ -10,6 +10,22 @@ import (
 	"time"
 )
 
+const deleteOldNonFavoritePosts = `-- name: DeleteOldNonFavoritePosts :execrows
+DELETE FROM posts
+WHERE posts.created_at < $1
+  AND posts.post_id NOT IN (
+    SELECT post_id FROM post_favorites
+  )
+`
+
+func (q *Queries) DeleteOldNonFavoritePosts(ctx context.Context, thresholdDate time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteOldNonFavoritePosts, thresholdDate)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deletePostFavorite = `-- name: DeletePostFavorite :exec
 DELETE FROM post_favorites
 WHERE post_favorite_id = $1

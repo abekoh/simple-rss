@@ -95,3 +95,10 @@ INSERT INTO post_favorites(post_favorite_id, post_id, added_at)
 DELETE FROM post_favorites
 WHERE post_favorite_id = @post_favorite_id;
 
+-- name: DeleteOldNonFavoritePosts :execrows
+DELETE FROM posts
+WHERE posts.created_at < @threshold_date
+  AND posts.post_id NOT IN (
+    SELECT post_id FROM post_favorites
+  );
+
