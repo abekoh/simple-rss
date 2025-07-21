@@ -46,6 +46,9 @@ cd backend && go test ./...
 
 # Database migrations
 cd backend && goose up
+
+# Format
+cd backend && go tool golang.org/x/tools/cmd/goimports -w .
 ```
 
 ### Frontend (React)
@@ -99,3 +102,7 @@ The backend uses environment variables for configuration (see `backend/lib/confi
 - Uses Auth0 for JWT-based authentication
 - Mutations require "write" scope in JWT claims
 - CORS configured for specific domains
+
+## Before you commit...
+
+- If you edit backend codes, you must run format command.
