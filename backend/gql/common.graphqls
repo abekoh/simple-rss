@@ -12,6 +12,11 @@ directive @goField(
 
 scalar Time
 
+type Tag {
+  name: String!
+  special: Boolean!
+}
+
 enum FeedFetchStatus {
   Success
   Failure
@@ -36,7 +41,7 @@ type Feed {
   registeredAt: Time!
   lastFetchedAt: Time
   idx: Int!
-  tags: [String!]!
+  tags: [Tag!]!
 }
 
 input FeedPostsInput {

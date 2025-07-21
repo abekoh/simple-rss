@@ -35,7 +35,7 @@ type PostListProps = {
   showEditButton?: boolean;
   showTagEditButton?: boolean;
   feedUrl?: string;
-  feedTags?: string[];
+  feedTags?: Array<{ name: string; special: boolean }>;
   onDeleteClick?: () => void;
   onEditClick?: (newTitle: string) => void;
   onTagsEdit?: (newTags: string[]) => void;
@@ -60,7 +60,7 @@ export const PostList = ({
   onTagsEdit,
 }: PostListProps) => {
   const [editTitle, setEditTitle] = useState(title);
-  const [editTags, setEditTags] = useState(feedTags?.join(", ") || "");
+  const [editTags, setEditTags] = useState(feedTags?.map(tag => tag.name).join(", ") || "");
   const [tagValidationError, setTagValidationError] = useState<string>("");
 
   // タグバリデーション関数
@@ -203,7 +203,7 @@ export const PostList = ({
                     colorScheme="blue"
                     variant="subtle"
                   >
-                    <Tag.Label>{tag}</Tag.Label>
+                    <Tag.Label fontStyle={tag.special ? "italic" : "normal"}>{tag.name}</Tag.Label>
                   </Tag.Root>
                 ))}
               </>
@@ -216,7 +216,7 @@ export const PostList = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setEditTags(feedTags?.join(", ") || "");
+                      setEditTags(feedTags?.map(tag => tag.name).join(", ") || "");
                     }}
                   >
                     <LuTags />
@@ -239,7 +239,7 @@ export const PostList = ({
                               setEditTags(e.target.value);
                               setTagValidationError("");
                             }}
-                            placeholder="news, tech, ai"
+                            placeholder=""
                           />
                           <Field.HelperText>
                             英数字とハイフンのみ、各タグ最大20文字

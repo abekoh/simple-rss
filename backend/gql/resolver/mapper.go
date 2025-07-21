@@ -3,6 +3,7 @@ package resolver
 import (
 	"github.com/abekoh/simple-rss/backend/gql"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
+	"github.com/abekoh/simple-rss/backend/worker/summarizer/tags"
 )
 
 func mapSlice[T, U any](xs []T, f func(x T) U) []U {
@@ -27,8 +28,19 @@ func mapFeed(x sqlc.Feed) *gql.Feed {
 		RegisteredAt:  x.RegisteredAt,
 		LastFetchedAt: x.LastFetchedAt,
 		Idx:           x.Idx,
-		Tags:          x.Tags,
+		Tags:          mapTags(x.Tags),
 	}
+}
+
+func mapTags(tagNames []string) []*gql.Tag {
+	result := make([]*gql.Tag, len(tagNames))
+	for i, tagName := range tagNames {
+		result[i] = &gql.Tag{
+			Name:    tagName,
+			Special: tags.IsSpecialTag(tagName),
+		}
+	}
+	return result
 }
 
 func mapPost(x sqlc.Post) *gql.Post {

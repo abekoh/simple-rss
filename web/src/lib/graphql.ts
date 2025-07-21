@@ -10,7 +10,10 @@ export const GET_FEEDS = gql`
       description
       registeredAt
       lastFetchedAt
-      tags
+      tags {
+        name
+        special
+      }
     }
   }
 `;
@@ -40,7 +43,10 @@ export const GET_POSTS = gql`
           title
           url
           registeredAt
-          tags
+          tags {
+            name
+            special
+          }
         }
         favorite {
           postFavoriteId
