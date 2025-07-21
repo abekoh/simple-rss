@@ -19,6 +19,10 @@ import (
 
 // RegisterFeed is the resolver for the registerFeed field.
 func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterFeedInput) (*gql.RegisterFeedPayload, error) {
+	if err := validateTags(input.Tags); err != nil {
+		return nil, err
+	}
+
 	feedURLs, err := detectFeedURLs(ctx, input.URL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find feed url: %w", err)
@@ -50,6 +54,7 @@ func (r *mutationResolver) RegisterFeed(ctx context.Context, input gql.RegisterF
 					return &feedContent.Description
 				}(),
 				RegisteredAt: clock.Now(ctx),
+				Tags:         input.Tags,
 			}); err != nil {
 				return fmt.Errorf("failed to insert feed: %w", err)
 			}
@@ -88,6 +93,32 @@ func (r *mutationResolver) RenameFeedTitle(ctx context.Context, input gql.Rename
 		return nil, fmt.Errorf("failed in transaction: %w", err)
 	}
 	return &gql.RenameFeedTitlePayload{
+		FeedID: input.FeedID,
+	}, nil
+}
+
+// ReplaceFeedTags is the resolver for the replaceFeedTags field.
+func (r *mutationResolver) ReplaceFeedTags(ctx context.Context, input gql.ReplaceFeedTagsInput) (*gql.ReplaceFeedTagsPayload, error) {
+	if err := validateTags(input.Tags); err != nil {
+		return nil, err
+	}
+
+	if err := database.Transaction(ctx, func(c context.Context) error {
+		if _, err := database.FromContext(ctx).Queries().SelectFeed(ctx, input.FeedID); err != nil {
+			return fmt.Errorf("failed to select feed: %w", err)
+		}
+		if err := database.FromContext(ctx).Queries().UpdateFeedTags(ctx, sqlc.UpdateFeedTagsParams{
+			FeedID: input.FeedID,
+			Tags:   input.Tags,
+		}); err != nil {
+			return fmt.Errorf("failed to update feed tags: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("failed in transaction: %w", err)
+	}
+
+	return &gql.ReplaceFeedTagsPayload{
 		FeedID: input.FeedID,
 	}, nil
 }
