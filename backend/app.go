@@ -272,7 +272,7 @@ func main() {
 	// health check
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		
+
 		// Check database connectivity
 		db := database.FromContext(r.Context())
 		if err := db.Ping(r.Context()); err != nil {
@@ -280,7 +280,7 @@ func main() {
 			w.Write([]byte(`{"status":"error","error":"database connection failed"}`))
 			return
 		}
-		
+
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
 	})

@@ -48,7 +48,7 @@ cd backend && go test ./...
 cd backend && goose up
 
 # Format
-cd backend && go tool golang.org/x/tools/cmd/goimports -w ./...
+cd backend && go tool golang.org/x/tools/cmd/goimports -w .
 ```
 
 ### Frontend (React)
