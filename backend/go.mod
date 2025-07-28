@@ -10,7 +10,7 @@ tool (
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.77
+	github.com/99designs/gqlgen v0.17.78
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/auth0/go-jwt-middleware/v2 v2.3.0
 	github.com/go-chi/chi/v5 v5.2.2
