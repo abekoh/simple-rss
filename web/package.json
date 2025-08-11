@@ -34,7 +34,7 @@
     "@graphql-codegen/typescript-operations": "4.6.1",
     "@graphql-codegen/typescript-react-apollo": "4.3.3",
     "@tanstack/router-plugin": "1.131.5",
-    "@types/react": "19.1.9",
+    "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
     "@typescript-eslint/eslint-plugin": "8.39.1",
     "@typescript-eslint/parser": "8.39.1",
