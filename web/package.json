@@ -36,8 +36,8 @@
     "@tanstack/router-plugin": "1.131.4",
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7",
-    "@typescript-eslint/eslint-plugin": "8.39.0",
-    "@typescript-eslint/parser": "8.39.0",
+    "@typescript-eslint/eslint-plugin": "8.39.1",
+    "@typescript-eslint/parser": "8.39.1",
     "@vitejs/plugin-react": "4.7.0",
     "eslint": "9.33.0",
     "eslint-config-prettier": "10.1.8",
@@ -47,7 +47,7 @@
     "eslint-plugin-react-hooks": "5.2.0",
     "prettier": "3.6.2",
     "typescript": "5.9.2",
-    "typescript-eslint": "8.39.0",
+    "typescript-eslint": "8.39.1",
     "vite": "7.1.1",
     "vite-plugin-pwa": "1.0.2"
   }
