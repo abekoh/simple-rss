@@ -23,7 +23,7 @@ require (
 	github.com/pressly/goose/v3 v3.25.0
 	github.com/samber/lo v1.51.0
 	github.com/vektah/gqlparser/v2 v2.5.30
-	google.golang.org/genai v1.21.0
+	google.golang.org/genai v1.22.0
 )
 
 require (
