@@ -13,10 +13,11 @@ import {
   Stack,
   Input,
   Field,
+  Tag,
 } from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { LuTrash, LuPencil } from "react-icons/lu";
+import { LuTrash, LuPencil, LuTags } from "react-icons/lu";
 
 import { PostItem } from "./post-item";
 import { GetPostsQuery } from "../generated/graphql";
@@ -32,14 +33,18 @@ type PostListProps = {
   itemsPerPage?: number;
   showDeleteButton?: boolean;
   showEditButton?: boolean;
+  showTagEditButton?: boolean;
   feedUrl?: string;
+  feedTags?: Array<{ name: string; special: boolean }>;
   onDeleteClick?: () => void;
   onEditClick?: (newTitle: string) => void;
+  onTagsEdit?: (newTags: string[]) => void;
 };
 
 export const PostList = ({
   title,
   feedUrl,
+  feedTags,
   posts,
   totalCount,
   loading,
@@ -49,10 +54,45 @@ export const PostList = ({
   itemsPerPage = 10,
   showDeleteButton = false,
   showEditButton = false,
+  showTagEditButton = false,
   onDeleteClick,
   onEditClick,
+  onTagsEdit,
 }: PostListProps) => {
   const [editTitle, setEditTitle] = useState(title);
+  const [editTags, setEditTags] = useState(feedTags?.map(tag => tag.name).join(", ") || "");
+  const [tagValidationError, setTagValidationError] = useState<string>("");
+
+  // タグバリデーション関数
+  const validateTags = (tagsString: string) => {
+    const tags = tagsString
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+
+    // 重複を除去
+    const uniqueTags = Array.from(new Set(tags));
+
+    for (const tag of uniqueTags) {
+      if (tag.length > 20) {
+        return {
+          isValid: false,
+          error: `タグ '${tag}' は20文字以下にしてください`,
+          tags: [],
+        };
+      }
+      if (!/^[a-zA-Z0-9-]+$/.test(tag)) {
+        return {
+          isValid: false,
+          error: `タグ '${tag}' は英数字とハイフンのみ使用できます`,
+          tags: [],
+        };
+      }
+    }
+
+    return { isValid: true, error: "", tags: uniqueTags };
+  };
+
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   return (
     <Box>
@@ -151,6 +191,93 @@ export const PostList = ({
               {feedUrl}
             </Link>
           </Text>
+        )}
+        {((feedTags && feedTags.length > 0) || showTagEditButton) && (
+          <HStack gap={1} alignItems="center" flexWrap="wrap" mt={1}>
+            {feedTags && feedTags.length > 0 && (
+              <>
+                {feedTags.map((tag, index) => (
+                  <Tag.Root
+                    key={index}
+                    size="sm"
+                    colorScheme="blue"
+                    variant="subtle"
+                  >
+                    <Tag.Label fontStyle={tag.special ? "italic" : "normal"}>{tag.name}</Tag.Label>
+                  </Tag.Root>
+                ))}
+              </>
+            )}
+            {showTagEditButton && (
+              <Dialog.Root lazyMount>
+                <Dialog.Trigger asChild>
+                  <IconButton
+                    aria-label="タグを編集"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setEditTags(feedTags?.map(tag => tag.name).join(", ") || "");
+                    }}
+                  >
+                    <LuTags />
+                  </IconButton>
+                </Dialog.Trigger>
+                <Portal>
+                  <Dialog.Backdrop />
+                  <Dialog.Positioner>
+                    <Dialog.Content>
+                      <Dialog.Header>
+                        <Dialog.Title>タグの編集</Dialog.Title>
+                        <Dialog.CloseTrigger />
+                      </Dialog.Header>
+                      <Dialog.Body>
+                        <Field.Root invalid={!!tagValidationError}>
+                          <Field.Label>タグ (カンマ区切り)</Field.Label>
+                          <Input
+                            value={editTags}
+                            onChange={(e) => {
+                              setEditTags(e.target.value);
+                              setTagValidationError("");
+                            }}
+                            placeholder=""
+                          />
+                          <Field.HelperText>
+                            英数字とハイフンのみ、各タグ最大20文字
+                          </Field.HelperText>
+                          {tagValidationError && (
+                            <Field.ErrorText>
+                              {tagValidationError}
+                            </Field.ErrorText>
+                          )}
+                        </Field.Root>
+                      </Dialog.Body>
+                      <Dialog.Footer>
+                        <Dialog.ActionTrigger asChild>
+                          <Button variant="outline">キャンセル</Button>
+                        </Dialog.ActionTrigger>
+                        <Dialog.ActionTrigger asChild>
+                          <Button
+                            colorScheme="blue"
+                            onClick={() => {
+                              const validation = validateTags(editTags);
+                              if (!validation.isValid) {
+                                setTagValidationError(validation.error);
+                                return;
+                              }
+                              onTagsEdit?.(validation.tags);
+                              setTagValidationError("");
+                            }}
+                          >
+                            更新
+                          </Button>
+                        </Dialog.ActionTrigger>
+                      </Dialog.Footer>
+                    </Dialog.Content>
+                  </Dialog.Positioner>
+                </Portal>
+              </Dialog.Root>
+            )}
+          </HStack>
         )}
       </Stack>
 

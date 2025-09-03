@@ -10,6 +10,10 @@ export const GET_FEEDS = gql`
       description
       registeredAt
       lastFetchedAt
+      tags {
+        name
+        special
+      }
     }
   }
 `;
@@ -39,6 +43,10 @@ export const GET_POSTS = gql`
           title
           url
           registeredAt
+          tags {
+            name
+            special
+          }
         }
         favorite {
           postFavoriteId
@@ -90,6 +98,15 @@ export const REMOVE_POST_FAVORITE = gql`
 export const RENAME_FEED_TITLE = gql`
   mutation RenameFeedTitle($input: RenameFeedTitleInput!) {
     renameFeedTitle(input: $input) {
+      feedId
+    }
+  }
+`;
+
+// フィードのタグを置き換えるミューテーション
+export const REPLACE_FEED_TAGS = gql`
+  mutation ReplaceFeedTags($input: ReplaceFeedTagsInput!) {
+    replaceFeedTags(input: $input) {
       feedId
     }
   }
