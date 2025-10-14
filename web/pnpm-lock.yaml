@@ -68,7 +68,7 @@ importers:
         version: 4.3.3(graphql@16.11.0)
       '@tanstack/router-plugin':
         specifier: 1.131.35
-        version: 1.131.35(@tanstack/react-router@1.131.35(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))
+        version: 1.131.35(@tanstack/react-router@1.131.35(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))
       '@types/react':
         specifier: 19.1.12
         version: 19.1.12
@@ -83,7 +83,7 @@ importers:
         version: 8.42.0(eslint@9.35.0(jiti@2.4.2))(typescript@5.9.3)
       '@vitejs/plugin-react':
         specifier: 4.7.0
-        version: 4.7.0(vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))
+        version: 4.7.0(vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))
       eslint:
         specifier: 9.35.0
         version: 9.35.0(jiti@2.4.2)
@@ -112,11 +112,11 @@ importers:
         specifier: 8.42.0
         version: 8.42.0(eslint@9.35.0(jiti@2.4.2))(typescript@5.9.3)
       vite:
-        specifier: 7.1.4
-        version: 7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
+        specifier: 7.1.10
+        version: 7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
       vite-plugin-pwa:
         specifier: 1.0.3
-        version: 1.0.3(vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0)
+        version: 1.0.3(vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0)
 
 packages:
 
@@ -4147,6 +4147,10 @@ packages:
     resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
     engines: {node: '>=12.0.0'}
 
+  tinyglobby@0.2.15:
+    resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
+    engines: {node: '>=12.0.0'}
+
   title-case@3.0.3:
     resolution: {integrity: sha512-e1zGYRvbffpcHIrnuqT0Dh+gEJtDaxDSoG4JAIpq4oDFyooziLBIiYQv0GBT4FUAnUop5uZ1hiIAj7oAF6sOCA==}
 
@@ -4356,8 +4360,8 @@ packages:
       '@vite-pwa/assets-generator':
         optional: true
 
-  vite@7.1.4:
-    resolution: {integrity: sha512-X5QFK4SGynAeeIt+A7ZWnApdUyHYm+pzv/8/A57LqSGcI88U6R6ipOs3uCesdc6yl7nl+zNO0t8LmqAdXcQihw==}
+  vite@7.1.10:
+    resolution: {integrity: sha512-CmuvUBzVJ/e3HGxhg6cYk88NGgTnBoOo7ogtfJJ0fefUWAxN/WDSUa50o+oVBxuIhO8FoEZW0j2eW7sfjs5EtA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -6485,7 +6489,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.131.35(@tanstack/react-router@1.131.35(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))':
+  '@tanstack/router-plugin@1.131.35(@tanstack/react-router@1.131.35(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.0)
@@ -6503,7 +6507,7 @@ snapshots:
       zod: 3.24.4
     optionalDependencies:
       '@tanstack/react-router': 1.131.35(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      vite: 7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
+      vite: 7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -6692,7 +6696,7 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitejs/plugin-react@4.7.0(vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))':
+  '@vitejs/plugin-react@4.7.0(vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.0)
@@ -6700,7 +6704,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
+      vite: 7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -9878,6 +9882,11 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
 
+  tinyglobby@0.2.15:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+
   title-case@3.0.3:
     dependencies:
       tslib: 2.8.1
@@ -10097,25 +10106,25 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  vite-plugin-pwa@1.0.3(vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0):
+  vite-plugin-pwa@1.0.3(vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0):
     dependencies:
       debug: 4.4.0
       pretty-bytes: 6.1.1
       tinyglobby: 0.2.14
-      vite: 7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
+      vite: 7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1)
       workbox-build: 7.3.0(@types/babel__core@7.20.5)
       workbox-window: 7.3.0
     transitivePeerDependencies:
       - supports-color
 
-  vite@7.1.4(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1):
+  vite@7.1.10(@types/node@22.15.17)(jiti@2.4.2)(terser@5.39.2)(tsx@4.19.4)(yaml@2.7.1):
     dependencies:
       esbuild: 0.25.4
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.46.2
-      tinyglobby: 0.2.14
+      tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 22.15.17
       fsevents: 2.3.3
