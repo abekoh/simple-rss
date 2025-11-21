@@ -16,7 +16,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/cors v1.2.2
 	github.com/google/uuid v1.6.0
-	github.com/graph-gophers/dataloader/v7 v7.1.0
+	github.com/graph-gophers/dataloader/v7 v7.1.2
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mmcdole/gofeed v1.3.0
