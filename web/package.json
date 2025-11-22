@@ -14,7 +14,7 @@
   "dependencies": {
     "@apollo/client": "3.14.0",
     "@auth0/auth0-react": "2.4.0",
-    "@chakra-ui/react": "3.20.0",
+    "@chakra-ui/react": "3.30.0",
     "@emotion/react": "11.14.0",
     "@tanstack/react-router": "1.131.35",
     "@tanstack/react-router-devtools": "1.131.35",
