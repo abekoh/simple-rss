@@ -63,6 +63,7 @@ type ComplexityRoot struct {
 		Idx           func(childComplexity int) int
 		LastFetchedAt func(childComplexity int) int
 		RegisteredAt  func(childComplexity int) int
+		Tags          func(childComplexity int) int
 		Title         func(childComplexity int) int
 		URL           func(childComplexity int) int
 	}
@@ -82,6 +83,7 @@ type ComplexityRoot struct {
 		RegisterFeed       func(childComplexity int, input RegisterFeedInput) int
 		RemovePostFavorite func(childComplexity int, input RemovePostFavoriteInput) int
 		RenameFeedTitle    func(childComplexity int, input RenameFeedTitleInput) int
+		ReplaceFeedTags    func(childComplexity int, input ReplaceFeedTagsInput) int
 	}
 
 	Post struct {
@@ -146,11 +148,21 @@ type ComplexityRoot struct {
 	RenameFeedTitlePayload struct {
 		FeedID func(childComplexity int) int
 	}
+
+	ReplaceFeedTagsPayload struct {
+		FeedID func(childComplexity int) int
+	}
+
+	Tag struct {
+		Name    func(childComplexity int) int
+		Special func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
 	RegisterFeed(ctx context.Context, input RegisterFeedInput) (*RegisterFeedPayload, error)
 	RenameFeedTitle(ctx context.Context, input RenameFeedTitleInput) (*RenameFeedTitlePayload, error)
+	ReplaceFeedTags(ctx context.Context, input ReplaceFeedTagsInput) (*ReplaceFeedTagsPayload, error)
 	DeleteFeed(ctx context.Context, input DeleteFeedInput) (*DeleteFeedPayload, error)
 	RearrangeFeed(ctx context.Context, input RearrangeFeedInput) (*RearrangeFeedPayload, error)
 	AddPostFavorite(ctx context.Context, input AddPostFavoriteInput) (*AddPostFavoritePayload, error)
@@ -240,6 +252,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Feed.RegisteredAt(childComplexity), true
+
+	case "Feed.tags":
+		if e.complexity.Feed.Tags == nil {
+			break
+		}
+
+		return e.complexity.Feed.Tags(childComplexity), true
 
 	case "Feed.title":
 		if e.complexity.Feed.Title == nil {
@@ -361,6 +380,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RenameFeedTitle(childComplexity, args["input"].(RenameFeedTitleInput)), true
+
+	case "Mutation.replaceFeedTags":
+		if e.complexity.Mutation.ReplaceFeedTags == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_replaceFeedTags_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ReplaceFeedTags(childComplexity, args["input"].(ReplaceFeedTagsInput)), true
 
 	case "Post.author":
 		if e.complexity.Post.Author == nil {
@@ -598,6 +629,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.RenameFeedTitlePayload.FeedID(childComplexity), true
 
+	case "ReplaceFeedTagsPayload.feedId":
+		if e.complexity.ReplaceFeedTagsPayload.FeedID == nil {
+			break
+		}
+
+		return e.complexity.ReplaceFeedTagsPayload.FeedID(childComplexity), true
+
+	case "Tag.name":
+		if e.complexity.Tag.Name == nil {
+			break
+		}
+
+		return e.complexity.Tag.Name(childComplexity), true
+
+	case "Tag.special":
+		if e.complexity.Tag.Special == nil {
+			break
+		}
+
+		return e.complexity.Tag.Special(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -614,6 +666,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRegisterFeedInput,
 		ec.unmarshalInputRemovePostFavoriteInput,
 		ec.unmarshalInputRenameFeedTitleInput,
+		ec.unmarshalInputReplaceFeedTagsInput,
 	)
 	first := true
 
@@ -867,6 +920,29 @@ func (ec *executionContext) field_Mutation_renameFeedTitle_argsInput(
 	}
 
 	var zeroVal RenameFeedTitleInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_replaceFeedTags_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_replaceFeedTags_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_replaceFeedTags_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (ReplaceFeedTagsInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNReplaceFeedTagsInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐReplaceFeedTagsInput(ctx, tmp)
+	}
+
+	var zeroVal ReplaceFeedTagsInput
 	return zeroVal, nil
 }
 
@@ -1450,6 +1526,56 @@ func (ec *executionContext) fieldContext_Feed_idx(_ context.Context, field graph
 	return fc, nil
 }
 
+func (ec *executionContext) _Feed_tags(ctx context.Context, field graphql.CollectedField, obj *Feed) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Feed_tags(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tags, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Tag)
+	fc.Result = res
+	return ec.marshalNTag2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐTagᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Feed_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Feed",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Tag_name(ctx, field)
+			case "special":
+				return ec.fieldContext_Tag_special(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Tag", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FeedFetch_feedFetchId(ctx context.Context, field graphql.CollectedField, obj *FeedFetch) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FeedFetch_feedFetchId(ctx, field)
 	if err != nil {
@@ -1779,6 +1905,65 @@ func (ec *executionContext) fieldContext_Mutation_renameFeedTitle(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_renameFeedTitle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_replaceFeedTags(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_replaceFeedTags(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ReplaceFeedTags(rctx, fc.Args["input"].(ReplaceFeedTagsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*ReplaceFeedTagsPayload)
+	fc.Result = res
+	return ec.marshalNReplaceFeedTagsPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐReplaceFeedTagsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_replaceFeedTags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "feedId":
+				return ec.fieldContext_ReplaceFeedTagsPayload_feedId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReplaceFeedTagsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_replaceFeedTags_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2562,6 +2747,8 @@ func (ec *executionContext) fieldContext_Post_feed(_ context.Context, field grap
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
 			case "idx":
 				return ec.fieldContext_Feed_idx(ctx, field)
+			case "tags":
+				return ec.fieldContext_Feed_tags(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
 		},
@@ -3305,6 +3492,8 @@ func (ec *executionContext) fieldContext_Query_feeds(_ context.Context, field gr
 				return ec.fieldContext_Feed_lastFetchedAt(ctx, field)
 			case "idx":
 				return ec.fieldContext_Feed_idx(ctx, field)
+			case "tags":
+				return ec.fieldContext_Feed_tags(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
 		},
@@ -3675,6 +3864,138 @@ func (ec *executionContext) fieldContext_RenameFeedTitlePayload_feedId(_ context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReplaceFeedTagsPayload_feedId(ctx context.Context, field graphql.CollectedField, obj *ReplaceFeedTagsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReplaceFeedTagsPayload_feedId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FeedID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReplaceFeedTagsPayload_feedId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReplaceFeedTagsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Tag_name(ctx context.Context, field graphql.CollectedField, obj *Tag) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tag_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Tag_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Tag",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Tag_special(ctx context.Context, field graphql.CollectedField, obj *Tag) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tag_special(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Special, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Tag_special(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Tag",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5848,7 +6169,7 @@ func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"url"}
+	fieldsInOrder := [...]string{"url", "tags"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5862,6 +6183,13 @@ func (ec *executionContext) unmarshalInputRegisterFeedInput(ctx context.Context,
 				return it, err
 			}
 			it.URL = data
+		case "tags":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tags = data
 		}
 	}
 
@@ -5923,6 +6251,40 @@ func (ec *executionContext) unmarshalInputRenameFeedTitleInput(ctx context.Conte
 				return it, err
 			}
 			it.NewTitle = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputReplaceFeedTagsInput(ctx context.Context, obj any) (ReplaceFeedTagsInput, error) {
+	var it ReplaceFeedTagsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"feedId", "tags"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "feedId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("feedId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FeedID = data
+		case "tags":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tags = data
 		}
 	}
 
@@ -6060,6 +6422,11 @@ func (ec *executionContext) _Feed(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "tags":
+			out.Values[i] = ec._Feed_tags(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6168,6 +6535,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "renameFeedTitle":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_renameFeedTitle(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "replaceFeedTags":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_replaceFeedTags(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6824,6 +7198,89 @@ func (ec *executionContext) _RenameFeedTitlePayload(ctx context.Context, sel ast
 			out.Values[i] = graphql.MarshalString("RenameFeedTitlePayload")
 		case "feedId":
 			out.Values[i] = ec._RenameFeedTitlePayload_feedId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var replaceFeedTagsPayloadImplementors = []string{"ReplaceFeedTagsPayload"}
+
+func (ec *executionContext) _ReplaceFeedTagsPayload(ctx context.Context, sel ast.SelectionSet, obj *ReplaceFeedTagsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, replaceFeedTagsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReplaceFeedTagsPayload")
+		case "feedId":
+			out.Values[i] = ec._ReplaceFeedTagsPayload_feedId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tagImplementors = []string{"Tag"}
+
+func (ec *executionContext) _Tag(ctx context.Context, sel ast.SelectionSet, obj *Tag) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tagImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Tag")
+		case "name":
+			out.Values[i] = ec._Tag_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "special":
+			out.Values[i] = ec._Tag_special(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7548,6 +8005,25 @@ func (ec *executionContext) marshalNRenameFeedTitlePayload2ᚖgithubᚗcomᚋabe
 	return ec._RenameFeedTitlePayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNReplaceFeedTagsInput2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐReplaceFeedTagsInput(ctx context.Context, v any) (ReplaceFeedTagsInput, error) {
+	res, err := ec.unmarshalInputReplaceFeedTagsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNReplaceFeedTagsPayload2githubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐReplaceFeedTagsPayload(ctx context.Context, sel ast.SelectionSet, v ReplaceFeedTagsPayload) graphql.Marshaler {
+	return ec._ReplaceFeedTagsPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNReplaceFeedTagsPayload2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐReplaceFeedTagsPayload(ctx context.Context, sel ast.SelectionSet, v *ReplaceFeedTagsPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ReplaceFeedTagsPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7562,6 +8038,90 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTag2ᚕᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐTagᚄ(ctx context.Context, sel ast.SelectionSet, v []*Tag) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTag2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐTag(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTag2ᚖgithubᚗcomᚋabekohᚋsimpleᚑrssᚋbackendᚋgqlᚐTag(ctx context.Context, sel ast.SelectionSet, v *Tag) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Tag(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
