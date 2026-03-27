@@ -14,6 +14,7 @@ import (
 	"github.com/abekoh/simple-rss/backend/lib/database"
 	"github.com/abekoh/simple-rss/backend/lib/sqlc"
 	"github.com/abekoh/simple-rss/backend/lib/uid"
+	"github.com/abekoh/simple-rss/backend/worker/summarizer/tags"
 	"google.golang.org/genai"
 )
 
@@ -96,7 +97,7 @@ func (s Summarizer) handleRequest(ctx context.Context, req Request) (*Result, er
 
 		var summarized string
 		switch {
-		case slices.Contains(feed.Tags, "hnrss"):
+		case slices.Contains(feed.Tags, tags.HNRSS):
 			sum, err := s.summarize(ctx, post.Url)
 			if err != nil {
 				return fmt.Errorf("failed to summarize: %w", err)
