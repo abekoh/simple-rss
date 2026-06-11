@@ -18,8 +18,8 @@ jobs:
   check-backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v4.3.1
+      - uses: actions/setup-go@v5.6.0
         with:
           go-version: "1.26.4"
           check-latest: true
@@ -36,7 +36,7 @@ jobs:
       - name: Go vet
         working-directory: backend
         run: go vet ./...
-      - uses: dominikh/staticcheck-action@v1
+      - uses: dominikh/staticcheck-action@v1.4.1
         with:
           working-directory: backend
       - name: Test go app
@@ -49,20 +49,20 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4.3.1
+      - uses: google-github-actions/auth@v2.1.13
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
           service_account_email: "simple-rss-deploy@abekoh-simple-rss.iam.gserviceaccount.com"
           create_credentials_file: true
           export_environment_variables: true
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v2.2.1
         with:
           project_id: abekoh-simple-rss
       - name: Auth google artifact registry
         run: gcloud auth configure-docker us-west1-docker.pkg.dev
-      - uses: docker/setup-buildx-action@v3
-      - uses: actions/setup-go@v5
+      - uses: docker/setup-buildx-action@v3.12.0
+      - uses: actions/setup-go@v5.6.0
         with:
           go-version: "1.26.4"
           check-latest: true
@@ -71,7 +71,7 @@ jobs:
       - name: Build go app
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -C ./backend -o ./app .
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6.19.2
         with:
           context: ./backend
           file: ./backend/Dockerfile
