@@ -18,8 +18,8 @@ jobs:
   check-infra:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@v4.3.1
+      - uses: hashicorp/setup-terraform@v3.1.2
       - name: Terraform Format Check
         working-directory: infra
         run: terraform fmt -check -recursive
