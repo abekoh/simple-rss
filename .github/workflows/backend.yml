@@ -56,7 +56,7 @@ jobs:
           service_account_email: "simple-rss-deploy@abekoh-simple-rss.iam.gserviceaccount.com"
           create_credentials_file: true
           export_environment_variables: true
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v3
         with:
           project_id: abekoh-simple-rss
       - name: Auth google artifact registry
