@@ -140,6 +140,7 @@ const RootComponent = () => {
         variables: {
           input: {
             url: newFeedUrl.trim(),
+            tags: [],
           },
         },
       });
