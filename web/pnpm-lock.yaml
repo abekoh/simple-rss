@@ -95,7 +95,7 @@ importers:
         version: 2.32.0(@typescript-eslint/parser@8.57.1(eslint@9.39.4(jiti@2.4.2))(typescript@5.9.3))(eslint@9.39.4(jiti@2.4.2))
       eslint-plugin-prettier:
         specifier: 5.5.6
-        version: 5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.4)
+        version: 5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.5)
       eslint-plugin-react:
         specifier: 7.37.5
         version: 7.37.5(eslint@9.39.4(jiti@2.4.2))
@@ -103,8 +103,8 @@ importers:
         specifier: 5.2.0
         version: 5.2.0(eslint@9.39.4(jiti@2.4.2))
       prettier:
-        specifier: 3.8.4
-        version: 3.8.4
+        specifier: 3.8.5
+        version: 3.8.5
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -286,11 +286,6 @@ packages:
 
   '@babel/parser@7.27.2':
     resolution: {integrity: sha512-QYLs8299NA7WM/bZAdp+CviYYkVoYXlDW2rzliy3chxd1PQjej7JORuMJDJXJUb9g0TT+B99EwaVLKmX+sPXWw==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-
-  '@babel/parser@7.27.7':
-    resolution: {integrity: sha512-qnzXzDXdr/po3bOTbTIQZ7+TxNKxpkN5IifVLXS+r7qwynkZfPyjZfE7hCXbo7IoO9TNcSyibgONsf2HauUd3Q==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -3824,13 +3819,13 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier@3.8.3:
-    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+  prettier@3.8.4:
+    resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
     engines: {node: '>=14'}
     hasBin: true
 
-  prettier@3.8.4:
-    resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
+  prettier@3.8.5:
+    resolution: {integrity: sha512-zxcTTCedNGJM4R8sj/Cq/F0W/c4iE0afWBcBwMTRtw4WHYP9TWkYjdiH3npPRUYsXQCPR0hTU9yjovOu+E6EQA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -5010,10 +5005,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.28.1
 
-  '@babel/parser@7.27.7':
-    dependencies:
-      '@babel/types': 7.28.1
-
   '@babel/parser@7.28.0':
     dependencies:
       '@babel/types': 7.28.1
@@ -5521,7 +5512,7 @@ snapshots:
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
-      '@babel/parser': 7.27.2
+      '@babel/parser': 7.28.0
       '@babel/types': 7.28.1
 
   '@babel/traverse@7.28.0':
@@ -6612,7 +6603,7 @@ snapshots:
       '@tanstack/router-core': 1.131.35
       '@tanstack/router-utils': 1.131.2
       '@tanstack/virtual-file-routes': 1.131.2
-      prettier: 3.8.3
+      prettier: 3.8.4
       recast: 0.23.11
       source-map: 0.7.4
       tsx: 4.19.4
@@ -6659,7 +6650,7 @@ snapshots:
 
   '@types/babel__core@7.20.5':
     dependencies:
-      '@babel/parser': 7.27.7
+      '@babel/parser': 7.28.0
       '@babel/types': 7.28.1
       '@types/babel__generator': 7.27.0
       '@types/babel__template': 7.4.4
@@ -8178,10 +8169,10 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.4):
+  eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.5):
     dependencies:
       eslint: 9.39.4(jiti@2.4.2)
-      prettier: 3.8.4
+      prettier: 3.8.5
       prettier-linter-helpers: 1.0.1
       synckit: 0.11.13
     optionalDependencies:
@@ -9477,9 +9468,9 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier@3.8.3: {}
-
   prettier@3.8.4: {}
+
+  prettier@3.8.5: {}
 
   pretty-bytes@5.6.0: {}
 
