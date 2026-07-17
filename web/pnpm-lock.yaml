@@ -12,8 +12,8 @@ importers:
         specifier: 3.14.1
         version: 3.14.1(@types/react@19.1.12)(graphql-ws@6.0.4(graphql@16.14.2)(ws@8.18.2))(graphql@16.14.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@auth0/auth0-react':
-        specifier: 2.21.0
-        version: 2.21.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: 2.22.0
+        version: 2.22.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@chakra-ui/react':
         specifier: 3.20.0
         version: 3.20.0(@emotion/react@11.14.0(@types/react@19.1.12)(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -168,8 +168,8 @@ packages:
   '@auth0/auth0-auth-js@1.12.0':
     resolution: {integrity: sha512-94r29UxcFEdroO74TUqu5KYy5hSKa6mCXY8lu4hADiyES8qthlSCwaCPEW1adpM5hdheltQ7s1o9TsK8Btyjvg==}
 
-  '@auth0/auth0-react@2.21.0':
-    resolution: {integrity: sha512-8QmHjRl1ZRNx+hVn6WkHjem2bT+ooojqPTkutZmHmWZIXx/nJd9b31Mombt7l1Cyqp3G+3airle0FSOZbBSxRA==}
+  '@auth0/auth0-react@2.22.0':
+    resolution: {integrity: sha512-/TqYPM7R/0sZuIeWHfsaqB+C/Oi/ssx3BMaOAOGZZZw8YBelIK00gCjIxozrmjZGawzz2Jl0VAsYyfS2KwB3Zw==}
     peerDependencies:
       react: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
       react-dom: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
@@ -4955,7 +4955,7 @@ snapshots:
       jose: 6.2.1
       openid-client: 6.8.2
 
-  '@auth0/auth0-react@2.21.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@auth0/auth0-react@2.22.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@auth0/auth0-spa-js': 2.23.0
       react: 19.1.1
