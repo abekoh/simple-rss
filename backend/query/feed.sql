@@ -1,6 +1,6 @@
 -- name: InsertFeed :exec
-INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
-    VALUES (@feed_id, @url, @title_original, @description, @registered_at);
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at, tags)
+    VALUES (@feed_id, @url, @title_original, @description, @registered_at, @tags);
 
 -- name: UpdateFeedLastFetchedAt :exec
 UPDATE
@@ -16,6 +16,15 @@ UPDATE
     feeds
 SET
     title_editted = @title_editted,
+    updated_at = now()
+WHERE
+    feed_id = @feed_id;
+
+-- name: UpdateFeedTags :exec
+UPDATE
+    feeds
+SET
+    tags = @tags,
     updated_at = now()
 WHERE
     feed_id = @feed_id;
