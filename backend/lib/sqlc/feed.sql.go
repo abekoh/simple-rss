@@ -21,8 +21,8 @@ func (q *Queries) DeleteFeed(ctx context.Context, feedID string) error {
 }
 
 const insertFeed = `-- name: InsertFeed :exec
-INSERT INTO feeds(feed_id, url, title_original, description, registered_at)
-    VALUES ($1, $2, $3, $4, $5)
+INSERT INTO feeds(feed_id, url, title_original, description, registered_at, tags)
+    VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 type InsertFeedParams struct {
@@ -31,6 +31,7 @@ type InsertFeedParams struct {
 	TitleOriginal string
 	Description   *string
 	RegisteredAt  time.Time
+	Tags          []string
 }
 
 func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
@@ -40,6 +41,7 @@ func (q *Queries) InsertFeed(ctx context.Context, arg InsertFeedParams) error {
 		arg.TitleOriginal,
 		arg.Description,
 		arg.RegisteredAt,
+		arg.Tags,
 	)
 	return err
 }
@@ -340,6 +342,26 @@ type UpdateFeedLastFetchedAtParams struct {
 
 func (q *Queries) UpdateFeedLastFetchedAt(ctx context.Context, arg UpdateFeedLastFetchedAtParams) error {
 	_, err := q.db.Exec(ctx, updateFeedLastFetchedAt, arg.LastFetchedAt, arg.FeedID)
+	return err
+}
+
+const updateFeedTags = `-- name: UpdateFeedTags :exec
+UPDATE
+    feeds
+SET
+    tags = $1,
+    updated_at = now()
+WHERE
+    feed_id = $2
+`
+
+type UpdateFeedTagsParams struct {
+	Tags   []string
+	FeedID string
+}
+
+func (q *Queries) UpdateFeedTags(ctx context.Context, arg UpdateFeedTagsParams) error {
+	_, err := q.db.Exec(ctx, updateFeedTags, arg.Tags, arg.FeedID)
 	return err
 }
 
